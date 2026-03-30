@@ -5,9 +5,12 @@ import { useApp } from '../../context/AppContext';
 import { formatDateShort, getStatusColor, getStatusLabel, daysUntilExpiry } from '../../utils/helpers';
 import {
   FileText, Briefcase, Users, Clock, Plus, RefreshCw,
-  Calculator, ArrowRight, AlertCircle, CheckCircle2,
-  TrendingUp, Calendar, MapPin, DollarSign, Bell
+  Calculator, ArrowRight, AlertCircle, Upload,
+  TrendingUp, Calendar, Activity
 } from 'lucide-react';
+
+const ACCENT = '#003366';
+const ACCENT_HOVER = '#002244';
 
 export default function EmployerDashboard() {
   const navigate = useNavigate();
@@ -37,107 +40,108 @@ export default function EmployerDashboard() {
   const myPermits = getPermitsByUser(user.id);
   const myJobs = getJobsByEmployer(user.id);
   const myNotifications = getNotificationsByUser(user.id);
+
   const activePermits = myPermits.filter(p => p.status === 'approved');
-  const pendingRenewals = myPermits.filter(p => {
+  const expiringSoon = myPermits.filter(p => {
     if (p.status !== 'approved') return false;
     const days = daysUntilExpiry(p.expiryDate);
     return days !== null && days <= 30 && days > 0;
   });
-  const expiringPermits = myPermits.filter(p => {
-    if (p.status !== 'approved') return false;
-    const days = daysUntilExpiry(p.expiryDate);
-    return days !== null && days <= 30;
-  });
-
-  const totalApplicants = myJobs.reduce((sum, j) => sum + (j.applicants || 0), 0);
-
-  // Get recent applicants for my jobs
+  const openVacancies = myJobs.filter(j => j.status === 'open');
   const myJobIds = myJobs.map(j => j.id);
+  const pendingApplications = applications.filter(
+    a => myJobIds.includes(a.jobId) && (a.status === 'submitted' || a.status === 'under_review')
+  );
   const recentApplicants = applications
     .filter(a => myJobIds.includes(a.jobId))
     .slice(0, 5);
 
   const statCards = [
     {
-      title: 'My Active Permits',
+      title: 'Active Permits',
       value: activePermits.length,
-      subtitle: `${myPermits.length} total permits`,
+      subtitle: `${myPermits.length} total permits on file`,
       icon: FileText,
-      color: 'bg-[#003366]',
       lightColor: 'bg-blue-50',
       textColor: 'text-[#003366]',
     },
     {
-      title: 'My Job Postings',
-      value: myJobs.filter(j => j.status === 'open').length,
-      subtitle: `${myJobs.length} total postings`,
-      icon: Briefcase,
-      color: 'bg-[#006633]',
-      lightColor: 'bg-green-50',
-      textColor: 'text-[#006633]',
+      title: 'Expiring Soon',
+      value: expiringSoon.length,
+      subtitle: expiringSoon.length > 0 ? 'Within 30 days - action needed' : 'No permits expiring soon',
+      icon: Clock,
+      lightColor: expiringSoon.length > 0 ? 'bg-red-50' : 'bg-green-50',
+      textColor: expiringSoon.length > 0 ? 'text-red-600' : 'text-green-600',
     },
     {
-      title: 'Total Applicants',
-      value: totalApplicants,
-      subtitle: `Across ${myJobs.length} job postings`,
+      title: 'Open Vacancies',
+      value: openVacancies.length,
+      subtitle: `${myJobs.length} total postings`,
+      icon: Briefcase,
+      lightColor: 'bg-blue-50',
+      textColor: 'text-[#003366]',
+    },
+    {
+      title: 'Pending Applications',
+      value: pendingApplications.length,
+      subtitle: `Across ${openVacancies.length} open positions`,
       icon: Users,
-      color: 'bg-[#c5a55a]',
       lightColor: 'bg-amber-50',
       textColor: 'text-[#c5a55a]',
     },
-    {
-      title: 'Pending Renewals',
-      value: pendingRenewals.length,
-      subtitle: pendingRenewals.length > 0 ? 'Action needed' : 'All up to date',
-      icon: RefreshCw,
-      color: pendingRenewals.length > 0 ? 'bg-red-500' : 'bg-purple-600',
-      lightColor: pendingRenewals.length > 0 ? 'bg-red-50' : 'bg-purple-50',
-      textColor: pendingRenewals.length > 0 ? 'text-red-500' : 'text-purple-600',
-    },
+  ];
+
+  const quickActions = [
+    { label: 'New Permit Application', icon: Plus, onClick: () => navigate('/permits/apply'), primary: true },
+    { label: 'Renew Permit', icon: RefreshCw, onClick: () => navigate('/permits/apply?type=renewal'), primary: false },
+    { label: 'Post Job Vacancy', icon: Briefcase, onClick: () => navigate('/jobs/post'), primary: false },
+    { label: 'Calculate Fees', icon: Calculator, onClick: () => navigate('/fees'), primary: false },
+    { label: 'Upload Documents', icon: Upload, onClick: () => navigate('/documents'), primary: false },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#003366]">
-            Welcome back, {user?.firstName || 'Employer'}
+
+        {/* Welcome Banner */}
+        <div className="mb-8 bg-gradient-to-r from-[#003366] to-[#004d99] rounded-xl p-6 text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            Welcome back, {user?.organization || user?.firstName || 'Employer'}
           </h1>
-          <p className="text-gray-500 mt-1">
-            Manage your work permits, job postings, and workforce from your employer portal.
+          <p className="text-blue-200 mt-2">
+            Manage your work permits, workforce, and job vacancies from your Business Portal.
           </p>
         </div>
 
-        {/* Renewal Alerts */}
-        {expiringPermits.length > 0 && (
-          <div className="mb-6 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-4">
+        {/* URGENT - Expiring Permits */}
+        {expiringSoon.length > 0 && (
+          <div className="mb-6 bg-red-600 rounded-xl p-5 text-white shadow-lg">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-7 h-7 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h3 className="font-semibold text-red-800">Permit Renewal Alert</h3>
-                <p className="text-sm text-red-700 mt-1">
-                  {expiringPermits.length} permit{expiringPermits.length > 1 ? 's' : ''} expiring within 30 days.
-                  Renew now to avoid disruption.
+                <h3 className="font-bold text-lg">URGENT: Permits Expiring Soon</h3>
+                <p className="text-red-100 text-sm mt-1">
+                  {expiringSoon.length} work permit{expiringSoon.length > 1 ? 's' : ''} will expire within the next 30 days.
+                  Renew immediately to avoid disruption to your workforce.
                 </p>
-                <div className="mt-3 space-y-2">
-                  {expiringPermits.slice(0, 3).map(p => {
+                <div className="mt-4 space-y-2">
+                  {expiringSoon.map(p => {
                     const days = daysUntilExpiry(p.expiryDate);
                     return (
-                      <div key={p.id} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-red-100">
+                      <div key={p.id} className="flex items-center justify-between bg-white/10 backdrop-blur rounded-lg px-4 py-2.5">
                         <div>
-                          <span className="text-sm font-medium text-gray-900">{p.permitNumber}</span>
-                          <span className="text-xs text-gray-500 ml-2">{p.employeeName || 'Employee'}</span>
+                          <span className="text-sm font-semibold">{p.permitNumber}</span>
+                          <span className="text-red-200 text-sm ml-3">{p.employeeName || 'Employee'}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className={`text-xs font-medium ${days <= 7 ? 'text-red-600' : 'text-orange-600'}`}>
-                            {days <= 0 ? 'Expired' : `${days} days left`}
+                          <span className="text-sm font-bold">
+                            {days <= 0 ? 'EXPIRED' : `${days} days left`}
                           </span>
                           <button
                             onClick={() => navigate('/permits/apply?type=renewal')}
-                            className="text-xs bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600"
+                            className="text-sm bg-white text-red-600 px-4 py-1.5 rounded-full font-semibold hover:bg-red-50 transition-colors"
                           >
-                            Renew
+                            Renew Now
                           </button>
                         </div>
                       </div>
@@ -151,7 +155,7 @@ export default function EmployerDashboard() {
 
         {/* Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {statCards.map((card) => (
+          {statCards.map(card => (
             <div key={card.title} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-4">
                 <div className={`${card.lightColor} p-3 rounded-lg`}>
@@ -167,7 +171,8 @@ export default function EmployerDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Active Permits List */}
+
+          {/* Active Permits Table */}
           <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#003366]">Active Permits</h2>
@@ -178,93 +183,107 @@ export default function EmployerDashboard() {
                 View All <ArrowRight className="w-4 h-4" />
               </button>
             </div>
-            <div className="divide-y divide-gray-50">
-              {activePermits.length > 0 ? (
-                activePermits.slice(0, 6).map(permit => {
-                  const days = daysUntilExpiry(permit.expiryDate);
-                  const isExpiring = days !== null && days <= 30;
-                  return (
-                    <div key={permit.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className={`p-2 rounded-lg ${isExpiring ? 'bg-orange-100' : 'bg-green-100'}`}>
-                          <FileText className={`w-5 h-5 ${isExpiring ? 'text-orange-600' : 'text-green-600'}`} />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{permit.permitNumber}</p>
-                          <p className="text-xs text-gray-500">
-                            {permit.employeeName || permit.type?.replace(/-/g, ' ')} - Expires {formatDateShort(permit.expiryDate)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        {days !== null ? (
-                          <span className={`text-sm font-semibold ${days <= 7 ? 'text-red-600' : days <= 30 ? 'text-orange-500' : 'text-green-600'}`}>
-                            {days <= 0 ? 'Expired' : `${days} days`}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-gray-400">N/A</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="px-6 py-12 text-center text-gray-400">
-                  <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                  <p>No active permits</p>
-                  <button
-                    onClick={() => navigate('/permits/apply')}
-                    className="mt-3 text-sm text-[#003366] hover:text-[#c5a55a] font-medium"
-                  >
-                    Apply for a Work Permit
-                  </button>
-                </div>
-              )}
-            </div>
+            {activePermits.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 text-left">
+                      <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Employee</th>
+                      <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Position</th>
+                      <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Permit #</th>
+                      <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Expiry</th>
+                      <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Days Left</th>
+                      <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {activePermits.slice(0, 8).map(permit => {
+                      const days = daysUntilExpiry(permit.expiryDate);
+                      const isExpiring = days !== null && days <= 30;
+                      return (
+                        <tr key={permit.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-3 text-sm font-medium text-gray-900">
+                            {permit.employeeName || 'N/A'}
+                          </td>
+                          <td className="px-6 py-3 text-sm text-gray-600 capitalize">
+                            {permit.position || permit.type?.replace(/-/g, ' ') || 'N/A'}
+                          </td>
+                          <td className="px-6 py-3 text-sm font-medium text-[#003366]">
+                            {permit.permitNumber}
+                          </td>
+                          <td className="px-6 py-3 text-sm text-gray-500">
+                            {formatDateShort(permit.expiryDate)}
+                          </td>
+                          <td className="px-6 py-3">
+                            {days !== null ? (
+                              <span className={`text-sm font-semibold ${
+                                days <= 7 ? 'text-red-600' : days <= 30 ? 'text-orange-500' : 'text-green-600'
+                              }`}>
+                                {days <= 0 ? 'Expired' : `${days} days`}
+                              </span>
+                            ) : (
+                              <span className="text-sm text-gray-400">N/A</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-3">
+                            <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              isExpiring ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'
+                            }`}>
+                              {isExpiring ? 'Expiring' : 'Active'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="px-6 py-12 text-center text-gray-400">
+                <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                <p>No active permits</p>
+                <button
+                  onClick={() => navigate('/permits/apply')}
+                  className="mt-3 text-sm text-[#003366] hover:text-[#c5a55a] font-medium"
+                >
+                  Apply for a Work Permit
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Actions Grid */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100">
             <div className="px-6 py-4 border-b border-gray-100">
               <h2 className="text-lg font-semibold text-[#003366]">Quick Actions</h2>
             </div>
             <div className="p-6 space-y-3">
-              <button
-                onClick={() => navigate('/permits/apply')}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-[#003366] text-white rounded-lg hover:bg-[#002244] transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                <span className="font-medium">Apply for New Permit</span>
-              </button>
-              <button
-                onClick={() => navigate('/jobs/post')}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-[#006633] text-white rounded-lg hover:bg-[#005522] transition-colors"
-              >
-                <Briefcase className="w-5 h-5" />
-                <span className="font-medium">Post a Job</span>
-              </button>
-              <button
-                onClick={() => navigate('/permits/apply?type=renewal')}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-[#c5a55a] text-white rounded-lg hover:bg-[#b3944a] transition-colors"
-              >
-                <RefreshCw className="w-5 h-5" />
-                <span className="font-medium">Renew Permit</span>
-              </button>
-              <button
-                onClick={() => navigate('/fees')}
-                className="w-full flex items-center gap-3 px-4 py-3 border-2 border-[#003366] text-[#003366] rounded-lg hover:bg-[#003366] hover:text-white transition-colors"
-              >
-                <Calculator className="w-5 h-5" />
-                <span className="font-medium">Fee Calculator</span>
-              </button>
+              {quickActions.map((action, idx) => (
+                <button
+                  key={action.label}
+                  onClick={action.onClick}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium ${
+                    action.primary
+                      ? 'bg-[#003366] text-white hover:bg-[#002244]'
+                      : idx % 2 === 0
+                        ? 'bg-blue-50 text-[#003366] hover:bg-blue-100'
+                        : 'border-2 border-[#003366] text-[#003366] hover:bg-[#003366] hover:text-white'
+                  }`}
+                >
+                  <action.icon className="w-5 h-5" />
+                  <span>{action.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Recent Applicants */}
+        {/* Recent Activity Feed */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-[#003366]">Recent Job Applicants</h2>
+            <h2 className="text-lg font-semibold text-[#003366] flex items-center gap-2">
+              <Activity className="w-5 h-5" /> Recent Activity
+            </h2>
             <button
               onClick={() => navigate('/jobs')}
               className="text-sm text-[#003366] hover:text-[#c5a55a] flex items-center gap-1 font-medium"
@@ -272,9 +291,10 @@ export default function EmployerDashboard() {
               View All <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-          {recentApplicants.length > 0 ? (
-            <div className="divide-y divide-gray-50">
-              {recentApplicants.map(app => {
+          <div className="divide-y divide-gray-50">
+            {/* Recent applicants */}
+            {recentApplicants.length > 0 ? (
+              recentApplicants.map(app => {
                 const job = jobs.find(j => j.id === app.jobId);
                 return (
                   <div key={app.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
@@ -294,15 +314,28 @@ export default function EmployerDashboard() {
                     </span>
                   </div>
                 );
-              })}
-            </div>
-          ) : (
-            <div className="px-6 py-12 text-center text-gray-400">
-              <Users className="w-10 h-10 mx-auto mb-3 opacity-40" />
-              <p>No applicants yet</p>
-              <p className="text-xs mt-1">Post a job to start receiving applications</p>
-            </div>
-          )}
+              })
+            ) : (
+              <>
+                {/* Show recent notifications as activity if no applicants */}
+                {myNotifications.length > 0 ? (
+                  myNotifications.slice(0, 5).map(n => (
+                    <div key={n.id} className={`px-6 py-4 flex items-center gap-3 ${n.read ? 'opacity-60' : ''}`}>
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${n.read ? 'bg-gray-300' : 'bg-[#003366]'}`} />
+                      <p className="text-sm text-gray-700 flex-1">{n.message}</p>
+                      <span className="text-xs text-gray-400">{formatDateShort(n.createdAt)}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-6 py-12 text-center text-gray-400">
+                    <Activity className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                    <p>No recent activity</p>
+                    <p className="text-xs mt-1">Post a job or apply for a permit to get started</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

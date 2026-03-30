@@ -1,4 +1,48 @@
+// Legacy ROLES kept for backward compatibility with existing components
 export const ROLES = { ADMIN: 'admin', EMPLOYER: 'employer', EMPLOYEE: 'employee', JOBSEEKER: 'jobseeker' };
+
+// ---------------------------------------------------------------------------
+//  New portal-based role system
+// ---------------------------------------------------------------------------
+
+// Public user roles
+export const USER_ROLES = {
+  BUSINESS: 'business',      // Employers/Companies
+  WORKER: 'worker',          // Employees with work permits
+  JOBSEEKER: 'jobseeker',    // Virgin Islanders/Belongers seeking work
+};
+
+// Department staff roles with permission levels
+export const DEPT_ROLES = {
+  COMMISSIONER: { id: 'commissioner', label: 'Labour Commissioner', level: 100, color: '#7c3aed' },
+  DEPUTY_COMMISSIONER: { id: 'deputy_commissioner', label: 'Deputy Commissioner', level: 90, color: '#6d28d9' },
+  PERMIT_OFFICER: { id: 'permit_officer', label: 'Work Permit Officer', level: 50, color: '#2563eb' },
+  DISPUTE_OFFICER: { id: 'dispute_officer', label: 'Dispute Officer', level: 50, color: '#dc2626' },
+  PLACEMENT_OFFICER: { id: 'placement_officer', label: 'Job Placement Officer', level: 50, color: '#059669' },
+  INSPECTOR: { id: 'inspector', label: 'Labour Inspector', level: 40, color: '#d97706' },
+  CASHIER: { id: 'cashier', label: 'Cashier', level: 30, color: '#0891b2' },
+  FRONT_DESK: { id: 'front_desk', label: 'Front Desk', level: 20, color: '#64748b' },
+};
+
+// Permission matrix - what each dept role can access
+export const DEPT_PERMISSIONS = {
+  commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'settings', 'approvals'],
+  deputy_commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'approvals'],
+  permit_officer: ['permits', 'payments'],
+  dispute_officer: ['disputes'],
+  placement_officer: ['jobs'],
+  inspector: ['inspections', 'reports'],
+  cashier: ['payments'],
+  front_desk: ['appointments', 'lookup'],
+};
+
+// Portal definitions
+export const PORTALS = {
+  BUSINESS: { id: 'business', label: 'Business Portal', path: '/business', color: '#003366', icon: 'Building2', description: 'For employers and companies - manage work permits, post jobs, handle renewals' },
+  WORKER: { id: 'worker', label: 'Worker Portal', path: '/worker', color: '#006633', icon: 'UserCheck', description: 'For work permit holders - track permits, view ID cards, file disputes' },
+  JOBS: { id: 'jobs', label: 'Job Centre', path: '/jobs', color: '#c5a55a', icon: 'Briefcase', description: 'For Virgin Islanders and Belongers - search jobs, apply, access training' },
+  DEPT: { id: 'dept', label: 'Department Console', path: '/dept', color: '#7c3aed', icon: 'Shield', description: 'Department of Labour staff portal - restricted access' },
+};
 
 export const PERMIT_TYPES = {
   NEW: { id: 'new', label: 'New Work Permit', duration: 'Up to 3 years', processing: '30 working days', fee: 'Salary-based' },

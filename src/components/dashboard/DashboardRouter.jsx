@@ -1,11 +1,20 @@
 import { useAuth } from '../../context/AuthContext';
-import AdminDashboard from './AdminDashboard';
 import EmployerDashboard from './EmployerDashboard';
 import EmployeeDashboard from './EmployeeDashboard';
 import JobSeekerDashboard from './JobSeekerDashboard';
+import DeptDashboard from './DeptDashboard';
 
-const dashboards = {
-  admin: AdminDashboard,
+// Portal-based dashboard routing
+const portalDashboards = {
+  business: EmployerDashboard,
+  worker: EmployeeDashboard,
+  jobseeker: JobSeekerDashboard,
+  dept: DeptDashboard,
+};
+
+// Legacy role-based fallback for backward compatibility
+const roleFallbacks = {
+  admin: DeptDashboard,
   employer: EmployerDashboard,
   employee: EmployeeDashboard,
   jobseeker: JobSeekerDashboard,
@@ -35,7 +44,13 @@ export default function DashboardRouter() {
     );
   }
 
-  const Dashboard = dashboards[user.role] || EmployeeDashboard;
+  // Determine which dashboard to show:
+  // 1. Check user.portal first (new portal system)
+  // 2. Fall back to user.role (legacy system)
+  const Dashboard =
+    portalDashboards[user.portal] ||
+    roleFallbacks[user.role] ||
+    EmployeeDashboard;
 
   return <Dashboard />;
 }
