@@ -69,20 +69,97 @@ const defaultDeptUsers = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+//  Default demo accounts for public portals
+// ---------------------------------------------------------------------------
+const defaultPublicUsers = [
+  // Business Portal
+  {
+    id: 'biz-001', email: 'john@tropicresorts.vg', password: 'test123',
+    portal: 'business', role: 'employer',
+    firstName: 'John', lastName: 'Richards',
+    companyName: 'Tropic Resorts Ltd', organization: 'Tropic Resorts Ltd',
+    tradeLicense: 'TL-2024-0451', industry: 'Hospitality & Tourism',
+    island: 'Tortola', phone: '284-555-0101',
+    createdAt: '2024-06-15T10:00:00Z',
+  },
+  {
+    id: 'biz-002', email: 'maria@bvibuilders.vg', password: 'test123',
+    portal: 'business', role: 'employer',
+    firstName: 'Maria', lastName: 'Santiago',
+    companyName: 'BVI Builders Corp', organization: 'BVI Builders Corp',
+    tradeLicense: 'TL-2024-0287', industry: 'Construction & Engineering',
+    island: 'Tortola', phone: '284-555-0102',
+    createdAt: '2024-08-20T10:00:00Z',
+  },
+  {
+    id: 'biz-003', email: 'peter@islandtech.vg', password: 'test123',
+    portal: 'business', role: 'employer',
+    firstName: 'Peter', lastName: 'Thompson',
+    companyName: 'Island Tech Solutions', organization: 'Island Tech Solutions',
+    tradeLicense: 'TL-2025-0033', industry: 'Information Technology',
+    island: 'Virgin Gorda', phone: '284-555-0103',
+    createdAt: '2025-01-10T10:00:00Z',
+  },
+  // Worker Portal
+  {
+    id: 'wrk-001', email: 'carlos.garcia@email.com', password: 'test123',
+    portal: 'worker', role: 'employee',
+    firstName: 'Carlos', lastName: 'Garcia',
+    nationality: 'Dominican Republic', currentEmployer: 'Tropic Resorts Ltd',
+    permitNumber: 'WP-2024-1001', phone: '284-555-0201',
+    createdAt: '2024-07-01T10:00:00Z',
+  },
+  {
+    id: 'wrk-002', email: 'anika.james@email.com', password: 'test123',
+    portal: 'worker', role: 'employee',
+    firstName: 'Anika', lastName: 'James',
+    nationality: 'Jamaica', currentEmployer: 'BVI Builders Corp',
+    permitNumber: 'WP-2024-1002', phone: '284-555-0202',
+    createdAt: '2024-09-15T10:00:00Z',
+  },
+  {
+    id: 'wrk-003', email: 'raj.patel@email.com', password: 'test123',
+    portal: 'worker', role: 'employee',
+    firstName: 'Raj', lastName: 'Patel',
+    nationality: 'India', currentEmployer: 'Island Tech Solutions',
+    permitNumber: 'WP-2025-1003', phone: '284-555-0203',
+    createdAt: '2025-02-01T10:00:00Z',
+  },
+  // Job Centre
+  {
+    id: 'js-001', email: 'tamara.penn@email.vg', password: 'test123',
+    portal: 'jobseeker', role: 'jobseeker',
+    firstName: 'Tamara', lastName: 'Penn',
+    belongerStatus: 'Virgin Islander', skills: 'Customer service, Microsoft Office, Event planning',
+    educationLevel: 'Associate Degree', phone: '284-555-0301',
+    createdAt: '2025-01-20T10:00:00Z',
+  },
+  {
+    id: 'js-002', email: 'david.frett@email.vg', password: 'test123',
+    portal: 'jobseeker', role: 'jobseeker',
+    firstName: 'David', lastName: 'Frett',
+    belongerStatus: 'Belonger', skills: 'Carpentry, Electrical, Plumbing',
+    educationLevel: 'High School Diploma', phone: '284-555-0302',
+    createdAt: '2025-02-05T10:00:00Z',
+  },
+];
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Seed default department accounts on first load
+  // Seed all default accounts on first load
   useEffect(() => {
+    const allDefaults = [...defaultDeptUsers, ...defaultPublicUsers];
     const users = getStorage(USERS_KEY);
     if (!users || users.length === 0) {
-      setStorage(USERS_KEY, defaultDeptUsers);
+      setStorage(USERS_KEY, allDefaults);
     } else {
-      // Ensure all default dept accounts exist (idempotent merge)
+      // Ensure all default accounts exist (idempotent merge)
       let changed = false;
       const existing = [...users];
-      for (const def of defaultDeptUsers) {
+      for (const def of allDefaults) {
         if (!existing.find(u => u.id === def.id)) {
           existing.push(def);
           changed = true;

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getStorage, setStorage, generateId, generatePermitNumber } from '../utils/helpers';
+import { seedAll } from '../data/seedData';
 
 const AppContext = createContext(null);
 
@@ -7,6 +8,8 @@ const KEYS = {
   permits: 'bvi_permits', disputes: 'bvi_disputes', jobs: 'bvi_jobs',
   applications: 'bvi_applications', documents: 'bvi_documents', notifications: 'bvi_notifications',
 };
+
+const SEED_FLAG = 'bvi_data_seeded';
 
 export function AppProvider({ children }) {
   const [permits, setPermits] = useState([]);
@@ -17,6 +20,10 @@ export function AppProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
+    // Auto-seed mock data on first visit so dashboards aren't empty
+    if (!getStorage(SEED_FLAG)) {
+      try { seedAll(); setStorage(SEED_FLAG, true); } catch (e) { /* ignore */ }
+    }
     setPermits(getStorage(KEYS.permits) || []);
     setDisputes(getStorage(KEYS.disputes) || []);
     setJobs(getStorage(KEYS.jobs) || []);
