@@ -54,7 +54,7 @@ const portalConfig = {
     stepperComplete: 'bg-[#003366] text-white',
     steps: ['Personal Info', 'Employment Details', 'Create Password'],
   },
-  jobs: {
+  jobseeker: {
     color: '#c5a55a',
     label: 'Job Centre',
     title: 'Job Seeker Registration',
@@ -212,7 +212,7 @@ export default function PortalRegister({ portal = 'business' }) {
           currentEmployer: form.currentEmployer.trim(),
           permitNumber: form.permitNumber.trim(),
         };
-      } else if (portal === 'jobs') {
+      } else if (portal === 'jobseeker') {
         userData = {
           ...userData,
           role: 'jobseeker',

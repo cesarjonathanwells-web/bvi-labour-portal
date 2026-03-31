@@ -36,7 +36,7 @@ const portalConfig = {
     logoBg: 'bg-white/20',
     logoFg: 'text-white',
   },
-  jobs: {
+  jobseeker: {
     color: '#c5a55a',
     hoverColor: '#b89a4a',
     label: 'Job Centre',

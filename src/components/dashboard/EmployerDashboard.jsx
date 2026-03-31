@@ -92,11 +92,11 @@ export default function EmployerDashboard() {
   ];
 
   const quickActions = [
-    { label: 'New Permit Application', icon: Plus, onClick: () => navigate('/permits/apply'), primary: true },
-    { label: 'Renew Permit', icon: RefreshCw, onClick: () => navigate('/permits/apply?type=renewal'), primary: false },
-    { label: 'Post Job Vacancy', icon: Briefcase, onClick: () => navigate('/jobs/post'), primary: false },
-    { label: 'Calculate Fees', icon: Calculator, onClick: () => navigate('/fees'), primary: false },
-    { label: 'Upload Documents', icon: Upload, onClick: () => navigate('/documents'), primary: false },
+    { label: 'New Permit Application', icon: Plus, onClick: () => navigate('/business/permits/new'), primary: true },
+    { label: 'Renew Permit', icon: RefreshCw, onClick: () => navigate('/business/permits/renewals'), primary: false },
+    { label: 'Post Job Vacancy', icon: Briefcase, onClick: () => navigate('/business/jobs'), primary: false },
+    { label: 'Calculate Fees', icon: Calculator, onClick: () => navigate('/business/fees'), primary: false },
+    { label: 'Upload Documents', icon: Upload, onClick: () => navigate('/business/documents'), primary: false },
   ];
 
   return (
@@ -138,7 +138,7 @@ export default function EmployerDashboard() {
                             {days <= 0 ? 'EXPIRED' : `${days} days left`}
                           </span>
                           <button
-                            onClick={() => navigate('/permits/apply?type=renewal')}
+                            onClick={() => navigate('/business/permits/renewals')}
                             className="text-sm bg-white text-red-600 px-4 py-1.5 rounded-full font-semibold hover:bg-red-50 transition-colors"
                           >
                             Renew Now
@@ -177,7 +177,7 @@ export default function EmployerDashboard() {
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#003366]">Active Permits</h2>
               <button
-                onClick={() => navigate('/permits')}
+                onClick={() => navigate('/business/permits')}
                 className="text-sm text-[#003366] hover:text-[#c5a55a] flex items-center gap-1 font-medium"
               >
                 View All <ArrowRight className="w-4 h-4" />
@@ -243,7 +243,7 @@ export default function EmployerDashboard() {
                 <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
                 <p>No active permits</p>
                 <button
-                  onClick={() => navigate('/permits/apply')}
+                  onClick={() => navigate('/business/permits/new')}
                   className="mt-3 text-sm text-[#003366] hover:text-[#c5a55a] font-medium"
                 >
                   Apply for a Work Permit
@@ -285,7 +285,7 @@ export default function EmployerDashboard() {
               <Activity className="w-5 h-5" /> Recent Activity
             </h2>
             <button
-              onClick={() => navigate('/jobs')}
+              onClick={() => navigate('/business/jobs')}
               className="text-sm text-[#003366] hover:text-[#c5a55a] flex items-center gap-1 font-medium"
             >
               View All <ArrowRight className="w-4 h-4" />

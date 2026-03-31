@@ -33,8 +33,9 @@ export default function JobsLayout() {
 
   // Redirect if user doesn't belong to this portal
   useEffect(() => {
-    if (user && user.portal && user.portal !== 'jobs') {
-      navigate(`/${user.portal}/dashboard`, { replace: true });
+    if (user && user.portal && user.portal !== 'jobseeker') {
+      const path = user.portal === 'jobseeker' ? '/jobs' : `/${user.portal}`;
+      navigate(`${path}/dashboard`, { replace: true });
     }
   }, [user, navigate]);
 

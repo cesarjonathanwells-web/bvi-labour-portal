@@ -128,7 +128,7 @@ export default function JobSeekerDashboard() {
                   </div>
                 </div>
                 <button
-                  onClick={() => navigate('/profile')}
+                  onClick={() => navigate('/jobs/profile')}
                   className="bg-gray-900 text-[#c5a55a] px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-gray-800 transition-colors whitespace-nowrap"
                 >
                   Complete Profile
@@ -164,7 +164,7 @@ export default function JobSeekerDashboard() {
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Latest Job Listings</h2>
               <button
-                onClick={() => navigate('/jobs')}
+                onClick={() => navigate('/jobs/search')}
                 className="text-sm text-[#c5a55a] hover:text-[#b3944a] flex items-center gap-1 font-medium"
               >
                 View All <ArrowRight className="w-4 h-4" />
@@ -228,28 +228,28 @@ export default function JobSeekerDashboard() {
               </div>
               <div className="p-6 space-y-3">
                 <button
-                  onClick={() => navigate('/jobs')}
+                  onClick={() => navigate('/jobs/search')}
                   className="w-full flex items-center gap-3 px-4 py-3 bg-[#c5a55a] text-gray-900 rounded-lg hover:bg-[#b3944a] transition-colors font-semibold"
                 >
                   <Search className="w-5 h-5" />
                   <span>Search Jobs</span>
                 </button>
                 <button
-                  onClick={() => navigate('/documents')}
+                  onClick={() => navigate('/jobs/resume')}
                   className="w-full flex items-center gap-3 px-4 py-3 bg-gray-900 text-[#c5a55a] rounded-lg hover:bg-gray-800 transition-colors font-medium"
                 >
                   <Upload className="w-5 h-5" />
                   <span>Upload Resume</span>
                 </button>
                 <button
-                  onClick={() => navigate('/training')}
+                  onClick={() => navigate('/jobs/training')}
                   className="w-full flex items-center gap-3 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
                 >
                   <BookOpen className="w-5 h-5" />
                   <span>View Training</span>
                 </button>
                 <button
-                  onClick={() => navigate('/profile')}
+                  onClick={() => navigate('/jobs/profile')}
                   className="w-full flex items-center gap-3 px-4 py-3 border-2 border-[#c5a55a] text-[#c5a55a] rounded-lg hover:bg-[#c5a55a] hover:text-gray-900 transition-colors font-medium"
                 >
                   <User className="w-5 h-5" />
@@ -309,7 +309,7 @@ export default function JobSeekerDashboard() {
                   <FileText className="w-10 h-10 mx-auto mb-2 opacity-40" />
                   <p>No applications yet</p>
                   <button
-                    onClick={() => navigate('/jobs')}
+                    onClick={() => navigate('/jobs/search')}
                     className="mt-3 text-sm text-[#c5a55a] hover:text-[#b3944a] font-medium"
                   >
                     Browse available jobs
