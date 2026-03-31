@@ -297,7 +297,7 @@ export default function PortalRegister({ portal = 'business' }) {
       <h2 className="text-lg font-bold text-gray-800 mb-1">Personal Information</h2>
       <p className="text-sm text-gray-500 mb-6">Tell us about yourself.</p>
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="label-field">First Name *</label>
             <input className="input-field" value={form.firstName} onChange={update('firstName')} placeholder="John" />
@@ -348,7 +348,7 @@ export default function PortalRegister({ portal = 'business' }) {
       <h2 className="text-lg font-bold text-gray-800 mb-1">Personal Information</h2>
       <p className="text-sm text-gray-500 mb-6">Tell us about yourself.</p>
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="label-field">First Name *</label>
             <input className="input-field" value={form.firstName} onChange={update('firstName')} placeholder="John" />

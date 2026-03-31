@@ -60,9 +60,11 @@ function BarcodePlaceholder({ width = 180, height = 30 }) {
 
 /* ------------------------------------------------------------------ */
 /*  Card side constants: 85.6mm x 54mm  ->  scaled to ~428 x 270 px  */
+/*  Uses max-width so it scales down on mobile                        */
 /* ------------------------------------------------------------------ */
 const CARD_W = 428;
 const CARD_H = 270;
+const CARD_STYLE = { width: '100%', maxWidth: CARD_W, aspectRatio: `${CARD_W}/${CARD_H}` };
 
 export default function WorkPermitCard({ permit, onFlip, showBack = false }) {
   const frontRef = useRef(null);
@@ -162,7 +164,7 @@ export default function WorkPermitCard({ permit, onFlip, showBack = false }) {
   const Front = (
     <div
       ref={frontRef}
-      style={{ width: CARD_W, height: CARD_H }}
+      style={CARD_STYLE}
       className="relative bg-white rounded-xl overflow-hidden select-none flex-shrink-0"
     >
       {/* Decorative border */}
@@ -259,7 +261,7 @@ export default function WorkPermitCard({ permit, onFlip, showBack = false }) {
   const Back = (
     <div
       ref={backRef}
-      style={{ width: CARD_W, height: CARD_H }}
+      style={CARD_STYLE}
       className="relative bg-white rounded-xl overflow-hidden select-none flex-shrink-0"
     >
       {/* Decorative border */}

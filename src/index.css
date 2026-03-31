@@ -5,66 +5,165 @@
     --bvi-blue: #003366;
     --bvi-gold: #c5a55a;
     --bvi-green: #006633;
+    --bvi-purple: #7c3aed;
     --bvi-light: #f0f4f8;
+    color-scheme: light;
   }
-  body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bvi-light);
+    color: #1f2937;
+    line-height: 1.5;
+  }
+
   #root { min-height: 100vh; }
+
+  /* Prevent body scroll when mobile sidebar is open */
+  body.sidebar-open { overflow: hidden; }
+
+  /* Focus-visible for accessibility (WCAG 2.1 AA) */
+  :focus-visible {
+    outline: 2px solid var(--bvi-blue);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Remove outline for mouse users */
+  :focus:not(:focus-visible) { outline: none; }
+
+  /* Smooth scrolling */
+  html { scroll-behavior: smooth; }
+
+  /* Better image defaults */
+  img, svg { display: block; max-width: 100%; }
 }
 
 @layer components {
+  /* ── BUTTONS ─────────────────────────────────────────────────── */
   .btn-primary {
-    @apply bg-[#003366] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2;
+    @apply bg-[#003366] text-white px-6 py-2.5 rounded-lg font-medium
+           hover:bg-blue-800 active:bg-blue-900
+           transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+           inline-flex items-center justify-center gap-2 text-sm cursor-pointer;
   }
   .btn-secondary {
-    @apply bg-[#c5a55a] text-[#003366] px-6 py-2.5 rounded-lg font-medium hover:bg-yellow-600 transition-colors inline-flex items-center gap-2;
+    @apply bg-[#c5a55a] text-[#003366] px-6 py-2.5 rounded-lg font-medium
+           hover:bg-yellow-600 active:bg-yellow-700
+           transition-colors inline-flex items-center justify-center gap-2 text-sm cursor-pointer;
   }
   .btn-success {
-    @apply bg-[#006633] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-green-700 transition-colors inline-flex items-center gap-2;
+    @apply bg-[#006633] text-white px-6 py-2.5 rounded-lg font-medium
+           hover:bg-green-700 active:bg-green-800
+           transition-colors inline-flex items-center justify-center gap-2 text-sm cursor-pointer;
   }
   .btn-outline {
-    @apply border-2 border-[#003366] text-[#003366] px-6 py-2.5 rounded-lg font-medium hover:bg-[#003366] hover:text-white transition-colors inline-flex items-center gap-2;
+    @apply border-2 border-[#003366] text-[#003366] px-6 py-2.5 rounded-lg font-medium
+           hover:bg-[#003366] hover:text-white active:bg-blue-900
+           transition-colors inline-flex items-center justify-center gap-2 text-sm cursor-pointer;
   }
   .btn-danger {
-    @apply bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-red-700 transition-colors inline-flex items-center gap-2;
+    @apply bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium
+           hover:bg-red-700 active:bg-red-800
+           transition-colors inline-flex items-center justify-center gap-2 text-sm cursor-pointer;
   }
+
+  /* ── FORM INPUTS ─────────────────────────────────────────────── */
   .input-field {
-    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white;
+    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg
+           focus:ring-2 focus:ring-blue-500 focus:border-transparent
+           outline-none transition-all bg-white text-sm;
   }
   .label-field {
     @apply block text-sm font-semibold text-gray-700 mb-1;
   }
+  .select-field {
+    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg
+           focus:ring-2 focus:ring-blue-500 focus:border-transparent
+           outline-none transition-all bg-white text-sm;
+  }
+
+  /* ── CARDS ───────────────────────────────────────────────────── */
   .card {
-    @apply bg-white rounded-xl shadow-md border border-gray-100 p-6;
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
   }
   .card-hover {
-    @apply bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg hover:border-[#c5a55a] transition-all cursor-pointer;
-  }
-  .badge-pending { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800; }
-  .badge-approved { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800; }
-  .badge-rejected { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800; }
-  .badge-processing { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800; }
-  .page-title {
-    @apply text-3xl font-bold text-[#003366] mb-6;
-  }
-  .section-title {
-    @apply text-xl font-semibold text-gray-800 mb-4;
-  }
-  .sidebar-link {
-    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-[#003366] transition-colors text-sm;
-  }
-  .sidebar-link-active {
-    @apply flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-[#003366] font-semibold text-sm;
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6
+           hover:shadow-md hover:border-[#c5a55a] transition-all cursor-pointer;
   }
   .stat-card {
-    @apply bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col items-center text-center;
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6
+           flex flex-col items-center text-center;
   }
+
+  /* ── BADGES ──────────────────────────────────────────────────── */
+  .badge-pending   { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800; }
+  .badge-approved  { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800; }
+  .badge-rejected  { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800; }
+  .badge-processing { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800; }
+
+  /* ── TYPOGRAPHY ──────────────────────────────────────────────── */
+  .page-title {
+    @apply text-2xl sm:text-3xl font-bold text-[#003366] mb-6;
+  }
+  .section-title {
+    @apply text-lg sm:text-xl font-semibold text-gray-800 mb-4;
+  }
+
+  /* ── SIDEBAR NAV ─────────────────────────────────────────────── */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600
+           hover:bg-gray-100 hover:text-gray-900 transition-colors text-sm;
+  }
+  .sidebar-link-active {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg font-semibold text-sm;
+  }
+  /* Portal-specific active states */
+  .sidebar-link-active-blue {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg font-semibold text-sm bg-blue-50 text-[#003366];
+  }
+  .sidebar-link-active-green {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg font-semibold text-sm bg-green-50 text-[#006633];
+  }
+  .sidebar-link-active-gold {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg font-semibold text-sm bg-amber-50 text-amber-900;
+  }
+  .sidebar-link-active-purple {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg font-semibold text-sm bg-purple-50 text-[#7c3aed];
+  }
+
+  /* ── STEPPERS ────────────────────────────────────────────────── */
   .stepper-active {
-    @apply w-10 h-10 rounded-full bg-[#003366] text-white flex items-center justify-center font-bold text-sm;
+    @apply w-9 h-9 sm:w-10 sm:h-10 rounded-full text-white
+           flex items-center justify-center font-bold text-sm;
   }
   .stepper-complete {
-    @apply w-10 h-10 rounded-full bg-[#006633] text-white flex items-center justify-center font-bold text-sm;
+    @apply w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#006633] text-white
+           flex items-center justify-center font-bold text-sm;
   }
   .stepper-inactive {
-    @apply w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-sm;
+    @apply w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-200 text-gray-500
+           flex items-center justify-center font-bold text-sm;
+  }
+
+  /* ── TABLES ──────────────────────────────────────────────────── */
+  .table-wrap {
+    @apply overflow-x-auto -mx-6 px-6;
+  }
+  .table-wrap table {
+    @apply w-full min-w-[600px];
+  }
+
+  /* ── UTILITIES ───────────────────────────────────────────────── */
+  .text-truncate {
+    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+  .scroll-stable {
+    scrollbar-gutter: stable;
   }
 }
