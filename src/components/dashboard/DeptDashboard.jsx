@@ -129,10 +129,10 @@ function CommissionerDashboard({ permits, disputes, jobs, applications, allUsers
       {/* Quick Actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Review Permits', icon: ClipboardCheck, path: '/permits', badge: pendingApps.length },
-          { label: 'Manage Disputes', icon: AlertTriangle, path: '/disputes', badge: openDisputes.length },
-          { label: 'View Reports', icon: BarChart3, path: '/admin/reports' },
-          { label: 'Manage Users', icon: Users, path: '/admin/users' },
+          { label: 'Review Permits', icon: ClipboardCheck, path: '/dept/permits', badge: pendingApps.length },
+          { label: 'Manage Disputes', icon: AlertTriangle, path: '/dept/disputes', badge: openDisputes.length },
+          { label: 'View Reports', icon: BarChart3, path: '/dept/reports' },
+          { label: 'Manage Users', icon: Users, path: '/dept/users' },
         ].map(action => (
           <button
             key={action.label}
@@ -188,7 +188,7 @@ function PermitOfficerDashboard({ permits, navigate }) {
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-purple-900">My Permit Queue</h2>
           <button
-            onClick={() => navigate('/permits')}
+            onClick={() => navigate('/dept/permits')}
             className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium"
           >
             View All <ArrowRight className="w-4 h-4" />
@@ -221,7 +221,7 @@ function PermitOfficerDashboard({ permits, navigate }) {
                     </td>
                     <td className="px-6 py-3">
                       <button
-                        onClick={() => navigate(`/permits/${permit.id}`)}
+                        onClick={() => navigate(`/dept/permits/${permit.id}`)}
                         className="text-xs bg-purple-100 text-purple-700 px-3 py-1.5 rounded-lg hover:bg-purple-200 font-medium transition-colors"
                       >
                         Review
@@ -283,7 +283,7 @@ function DisputeOfficerDashboard({ disputes, navigate }) {
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-purple-900">My Cases</h2>
           <button
-            onClick={() => navigate('/disputes')}
+            onClick={() => navigate('/dept/disputes')}
             className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium"
           >
             View All <ArrowRight className="w-4 h-4" />
@@ -313,7 +313,7 @@ function DisputeOfficerDashboard({ disputes, navigate }) {
                     {getStatusLabel(dispute.status)}
                   </span>
                   <button
-                    onClick={() => navigate(`/disputes/${dispute.id}`)}
+                    onClick={() => navigate(`/dept/disputes/${dispute.id}`)}
                     className="p-2 text-purple-700 hover:bg-purple-50 rounded-lg"
                   >
                     <Eye className="w-4 h-4" />
@@ -397,7 +397,7 @@ function PlacementOfficerDashboard({ jobs, applications, allUsers, navigate }) {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-purple-900">Recent Vacancies</h2>
-            <button onClick={() => navigate('/jobs')} className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium">
+            <button onClick={() => navigate('/dept/jobs')} className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium">
               View All <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -409,7 +409,7 @@ function PlacementOfficerDashboard({ jobs, applications, allUsers, navigate }) {
                     <p className="text-sm font-medium text-gray-900">{job.title}</p>
                     <p className="text-xs text-gray-500">{job.company || job.employerName || 'Employer'} - {job.applicants || 0} applicants</p>
                   </div>
-                  <button onClick={() => navigate(`/jobs/${job.id}`)} className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-lg hover:bg-purple-200 font-medium">
+                  <button onClick={() => navigate(`/dept/jobs/${job.id}`)} className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-lg hover:bg-purple-200 font-medium">
                     View
                   </button>
                 </div>
@@ -617,7 +617,7 @@ function FrontDeskDashboard({ permits, navigate }) {
                     <p className="text-xs text-gray-500">{p.employeeName || 'N/A'} - {getStatusLabel(p.status)}</p>
                   </div>
                   <button
-                    onClick={() => navigate(`/permits/${p.id}`)}
+                    onClick={() => navigate(`/dept/permits/${p.id}`)}
                     className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-lg hover:bg-purple-200 font-medium"
                   >
                     View

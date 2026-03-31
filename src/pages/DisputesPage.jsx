@@ -15,7 +15,7 @@ const TABS = {
 
 export default function DisputesPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState(TABS.FILE);
+  const [activeTab, setActiveTab] = useState(user?.portal === 'worker' ? TABS.TRACK : TABS.FILE);
 
   const isAdmin = user?.role === 'admin';
 

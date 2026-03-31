@@ -60,6 +60,13 @@ const defaultDeptUsers = [
     organization: 'Department of Labour and Workforce Development',
     createdAt: new Date().toISOString(),
   },
+  {
+    id: 'dept-placement-001', email: 'placement@labour.gov.vg', password: 'admin123',
+    portal: 'dept', deptRole: 'placement_officer', role: 'admin',
+    firstName: 'Placement', lastName: 'Officer',
+    organization: 'Department of Labour and Workforce Development',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 export function AuthProvider({ children }) {

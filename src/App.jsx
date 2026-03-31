@@ -169,6 +169,8 @@ function AppRoutes() {
         <Route path="/business/jobs/*" element={<JobsPage />} />
         <Route path="/business/documents" element={<DocumentsPage />} />
         <Route path="/business/fees/*" element={<FeesPage />} />
+        <Route path="/business/payments" element={<FeesPage />} />
+        <Route path="/business/settings" element={<Settings />} />
         <Route path="/business/profile" element={<ProfilePage />} />
       </Route>
 
@@ -183,6 +185,7 @@ function AppRoutes() {
       <Route element={<RequirePortalAuth portal="worker" />}>
         <Route path="/worker/dashboard" element={<DashboardRouter />} />
         <Route path="/worker/permit" element={<IDCardPage />} />
+        <Route path="/worker/id-card" element={<IDCardPage />} />
         <Route path="/worker/disputes/*" element={<DisputesPage />} />
         <Route path="/worker/documents" element={<DocumentsPage />} />
         <Route path="/worker/jobs" element={<JobsPage />} />
@@ -232,6 +235,12 @@ function AppRoutes() {
         {/* Job placement - requires jobs permission */}
         <Route element={<RequireDeptPermission permission="jobs" />}>
           <Route path="/dept/jobs/*" element={<JobsPage />} />
+          <Route path="/dept/placements/*" element={<JobsPage />} />
+        </Route>
+
+        {/* Permit Lookup - requires lookup permission (front desk) */}
+        <Route element={<RequireDeptPermission permission="lookup" />}>
+          <Route path="/dept/lookup" element={<PermitsPage />} />
         </Route>
 
         {/* Inspections - requires inspections permission */}

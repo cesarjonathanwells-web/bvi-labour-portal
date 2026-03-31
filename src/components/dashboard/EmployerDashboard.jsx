@@ -106,7 +106,7 @@ export default function EmployerDashboard() {
         {/* Welcome Banner */}
         <div className="mb-8 bg-gradient-to-r from-[#003366] to-[#004d99] rounded-xl p-6 text-white">
           <h1 className="text-2xl sm:text-3xl font-bold">
-            Welcome back, {user?.organization || user?.firstName || 'Employer'}
+            Welcome back, {user?.companyName || user?.organization || user?.firstName || 'Employer'}
           </h1>
           <p className="text-blue-200 mt-2">
             Manage your work permits, workforce, and job vacancies from your Business Portal.

@@ -35,7 +35,6 @@ const roleNavConfigs = {
     { label: 'Appointments', to: '/dept/appointments', icon: Calendar },
     { label: 'Users', to: '/dept/users', icon: Users },
     { label: 'Reports', to: '/dept/reports', icon: BarChart3 },
-    { label: 'Settings', to: '/dept/settings', icon: Settings },
   ],
   permit_officer: [
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
@@ -70,7 +69,7 @@ const roleNavConfigs = {
   front_desk: [
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
     { label: 'Appointments', to: '/dept/appointments', icon: Calendar },
-    { label: 'Permit Lookup', to: '/dept/permits/lookup', icon: Search },
+    { label: 'Permit Lookup', to: '/dept/lookup', icon: Search },
     { label: 'Visitor Log', to: '/dept/visitors', icon: BookOpen },
   ],
 };
