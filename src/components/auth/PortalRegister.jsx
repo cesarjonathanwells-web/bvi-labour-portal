@@ -122,10 +122,10 @@ export default function PortalRegister({ portal = 'business' }) {
         if (!form.contactPerson.trim()) return 'Contact person name is required.';
       }
       if (step === 1) {
-        if (!form.email.trim()) return 'Email is required.';
-        if (!validateEmail(form.email)) return 'Please enter a valid email.';
+        if (!form.email.trim()) return 'Email address is required.';
+        if (!validateEmail(form.email)) return 'Please enter a valid email address (e.g. name@company.com).';
         if (!form.phone.trim()) return 'Phone number is required.';
-        if (!validatePhone(form.phone)) return 'Please enter a valid phone number.';
+        if (!validatePhone(form.phone)) return 'Please enter a valid BVI phone number (e.g. 1(284) 000-0000).';
         if (!form.island) return 'Please select your island.';
       }
     }
@@ -134,23 +134,23 @@ export default function PortalRegister({ portal = 'business' }) {
         if (!form.firstName.trim()) return 'First name is required.';
         if (!form.lastName.trim()) return 'Last name is required.';
         if (!form.nationality) return 'Please select your nationality.';
-        if (!form.email.trim()) return 'Email is required.';
-        if (!validateEmail(form.email)) return 'Please enter a valid email.';
+        if (!form.email.trim()) return 'Email address is required.';
+        if (!validateEmail(form.email)) return 'Please enter a valid email address (e.g. name@example.com).';
         if (!form.phone.trim()) return 'Phone number is required.';
-        if (!validatePhone(form.phone)) return 'Please enter a valid phone number.';
+        if (!validatePhone(form.phone)) return 'Please enter a valid BVI phone number (e.g. 1(284) 000-0000).';
       }
       if (step === 1) {
         if (!form.currentEmployer.trim()) return 'Current employer is required.';
       }
     }
-    if (portal === 'jobs') {
+    if (portal === 'jobseeker') {
       if (step === 0) {
         if (!form.firstName.trim()) return 'First name is required.';
         if (!form.lastName.trim()) return 'Last name is required.';
         if (!form.email.trim()) return 'Email is required.';
-        if (!validateEmail(form.email)) return 'Please enter a valid email.';
+        if (!validateEmail(form.email)) return 'Please enter a valid email address.';
         if (!form.phone.trim()) return 'Phone number is required.';
-        if (!validatePhone(form.phone)) return 'Please enter a valid phone number.';
+        if (!validatePhone(form.phone)) return 'Please enter a valid BVI phone number (e.g. 1(284) 000-0000).';
       }
       if (step === 1) {
         if (!form.educationLevel) return 'Please select your education level.';
@@ -246,23 +246,23 @@ export default function PortalRegister({ portal = 'business' }) {
       <p className="text-sm text-gray-500 mb-6">Tell us about your business.</p>
       <div className="space-y-4">
         <div>
-          <label className="label-field">Company / Business Name *</label>
-          <input className="input-field" value={form.companyName} onChange={update('companyName')} placeholder="Acme Ltd." />
+          <label htmlFor="reg-companyName" className="label-field">Company / Business Name *</label>
+          <input id="reg-companyName" className="input-field" value={form.companyName} onChange={update('companyName')} placeholder="Acme Ltd." aria-required="true" />
         </div>
         <div>
-          <label className="label-field">Trade License Number *</label>
-          <input className="input-field" value={form.tradeLicense} onChange={update('tradeLicense')} placeholder="TL-0000-0000" />
+          <label htmlFor="reg-tradeLicense" className="label-field">Trade License Number *</label>
+          <input id="reg-tradeLicense" className="input-field" value={form.tradeLicense} onChange={update('tradeLicense')} placeholder="TL-0000-0000" aria-required="true" />
         </div>
         <div>
-          <label className="label-field">Industry *</label>
-          <select className="input-field" value={form.industry} onChange={update('industry')}>
+          <label htmlFor="reg-industry" className="label-field">Industry *</label>
+          <select id="reg-industry" className="input-field" value={form.industry} onChange={update('industry')} aria-required="true">
             <option value="">Select industry...</option>
             {JOB_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div>
-          <label className="label-field">Contact Person *</label>
-          <input className="input-field" value={form.contactPerson} onChange={update('contactPerson')} placeholder="John Smith" />
+          <label htmlFor="reg-contactPerson" className="label-field">Contact Person *</label>
+          <input id="reg-contactPerson" className="input-field" value={form.contactPerson} onChange={update('contactPerson')} placeholder="John Smith" aria-required="true" />
         </div>
       </div>
     </div>
@@ -274,16 +274,16 @@ export default function PortalRegister({ portal = 'business' }) {
       <p className="text-sm text-gray-500 mb-6">How can we reach your business?</p>
       <div className="space-y-4">
         <div>
-          <label className="label-field">Email Address *</label>
-          <input className="input-field" type="email" value={form.email} onChange={update('email')} placeholder="contact@company.com" />
+          <label htmlFor="reg-email" className="label-field">Email Address *</label>
+          <input id="reg-email" className="input-field" type="email" value={form.email} onChange={update('email')} placeholder="contact@company.com" aria-required="true" />
         </div>
         <div>
-          <label className="label-field">Phone Number *</label>
-          <input className="input-field" type="tel" value={form.phone} onChange={update('phone')} placeholder="1(284) 000-0000" />
+          <label htmlFor="reg-phone" className="label-field">Phone Number *</label>
+          <input id="reg-phone" className="input-field" type="tel" value={form.phone} onChange={update('phone')} placeholder="1(284) 000-0000" aria-required="true" />
         </div>
         <div>
-          <label className="label-field">Island *</label>
-          <select className="input-field" value={form.island} onChange={update('island')}>
+          <label htmlFor="reg-island" className="label-field">Island *</label>
+          <select id="reg-island" className="input-field" value={form.island} onChange={update('island')} aria-required="true">
             <option value="">Select island...</option>
             {ISLANDS.map(i => <option key={i} value={i}>{i}</option>)}
           </select>
@@ -299,28 +299,28 @@ export default function PortalRegister({ portal = 'business' }) {
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="label-field">First Name *</label>
-            <input className="input-field" value={form.firstName} onChange={update('firstName')} placeholder="John" />
+            <label htmlFor="reg-w-firstName" className="label-field">First Name *</label>
+            <input id="reg-w-firstName" className="input-field" value={form.firstName} onChange={update('firstName')} placeholder="John" aria-required="true" />
           </div>
           <div>
-            <label className="label-field">Last Name *</label>
-            <input className="input-field" value={form.lastName} onChange={update('lastName')} placeholder="Smith" />
+            <label htmlFor="reg-w-lastName" className="label-field">Last Name *</label>
+            <input id="reg-w-lastName" className="input-field" value={form.lastName} onChange={update('lastName')} placeholder="Smith" aria-required="true" />
           </div>
         </div>
         <div>
-          <label className="label-field">Nationality *</label>
-          <select className="input-field" value={form.nationality} onChange={update('nationality')}>
+          <label htmlFor="reg-w-nationality" className="label-field">Nationality *</label>
+          <select id="reg-w-nationality" className="input-field" value={form.nationality} onChange={update('nationality')} aria-required="true">
             <option value="">Select nationality...</option>
             {NATIONALITIES.map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
         <div>
-          <label className="label-field">Email Address *</label>
-          <input className="input-field" type="email" value={form.email} onChange={update('email')} placeholder="you@example.com" />
+          <label htmlFor="reg-w-email" className="label-field">Email Address *</label>
+          <input id="reg-w-email" className="input-field" type="email" value={form.email} onChange={update('email')} placeholder="you@example.com" aria-required="true" />
         </div>
         <div>
-          <label className="label-field">Phone Number *</label>
-          <input className="input-field" type="tel" value={form.phone} onChange={update('phone')} placeholder="1(284) 000-0000" />
+          <label htmlFor="reg-w-phone" className="label-field">Phone Number *</label>
+          <input id="reg-w-phone" className="input-field" type="tel" value={form.phone} onChange={update('phone')} placeholder="1(284) 000-0000" aria-required="true" />
         </div>
       </div>
     </div>
@@ -332,12 +332,12 @@ export default function PortalRegister({ portal = 'business' }) {
       <p className="text-sm text-gray-500 mb-6">Tell us about your current employment.</p>
       <div className="space-y-4">
         <div>
-          <label className="label-field">Current Employer *</label>
-          <input className="input-field" value={form.currentEmployer} onChange={update('currentEmployer')} placeholder="Company name" />
+          <label htmlFor="reg-w-employer" className="label-field">Current Employer *</label>
+          <input id="reg-w-employer" className="input-field" value={form.currentEmployer} onChange={update('currentEmployer')} placeholder="Company name" aria-required="true" />
         </div>
         <div>
-          <label className="label-field">Work Permit Number (if you have one)</label>
-          <input className="input-field" value={form.permitNumber} onChange={update('permitNumber')} placeholder="WP-2025-0000" />
+          <label htmlFor="reg-w-permit" className="label-field">Work Permit Number (if you have one)</label>
+          <input id="reg-w-permit" className="input-field" value={form.permitNumber} onChange={update('permitNumber')} placeholder="WP-2025-0000" />
         </div>
       </div>
     </div>
@@ -350,17 +350,17 @@ export default function PortalRegister({ portal = 'business' }) {
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="label-field">First Name *</label>
-            <input className="input-field" value={form.firstName} onChange={update('firstName')} placeholder="John" />
+            <label htmlFor="reg-j-firstName" className="label-field">First Name *</label>
+            <input id="reg-j-firstName" className="input-field" value={form.firstName} onChange={update('firstName')} placeholder="John" aria-required="true" />
           </div>
           <div>
-            <label className="label-field">Last Name *</label>
-            <input className="input-field" value={form.lastName} onChange={update('lastName')} placeholder="Smith" />
+            <label htmlFor="reg-j-lastName" className="label-field">Last Name *</label>
+            <input id="reg-j-lastName" className="input-field" value={form.lastName} onChange={update('lastName')} placeholder="Smith" aria-required="true" />
           </div>
         </div>
         <div>
-          <label className="label-field">VI/Belonger Status</label>
-          <select className="input-field" value={form.belongerStatus} onChange={update('belongerStatus')}>
+          <label htmlFor="reg-j-belongerStatus" className="label-field">VI/Belonger Status</label>
+          <select id="reg-j-belongerStatus" className="input-field" value={form.belongerStatus} onChange={update('belongerStatus')}>
             <option value="">Select status...</option>
             <option value="virgin_islander">Virgin Islander</option>
             <option value="belonger">Belonger</option>
@@ -369,12 +369,12 @@ export default function PortalRegister({ portal = 'business' }) {
           </select>
         </div>
         <div>
-          <label className="label-field">Email Address *</label>
-          <input className="input-field" type="email" value={form.email} onChange={update('email')} placeholder="you@example.com" />
+          <label htmlFor="reg-j-email" className="label-field">Email Address *</label>
+          <input id="reg-j-email" className="input-field" type="email" value={form.email} onChange={update('email')} placeholder="you@example.com" aria-required="true" />
         </div>
         <div>
-          <label className="label-field">Phone Number *</label>
-          <input className="input-field" type="tel" value={form.phone} onChange={update('phone')} placeholder="1(284) 000-0000" />
+          <label htmlFor="reg-j-phone" className="label-field">Phone Number *</label>
+          <input id="reg-j-phone" className="input-field" type="tel" value={form.phone} onChange={update('phone')} placeholder="1(284) 000-0000" aria-required="true" />
         </div>
       </div>
     </div>
@@ -386,8 +386,9 @@ export default function PortalRegister({ portal = 'business' }) {
       <p className="text-sm text-gray-500 mb-6">Help us match you with the right opportunities.</p>
       <div className="space-y-4">
         <div>
-          <label className="label-field">Key Skills</label>
+          <label htmlFor="reg-j-skills" className="label-field">Key Skills</label>
           <textarea
+            id="reg-j-skills"
             className="input-field min-h-[80px]"
             value={form.skills}
             onChange={update('skills')}
@@ -395,8 +396,8 @@ export default function PortalRegister({ portal = 'business' }) {
           />
         </div>
         <div>
-          <label className="label-field">Education Level *</label>
-          <select className="input-field" value={form.educationLevel} onChange={update('educationLevel')}>
+          <label htmlFor="reg-j-education" className="label-field">Education Level *</label>
+          <select id="reg-j-education" className="input-field" value={form.educationLevel} onChange={update('educationLevel')} aria-required="true">
             <option value="">Select education level...</option>
             {EDUCATION_LEVELS.map(e => <option key={e} value={e}>{e}</option>)}
           </select>
@@ -411,16 +412,19 @@ export default function PortalRegister({ portal = 'business' }) {
       <p className="text-sm text-gray-500 mb-6">Secure your account with a strong password.</p>
       <div className="space-y-4">
         <div>
-          <label className="label-field">Password *</label>
+          <label htmlFor="reg-password" className="label-field">Password *</label>
           <div className="relative">
             <input
+              id="reg-password"
               type={showPassword ? 'text' : 'password'}
               className="input-field pr-10"
               value={form.password}
               onChange={update('password')}
               placeholder="Minimum 8 characters"
+              aria-required="true"
+              aria-describedby="password-requirements"
             />
-            <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
+            <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'}>
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
@@ -436,25 +440,27 @@ export default function PortalRegister({ portal = 'business' }) {
           )}
         </div>
         <div>
-          <label className="label-field">Confirm Password *</label>
+          <label htmlFor="reg-confirmPassword" className="label-field">Confirm Password *</label>
           <div className="relative">
             <input
+              id="reg-confirmPassword"
               type={showConfirm ? 'text' : 'password'}
               className="input-field pr-10"
               value={form.confirmPassword}
               onChange={update('confirmPassword')}
               placeholder="Re-enter your password"
+              aria-required="true"
             />
-            <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
+            <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1} aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}>
               {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
           {form.confirmPassword && form.password !== form.confirmPassword && (
-            <p className="text-xs text-red-500 mt-1">Passwords do not match.</p>
+            <p className="text-xs text-red-500 mt-1" role="alert">Passwords do not match.</p>
           )}
         </div>
       </div>
-      <div className="mt-4 bg-gray-50 rounded-lg p-3">
+      <div id="password-requirements" className="mt-4 bg-gray-50 rounded-lg p-3">
         <p className="text-xs text-gray-500 font-semibold mb-1">Password requirements:</p>
         <ul className="text-xs text-gray-500 space-y-0.5">
           <li className={form.password.length >= 8 ? 'text-green-600' : ''}>
@@ -478,7 +484,7 @@ export default function PortalRegister({ portal = 'business' }) {
   const getStepRenderers = () => {
     if (portal === 'business') return [renderBusinessStep0, renderBusinessStep1, renderPasswordStep];
     if (portal === 'worker') return [renderWorkerStep0, renderWorkerStep1, renderPasswordStep];
-    if (portal === 'jobs') return [renderJobsStep0, renderJobsStep1, renderPasswordStep];
+    if (portal === 'jobseeker') return [renderJobsStep0, renderJobsStep1, renderPasswordStep];
     return [renderPasswordStep];
   };
 
@@ -508,7 +514,7 @@ export default function PortalRegister({ portal = 'business' }) {
       <div className="flex-1 flex items-start justify-center p-4 pt-8">
         <div className="w-full max-w-lg">
           {/* Stepper */}
-          <div className="flex items-center justify-center gap-1 mb-8">
+          <nav aria-label="Registration progress" className="flex items-center justify-center gap-1 mb-8">
             {config.steps.map((label, i) => (
               <div key={label} className="flex items-center">
                 <div className="flex flex-col items-center">
@@ -530,11 +536,11 @@ export default function PortalRegister({ portal = 'business' }) {
                 )}
               </div>
             ))}
-          </div>
+          </nav>
 
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
             {error && (
-              <div className="flex items-start gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div role="alert" className="flex items-start gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                 <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>

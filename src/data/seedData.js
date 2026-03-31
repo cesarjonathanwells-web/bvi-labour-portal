@@ -38,7 +38,7 @@ const jobSeekerUsers = [
 // ── MOCK PERMITS ─────────────────────────────────────────────────────
 const now = new Date();
 const permits = [
-  { id: 'pmt-001', permitNumber: 'WP-2024-1001', type: 'new', status: 'approved', userId: 'wrk-001', employerId: 'biz-001', employeeName: 'Carlos Garcia', employeeNationality: 'Dominican Republic', employerName: 'Tropic Resorts Ltd', position: 'Head Chef', salary: 45000, island: 'Tortola', submittedAt: '2024-06-20T10:00:00Z', updatedAt: '2024-07-10T10:00:00Z', issuedDate: '2024-07-10', expiryDate: '2025-07-10', notes: 'Approved by Deputy Commissioner' },
+  { id: 'pmt-001', permitNumber: 'WP-2024-1001', type: 'new', status: 'approved', userId: 'wrk-001', employerId: 'biz-001', employeeName: 'Carlos Garcia', employeeNationality: 'Dominican Republic', employerName: 'Tropic Resorts Ltd', position: 'Head Chef', salary: 45000, island: 'Tortola', submittedAt: '2024-06-20T10:00:00Z', updatedAt: '2024-07-10T10:00:00Z', issuedDate: '2024-07-10', expiryDate: '2027-07-10', notes: 'Approved by Deputy Commissioner' },
   { id: 'pmt-002', permitNumber: 'WP-2024-1002', type: 'new', status: 'approved', userId: 'wrk-002', employerId: 'biz-002', employeeName: 'Anika James', employeeNationality: 'Jamaica', employerName: 'BVI Builders Corp', position: 'Site Supervisor', salary: 52000, island: 'Tortola', submittedAt: '2024-09-01T10:00:00Z', updatedAt: '2024-09-25T10:00:00Z', issuedDate: '2024-09-25', expiryDate: '2025-04-15', notes: '' },
   { id: 'pmt-003', permitNumber: 'WP-2025-1003', type: 'new', status: 'under_review', userId: 'wrk-003', employerId: 'biz-003', employeeName: 'Raj Patel', employeeNationality: 'India', employerName: 'Island Tech Solutions', position: 'Software Developer', salary: 68000, island: 'Virgin Gorda', submittedAt: '2025-03-15T10:00:00Z', updatedAt: '2025-03-20T10:00:00Z', assignedTo: 'dept-permits-001', notes: 'Documents under verification' },
   { id: 'pmt-004', permitNumber: 'WR-2025-2001', type: 'renewal', status: 'submitted', userId: 'wrk-001', employerId: 'biz-001', employeeName: 'Carlos Garcia', employeeNationality: 'Dominican Republic', employerName: 'Tropic Resorts Ltd', position: 'Head Chef', salary: 48000, island: 'Tortola', submittedAt: '2025-03-25T10:00:00Z', updatedAt: '2025-03-25T10:00:00Z', notes: '' },
@@ -88,21 +88,34 @@ const notifications = [
   { id: 'ntf-007', userId: 'js-002', message: 'Interview scheduled for Electrician position at BVI Builders Corp.', type: 'info', read: false, createdAt: '2025-03-18T10:00:00Z' },
 ];
 
-export function seedAll() {
-  const existingUsers = get(USERS_KEY);
-  const allMockUsers = [...businessUsers, ...workerUsers, ...jobSeekerUsers];
-  let merged = [...existingUsers];
-  for (const u of allMockUsers) {
-    if (!merged.find(e => e.id === u.id)) merged.push(u);
+/** Merge seed items into an existing array by id without duplicating */
+function mergeById(key, seedItems) {
+  const existing = get(key);
+  if (existing.length === 0) {
+    set(key, seedItems);
+    return seedItems;
   }
-  set(USERS_KEY, merged);
-  set(PERMITS_KEY, permits);
-  set(DISPUTES_KEY, disputes);
-  set(JOBS_KEY, jobs);
-  set(APPLICATIONS_KEY, applications);
-  set(DOCUMENTS_KEY, documents);
-  set(NOTIFICATIONS_KEY, notifications);
-  console.log('✅ Seed data loaded: ', { users: merged.length, permits: permits.length, disputes: disputes.length, jobs: jobs.length, applications: applications.length, documents: documents.length, notifications: notifications.length });
+  let changed = false;
+  const merged = [...existing];
+  for (const item of seedItems) {
+    if (!merged.find(e => e.id === item.id)) {
+      merged.push(item);
+      changed = true;
+    }
+  }
+  if (changed) set(key, merged);
+  return merged;
+}
+
+export function seedAll() {
+  const allMockUsers = [...businessUsers, ...workerUsers, ...jobSeekerUsers];
+  const mergedUsers = mergeById(USERS_KEY, allMockUsers);
+  const mergedPermits = mergeById(PERMITS_KEY, permits);
+  const mergedDisputes = mergeById(DISPUTES_KEY, disputes);
+  const mergedJobs = mergeById(JOBS_KEY, jobs);
+  const mergedApps = mergeById(APPLICATIONS_KEY, applications);
+  const mergedDocs = mergeById(DOCUMENTS_KEY, documents);
+  const mergedNotifs = mergeById(NOTIFICATIONS_KEY, notifications);
   return true;
 }
 

@@ -49,5 +49,7 @@ export function calculateWorkPermitFee(annualSalary, isDomestic = false) {
 }
 
 export function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  const num = Number(amount);
+  if (!Number.isFinite(num)) return '$0.00';
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
 }

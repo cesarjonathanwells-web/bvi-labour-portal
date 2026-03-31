@@ -140,7 +140,7 @@ export default function EmployeeDashboard() {
   const quickActions = [
     { label: 'View My Permit', icon: Eye, onClick: () => navigate('/worker/permit'), color: 'bg-[#006633] hover:bg-[#005522] text-white' },
     { label: 'Download ID Card', icon: Download, onClick: () => navigate('/worker/permit'), color: 'bg-[#003366] hover:bg-[#002244] text-white' },
-    { label: 'File a Dispute', icon: AlertTriangle, onClick: () => navigate('/worker/disputes'), color: 'bg-[#c5a55a] hover:bg-[#b3944a] text-white' },
+    { label: 'File a Dispute', icon: AlertTriangle, onClick: () => navigate('/worker/disputes/new'), color: 'bg-[#c5a55a] hover:bg-[#b3944a] text-white' },
     { label: 'Upload Document', icon: Upload, onClick: () => navigate('/worker/documents'), color: 'bg-purple-600 hover:bg-purple-700 text-white' },
     { label: 'Browse Jobs', icon: Search, onClick: () => navigate('/worker/jobs'), color: 'border-2 border-[#006633] text-[#006633] hover:bg-[#006633] hover:text-white' },
   ];

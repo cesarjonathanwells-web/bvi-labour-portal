@@ -195,6 +195,8 @@ export default function PaymentForm({
                   setMethod(pm.id);
                   setErrors([]);
                 }}
+                aria-pressed={selected}
+                aria-label={`Payment method: ${pm.label}`}
                 className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
                   selected
                     ? 'border-[#003366] bg-blue-50 shadow-md'
@@ -251,15 +253,17 @@ export default function PaymentForm({
       {/* Reference Number */}
       {(method === 'bank_transfer' || method === 'online') && (
         <div>
-          <label className="label-field">
-            Payment Reference / Receipt Number
+          <label htmlFor="payment-reference" className="label-field">
+            Payment Reference / Receipt Number {method === 'bank_transfer' && <span className="text-red-500">*</span>}
           </label>
           <input
+            id="payment-reference"
             type="text"
             className="input-field"
             placeholder="Enter reference number..."
             value={referenceNumber}
             onChange={(e) => setReferenceNumber(e.target.value)}
+            aria-required={method === 'bank_transfer'}
           />
         </div>
       )}
@@ -314,6 +318,7 @@ export default function PaymentForm({
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
             className="hidden"
+            aria-label="Upload payment receipt"
             onChange={handleReceiptUpload}
           />
         </div>
@@ -341,7 +346,7 @@ export default function PaymentForm({
 
       {/* Errors */}
       {errors.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-1">
+        <div role="alert" className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-1">
           {errors.map((err, i) => (
             <div key={i} className="flex items-start gap-2 text-sm text-red-700">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />

@@ -163,13 +163,13 @@ export default function ApplicationForm({ job, onBack, onSuccess }) {
               <Paperclip className="w-4 h-4 text-green-600" />
               <span className="text-sm text-green-800 flex-1">{form.resumeName}</span>
               <button type="button" onClick={() => { set('resume', null); set('resumeName', ''); }}
-                className="text-red-500 hover:text-red-700"><X className="w-4 h-4" /></button>
+                className="text-red-500 hover:text-red-700" aria-label="Remove resume"><X className="w-4 h-4" /></button>
             </div>
           ) : (
             <label className="flex items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#003366] hover:bg-gray-50 transition-colors">
               <Upload className="w-5 h-5 text-gray-400" />
               <span className="text-gray-500">Click to upload resume (PDF, DOC - max 5MB)</span>
-              <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={handleResumeUpload} />
+              <input type="file" className="hidden" accept=".pdf,.doc,.docx" aria-label="Upload resume or CV" onChange={handleResumeUpload} />
             </label>
           )}
           <ErrorMsg field="resume" />
@@ -181,7 +181,7 @@ export default function ApplicationForm({ job, onBack, onSuccess }) {
           <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#003366] hover:bg-gray-50 transition-colors">
             <Upload className="w-4 h-4 text-gray-400" />
             <span className="text-sm text-gray-500">Upload certificates, references, etc. (max 5MB each)</span>
-            <input type="file" className="hidden" multiple accept=".pdf,.doc,.docx,.jpg,.png" onChange={handleAdditionalDocs} />
+            <input type="file" className="hidden" multiple accept=".pdf,.doc,.docx,.jpg,.png" aria-label="Upload additional documents" onChange={handleAdditionalDocs} />
           </label>
           {form.additionalDocs.length > 0 && (
             <div className="mt-2 space-y-1">
@@ -189,7 +189,7 @@ export default function ApplicationForm({ job, onBack, onSuccess }) {
                 <div key={i} className="flex items-center gap-2 text-sm p-2 bg-gray-50 rounded">
                   <Paperclip className="w-3 h-3 text-gray-400" />
                   <span className="flex-1">{doc.name}</span>
-                  <button type="button" onClick={() => removeDoc(i)} className="text-red-500 hover:text-red-700">
+                  <button type="button" onClick={() => removeDoc(i)} className="text-red-500 hover:text-red-700" aria-label={`Remove ${doc.name}`}>
                     <X className="w-3 h-3" />
                   </button>
                 </div>

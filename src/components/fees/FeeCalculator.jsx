@@ -101,16 +101,18 @@ export default function FeeCalculator() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Salary Input */}
         <div>
-          <label className="label-field">Annual Salary</label>
+          <label htmlFor="fee-salary" className="label-field">Annual Salary</label>
           <div className="relative">
-            <DollarSign className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <DollarSign className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true" />
             <input
+              id="fee-salary"
               type="text"
               inputMode="decimal"
               placeholder="0.00"
               className="input-field pl-10 text-lg font-semibold"
               value={formatSalaryDisplay(salaryRaw)}
               onChange={handleSalaryChange}
+              aria-label="Annual salary in USD"
             />
           </div>
           {salary > 0 && (
@@ -122,9 +124,10 @@ export default function FeeCalculator() {
 
         {/* Permit Type */}
         <div>
-          <label className="label-field">Permit Type</label>
+          <label htmlFor="fee-permitType" className="label-field">Permit Type</label>
           <div className="relative">
             <select
+              id="fee-permitType"
               className="input-field appearance-none pr-10"
               value={permitType}
               onChange={(e) => setPermitType(e.target.value)}
@@ -145,6 +148,8 @@ export default function FeeCalculator() {
           <button
             type="button"
             onClick={() => setIsDomestic(!isDomestic)}
+            aria-pressed={isDomestic}
+            aria-label={isDomestic ? 'Domestic worker classification enabled' : 'Non-domestic worker classification'}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg border-2 transition-all ${
               isDomestic
                 ? 'border-[#006633] bg-green-50'
@@ -172,9 +177,10 @@ export default function FeeCalculator() {
         {/* Duration (conditional) */}
         {showDuration && (
           <div>
-            <label className="label-field">Duration</label>
+            <label htmlFor="fee-duration" className="label-field">Duration</label>
             <div className="relative">
               <select
+                id="fee-duration"
                 className="input-field appearance-none pr-10"
                 value={durationMonths}
                 onChange={(e) => setDurationMonths(Number(e.target.value))}

@@ -202,7 +202,7 @@ export default function JobSeekerDashboard() {
                         </div>
                       </div>
                       <button
-                        onClick={() => navigate(`/jobs/${job.id}`)}
+                        onClick={() => navigate('/jobs/search')}
                         className="text-xs bg-[#c5a55a] text-gray-900 px-4 py-1.5 rounded-lg hover:bg-[#b3944a] transition-colors whitespace-nowrap font-semibold"
                       >
                         Apply

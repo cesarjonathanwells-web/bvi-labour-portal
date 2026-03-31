@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { ArrowLeft, CreditCard, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { getPortalBasePath } from '../../utils/helpers';
 import WorkPermitCard from './WorkPermitCard';
 
 export default function CardPreview({ permit }) {
   const [showBack, setShowBack] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const portalBase = getPortalBasePath(user?.portal);
 
   if (!permit) {
     return (
@@ -13,7 +17,7 @@ export default function CardPreview({ permit }) {
         <CreditCard className="w-16 h-16 mx-auto text-gray-300 mb-4" />
         <h2 className="text-xl font-bold text-gray-700 mb-2">No Permit Selected</h2>
         <p className="text-gray-500 mb-6">Please select an approved permit to preview the work permit card.</p>
-        <button onClick={() => navigate('/permits')} className="btn-primary">
+        <button onClick={() => navigate(`${portalBase}/permits`)} className="btn-primary">
           <ArrowLeft size={16} /> Go to Permits
         </button>
       </div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
-import { formatDateShort, getStatusColor, getStatusLabel, daysUntilExpiry } from '../../utils/helpers';
+import { formatDateShort, getStatusColor, getStatusLabel, daysUntilExpiry, getStorage } from '../../utils/helpers';
 import { DEPT_ROLES } from '../../data/constants';
 import {
   FileText, AlertTriangle, Briefcase, Users, ClipboardCheck,
@@ -397,7 +397,7 @@ function PlacementOfficerDashboard({ jobs, applications, allUsers, navigate }) {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-purple-900">Recent Vacancies</h2>
-            <button onClick={() => navigate('/dept/jobs')} className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium">
+            <button onClick={() => navigate('/dept/placements')} className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium">
               View All <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -409,7 +409,7 @@ function PlacementOfficerDashboard({ jobs, applications, allUsers, navigate }) {
                     <p className="text-sm font-medium text-gray-900">{job.title}</p>
                     <p className="text-xs text-gray-500">{job.company || job.employerName || 'Employer'} - {job.applicants || 0} applicants</p>
                   </div>
-                  <button onClick={() => navigate(`/dept/jobs/${job.id}`)} className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-lg hover:bg-purple-200 font-medium">
+                  <button onClick={() => navigate(`/dept/placements/${job.id}`)} className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-lg hover:bg-purple-200 font-medium">
                     View
                   </button>
                 </div>
@@ -454,12 +454,28 @@ function PlacementOfficerDashboard({ jobs, applications, allUsers, navigate }) {
 // ============================================================
 // Sub-dashboard for Inspector
 // ============================================================
-function InspectorDashboard() {
+function InspectorDashboard({ navigate }) {
+  const inspections = getStorage('bvi_inspections') || [];
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+  const inspThisMonth = inspections.filter(i => {
+    const d = new Date(i.date);
+    return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+  });
+  const totalViolations = inspections.reduce((s, i) => s + (i.violations || []).length, 0);
+  const pendingFollowups = inspections.filter(i =>
+    i.violations && i.violations.some(v => !v.resolved)
+  ).length;
+  const completed = inspections.filter(i => i.overallStatus);
+  const compliant = completed.filter(i => i.overallStatus === 'compliant').length;
+  const complianceRate = completed.length > 0 ? `${Math.round((compliant / completed.length) * 100)}%` : '--';
+
   const statCards = [
-    { title: 'Inspections This Month', value: 0, icon: Clipboard, lightColor: 'bg-amber-50', textColor: 'text-amber-700' },
-    { title: 'Violations Found', value: 0, icon: AlertTriangle, lightColor: 'bg-red-50', textColor: 'text-red-600' },
-    { title: 'Follow-ups Due', value: 0, icon: Clock, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
-    { title: 'Compliance Rate', value: '--', icon: CheckCircle2, lightColor: 'bg-green-50', textColor: 'text-green-700', isText: true },
+    { title: 'Inspections This Month', value: inspThisMonth.length, icon: Clipboard, lightColor: 'bg-amber-50', textColor: 'text-amber-700' },
+    { title: 'Violations Found', value: totalViolations, icon: AlertTriangle, lightColor: 'bg-red-50', textColor: 'text-red-600' },
+    { title: 'Follow-ups Due', value: pendingFollowups, icon: Clock, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
+    { title: 'Compliance Rate', value: complianceRate, icon: CheckCircle2, lightColor: 'bg-green-50', textColor: 'text-green-700', isText: true },
   ];
 
   return (
@@ -479,14 +495,38 @@ function InspectorDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upcoming Inspections */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="px-6 py-4 border-b border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-purple-900">Upcoming Inspections</h2>
+            <button
+              onClick={() => navigate('/dept/inspections')}
+              className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium"
+            >
+              View All <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
-          <div className="p-6 text-center py-12 text-gray-400">
-            <Calendar className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p className="text-sm">No inspections scheduled</p>
-            <p className="text-xs mt-1">Inspections will appear here once assigned.</p>
-          </div>
+          {(() => {
+            const scheduled = inspections.filter(i => i.status === 'scheduled').sort((a, b) => new Date(a.date) - new Date(b.date));
+            if (scheduled.length === 0) return (
+              <div className="p-6 text-center py-12 text-gray-400">
+                <Calendar className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm">No inspections scheduled</p>
+                <p className="text-xs mt-1">Inspections will appear here once assigned.</p>
+              </div>
+            );
+            return (
+              <div className="divide-y divide-gray-50">
+                {scheduled.slice(0, 5).map(i => (
+                  <div key={i.id} className="px-6 py-3 flex items-center justify-between hover:bg-gray-50">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{i.workplaceName}</p>
+                      <p className="text-xs text-gray-500">{i.island} - {formatDateShort(i.date)}</p>
+                    </div>
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Scheduled</span>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Violation Follow-ups */}
@@ -494,11 +534,29 @@ function InspectorDashboard() {
           <div className="px-6 py-4 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-purple-900">Violation Follow-up Tracker</h2>
           </div>
-          <div className="p-6 text-center py-12 text-gray-400">
-            <AlertTriangle className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p className="text-sm">No outstanding follow-ups</p>
-            <p className="text-xs mt-1">Follow-ups from inspections will appear here.</p>
-          </div>
+          {(() => {
+            const withViolations = inspections.filter(i => i.violations && i.violations.some(v => !v.resolved));
+            if (withViolations.length === 0) return (
+              <div className="p-6 text-center py-12 text-gray-400">
+                <AlertTriangle className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm">No outstanding follow-ups</p>
+                <p className="text-xs mt-1">Follow-ups from inspections will appear here.</p>
+              </div>
+            );
+            return (
+              <div className="divide-y divide-gray-50">
+                {withViolations.slice(0, 5).map(i => (
+                  <div key={i.id} className="px-6 py-3 flex items-center justify-between hover:bg-gray-50">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{i.workplaceName}</p>
+                      <p className="text-xs text-gray-500">{i.violations.filter(v => !v.resolved).length} unresolved violation(s)</p>
+                    </div>
+                    <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Pending</span>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       </div>
     </>
@@ -508,12 +566,20 @@ function InspectorDashboard() {
 // ============================================================
 // Sub-dashboard for Cashier
 // ============================================================
-function CashierDashboard() {
+function CashierDashboard({ permits, navigate }) {
+  const payments = getStorage('bvi_payments') || [];
+  const receipts = getStorage('bvi_receipts') || [];
+  const today = new Date().toISOString().slice(0, 10);
+  const todayPayments = payments.filter(p => p.status === 'verified' && p.verifiedAt && p.verifiedAt.slice(0, 10) === today);
+  const todayRevenue = todayPayments.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+  const pendingCount = permits.filter(p => p.status === 'pending_payment').length;
+  const todayReceipts = receipts.filter(r => r.issuedAt && r.issuedAt.slice(0, 10) === today).length;
+
   const statCards = [
-    { title: 'Payments Today', value: 0, icon: DollarSign, lightColor: 'bg-green-50', textColor: 'text-green-700' },
-    { title: 'Revenue Today', value: '$0', icon: TrendingUp, lightColor: 'bg-blue-50', textColor: 'text-blue-700', isText: true },
-    { title: 'Pending Verifications', value: 0, icon: Clock, lightColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
-    { title: 'Receipts Issued', value: 0, icon: Receipt, lightColor: 'bg-purple-50', textColor: 'text-purple-600' },
+    { title: 'Payments Today', value: todayPayments.length, icon: DollarSign, lightColor: 'bg-green-50', textColor: 'text-green-700' },
+    { title: 'Revenue Today', value: `$${todayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, icon: TrendingUp, lightColor: 'bg-blue-50', textColor: 'text-blue-700', isText: true },
+    { title: 'Pending Verifications', value: pendingCount, icon: Clock, lightColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
+    { title: 'Receipts Issued', value: todayReceipts, icon: Receipt, lightColor: 'bg-purple-50', textColor: 'text-purple-600' },
   ];
 
   return (
@@ -533,14 +599,38 @@ function CashierDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Payment Queue */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="px-6 py-4 border-b border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-purple-900">Payment Queue</h2>
+            <button
+              onClick={() => navigate('/dept/payments')}
+              className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium"
+            >
+              View All <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
-          <div className="p-6 text-center py-12 text-gray-400">
-            <DollarSign className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p className="text-sm">No pending payments</p>
-            <p className="text-xs mt-1">Payments awaiting verification will appear here.</p>
-          </div>
+          {(() => {
+            const pendingPermits = permits.filter(p => p.status === 'pending_payment');
+            if (pendingPermits.length === 0) return (
+              <div className="p-6 text-center py-12 text-gray-400">
+                <DollarSign className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm">No pending payments</p>
+                <p className="text-xs mt-1">Payments awaiting verification will appear here.</p>
+              </div>
+            );
+            return (
+              <div className="divide-y divide-gray-50">
+                {pendingPermits.slice(0, 5).map(p => (
+                  <div key={p.id} className="px-6 py-3 flex items-center justify-between hover:bg-gray-50">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{p.permitNumber}</p>
+                      <p className="text-xs text-gray-500">{p.employeeFirstName || p.firstName} {p.employeeLastName || p.lastName}</p>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-700">${parseFloat(p.totalFee || p.fee || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Daily Revenue Summary */}
@@ -548,11 +638,20 @@ function CashierDashboard() {
           <div className="px-6 py-4 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-purple-900">Daily Revenue Summary</h2>
           </div>
-          <div className="p-6 text-center py-12 text-gray-400">
-            <BarChart3 className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p className="text-sm">No transactions recorded today</p>
-            <p className="text-xs mt-1">Revenue data will populate as payments are processed.</p>
-          </div>
+          {todayPayments.length === 0 ? (
+            <div className="p-6 text-center py-12 text-gray-400">
+              <BarChart3 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+              <p className="text-sm">No transactions recorded today</p>
+              <p className="text-xs mt-1">Revenue data will populate as payments are processed.</p>
+            </div>
+          ) : (
+            <div className="p-6">
+              <div className="bg-green-50 rounded-xl p-5 text-center">
+                <p className="text-3xl font-bold text-green-700">${todayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                <p className="text-sm text-green-600 mt-1">{todayPayments.length} payment(s) verified today</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -563,11 +662,18 @@ function CashierDashboard() {
 // Sub-dashboard for Front Desk
 // ============================================================
 function FrontDeskDashboard({ permits, navigate }) {
+  const appointments = getStorage('bvi_appointments') || [];
+  const walkins = getStorage('bvi_walkins') || [];
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayAppointments = appointments.filter(a => a.date === todayStr);
+  const todayWalkins = walkins.filter(w => w.date === todayStr);
+  const totalVisitors = todayAppointments.length + todayWalkins.length;
+
   const statCards = [
-    { title: "Today's Appointments", value: 0, icon: Calendar, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
-    { title: 'Walk-ins', value: 0, icon: Users, lightColor: 'bg-green-50', textColor: 'text-green-700' },
-    { title: 'Visitors Today', value: 0, icon: UserCheck, lightColor: 'bg-purple-50', textColor: 'text-purple-600' },
-    { title: 'Pending Queries', value: 0, icon: Clock, lightColor: 'bg-amber-50', textColor: 'text-amber-700' },
+    { title: "Today's Appointments", value: todayAppointments.length, icon: Calendar, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
+    { title: 'Walk-ins', value: todayWalkins.length, icon: Users, lightColor: 'bg-green-50', textColor: 'text-green-700' },
+    { title: 'Visitors Today', value: totalVisitors, icon: UserCheck, lightColor: 'bg-purple-50', textColor: 'text-purple-600' },
+    { title: 'Available Slots', value: Math.max(0, 16 - todayAppointments.length), icon: Clock, lightColor: 'bg-amber-50', textColor: 'text-amber-700' },
   ];
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -635,14 +741,34 @@ function FrontDeskDashboard({ permits, navigate }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Today's Appointments */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="px-6 py-4 border-b border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-purple-900">Today's Appointment Schedule</h2>
+            <button
+              onClick={() => navigate('/dept/appointments')}
+              className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium"
+            >
+              View All <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
-          <div className="p-6 text-center py-12 text-gray-400">
-            <Calendar className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p className="text-sm">No appointments scheduled for today</p>
-            <p className="text-xs mt-1">Appointments will appear here once booked.</p>
-          </div>
+          {todayAppointments.length === 0 ? (
+            <div className="p-6 text-center py-12 text-gray-400">
+              <Calendar className="w-10 h-10 mx-auto mb-3 opacity-40" />
+              <p className="text-sm">No appointments scheduled for today</p>
+              <p className="text-xs mt-1">Appointments will appear here once booked.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {todayAppointments.sort((a, b) => a.time.localeCompare(b.time)).slice(0, 6).map(a => (
+                <div key={a.id} className="px-6 py-3 flex items-center justify-between hover:bg-gray-50">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{a.visitorName}</p>
+                    <p className="text-xs text-gray-500">{a.purpose}</p>
+                  </div>
+                  <span className="text-xs font-medium text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">{a.time}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Visitor Log */}
@@ -650,11 +776,25 @@ function FrontDeskDashboard({ permits, navigate }) {
           <div className="px-6 py-4 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-purple-900">Visitor Log</h2>
           </div>
-          <div className="p-6 text-center py-12 text-gray-400">
-            <Users className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p className="text-sm">No visitors logged today</p>
-            <p className="text-xs mt-1">Log walk-in visitors for tracking.</p>
-          </div>
+          {todayWalkins.length === 0 ? (
+            <div className="p-6 text-center py-12 text-gray-400">
+              <Users className="w-10 h-10 mx-auto mb-3 opacity-40" />
+              <p className="text-sm">No visitors logged today</p>
+              <p className="text-xs mt-1">Log walk-in visitors for tracking.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {todayWalkins.map(w => (
+                <div key={w.id} className="px-6 py-3 flex items-center gap-4">
+                  <span className="text-sm font-medium text-gray-600 w-16">{w.time}</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{w.visitorName}</p>
+                    <p className="text-xs text-gray-500">{w.purpose}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -709,9 +849,9 @@ export default function DeptDashboard() {
       case 'placement_officer':
         return <PlacementOfficerDashboard jobs={jobs} applications={applications} allUsers={allUsers} navigate={navigate} />;
       case 'inspector':
-        return <InspectorDashboard />;
+        return <InspectorDashboard navigate={navigate} />;
       case 'cashier':
-        return <CashierDashboard />;
+        return <CashierDashboard permits={permits} navigate={navigate} />;
       case 'front_desk':
         return <FrontDeskDashboard permits={permits} navigate={navigate} />;
       default:

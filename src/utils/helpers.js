@@ -26,6 +26,8 @@ export const getStatusColor = (status) => {
     referred: 'bg-orange-100 text-orange-800', closed: 'bg-gray-100 text-gray-600',
     active: 'bg-green-100 text-green-800', filled: 'bg-blue-100 text-blue-800',
     open: 'bg-green-100 text-green-800',
+    shortlisted: 'bg-indigo-100 text-indigo-800', interview: 'bg-teal-100 text-teal-800',
+    offered: 'bg-emerald-100 text-emerald-800',
   };
   return colors[status] || 'bg-gray-100 text-gray-800';
 };
@@ -47,6 +49,18 @@ export const fileToBase64 = (file) => new Promise((resolve, reject) => {
 
 export const daysUntilExpiry = (expiryDate) => {
   if (!expiryDate) return null;
-  const diff = new Date(expiryDate) - new Date();
+  const parsed = new Date(expiryDate);
+  if (isNaN(parsed.getTime())) return null;
+  const diff = parsed - new Date();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
+};
+
+/**
+ * Return the URL prefix for a given portal value.
+ * Maps: business -> /business, worker -> /worker, jobseeker -> /jobs, dept -> /dept
+ */
+export const getPortalBasePath = (portal) => {
+  if (portal === 'jobseeker') return '/jobs';
+  if (portal === 'business' || portal === 'worker' || portal === 'dept') return `/${portal}`;
+  return '/business'; // safe fallback
 };

@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { getPortalBasePath } from '../../utils/helpers';
 import {
   FileText,
   RefreshCw,
@@ -17,7 +19,7 @@ const TYPE_CONFIG = {
     accent: 'group-hover:border-blue-400',
     description:
       'Apply for a new work permit for a foreign national to be employed in the BVI. Requires employer sponsorship and full documentation.',
-    route: '/permits/apply/new',
+    subRoute: 'apply/new',
   },
   renewal: {
     icon: RefreshCw,
@@ -25,7 +27,7 @@ const TYPE_CONFIG = {
     accent: 'group-hover:border-green-400',
     description:
       'Renew an existing work permit before it expires. Begin the process at least 4 weeks before the expiry date to avoid gaps in employment authorization.',
-    route: '/permits/apply/renewal',
+    subRoute: 'apply/renewal',
   },
   temporary: {
     icon: Clock,
@@ -33,7 +35,7 @@ const TYPE_CONFIG = {
     accent: 'group-hover:border-purple-400',
     description:
       'For short-term assignments up to 3 months. Ideal for project-based work, consultants, or seasonal positions.',
-    route: '/permits/apply/temporary',
+    subRoute: 'apply/temporary',
   },
   periodic: {
     icon: Calendar,
@@ -41,7 +43,7 @@ const TYPE_CONFIG = {
     accent: 'group-hover:border-orange-400',
     description:
       'For workers who visit the BVI for short periods throughout the year, such as auditors, trainers, or service technicians.',
-    route: '/permits/apply/new',
+    subRoute: 'apply/new',
   },
   'self-employed': {
     icon: Briefcase,
@@ -49,7 +51,7 @@ const TYPE_CONFIG = {
     accent: 'group-hover:border-teal-400',
     description:
       'For foreign nationals who wish to operate their own business in the BVI. Requires a valid trade license and business plan.',
-    route: '/permits/apply/new',
+    subRoute: 'apply/new',
   },
   emergency: {
     icon: AlertTriangle,
@@ -57,12 +59,14 @@ const TYPE_CONFIG = {
     accent: 'group-hover:border-red-400',
     description:
       'Expedited permit for urgent, unforeseen circumstances lasting up to 7 days. Requires justification and supporting evidence.',
-    route: '/permits/apply/temporary',
+    subRoute: 'apply/temporary',
   },
 };
 
 export default function PermitTypeSelector() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const portalBase = getPortalBasePath(user?.portal);
   const types = Object.values(PERMIT_TYPES);
 
   return (
@@ -84,7 +88,7 @@ export default function PermitTypeSelector() {
           return (
             <button
               key={type.id}
-              onClick={() => navigate(config.route)}
+              onClick={() => navigate(`${portalBase}/permits/${config.subRoute}`)}
               className={`group card-hover text-left flex flex-col h-full ${config.accent}`}
             >
               <div className="flex items-start gap-4 mb-4">

@@ -26,8 +26,8 @@ export const DEPT_ROLES = {
 
 // Permission matrix - what each dept role can access
 export const DEPT_PERMISSIONS = {
-  commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'settings', 'approvals'],
-  deputy_commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'approvals'],
+  commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'settings', 'approvals', 'appointments'],
+  deputy_commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'approvals', 'appointments'],
   permit_officer: ['permits', 'payments'],
   dispute_officer: ['disputes'],
   placement_officer: ['jobs'],
@@ -40,7 +40,7 @@ export const DEPT_PERMISSIONS = {
 export const PORTALS = {
   BUSINESS: { id: 'business', label: 'Business Portal', path: '/business', color: '#003366', icon: 'Building2', description: 'For employers and companies - manage work permits, post jobs, handle renewals' },
   WORKER: { id: 'worker', label: 'Worker Portal', path: '/worker', color: '#006633', icon: 'UserCheck', description: 'For work permit holders - track permits, view ID cards, file disputes' },
-  JOBS: { id: 'jobs', label: 'Job Centre', path: '/jobs', color: '#c5a55a', icon: 'Briefcase', description: 'For Virgin Islanders and Belongers - search jobs, apply, access training' },
+  JOBS: { id: 'jobseeker', label: 'Job Centre', path: '/jobs', color: '#c5a55a', icon: 'Briefcase', description: 'For Virgin Islanders and Belongers - search jobs, apply, access training' },
   DEPT: { id: 'dept', label: 'Department Console', path: '/dept', color: '#7c3aed', icon: 'Shield', description: 'Department of Labour staff portal - restricted access' },
 };
 

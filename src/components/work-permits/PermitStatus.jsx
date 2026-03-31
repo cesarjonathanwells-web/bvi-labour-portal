@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
+import { getPortalBasePath } from '../../utils/helpers';
 import { formatDate, getStatusColor, getStatusLabel, daysUntilExpiry } from '../../utils/helpers';
 import { formatCurrency } from '../../utils/feeCalculator';
 import PermitCard from './PermitCard';
@@ -182,6 +183,7 @@ export default function PermitStatus() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { getPermitsByUser, permits: allPermits } = useApp();
+  const portalBase = getPortalBasePath(user?.portal);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState(null);
@@ -234,7 +236,7 @@ export default function PermitStatus() {
               : 'Start a new work permit application to get started.'}
           </p>
           {!searchQuery && (
-            <button onClick={() => navigate('/permits')} className="btn-primary">
+            <button onClick={() => navigate(`${portalBase}/permits`)} className="btn-primary">
               Apply for a Permit <ArrowRight size={16} />
             </button>
           )}

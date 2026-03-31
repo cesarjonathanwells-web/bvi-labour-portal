@@ -15,7 +15,9 @@ import {
   X,
   AlertCircle,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
+import { getPortalBasePath } from '../../utils/helpers';
 import { PERMIT_STATUSES } from '../../data/constants';
 import { formatDate, getStatusColor, getStatusLabel } from '../../utils/helpers';
 import { formatCurrency } from '../../utils/feeCalculator';
@@ -35,7 +37,9 @@ function getNestedValue(obj, path) {
 
 export default function PermitList() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { permits, updatePermitStatus } = useApp();
+  const portalBase = getPortalBasePath(user?.portal);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -274,7 +278,7 @@ export default function PermitList() {
                       {actionMenu === permit.id && (
                         <div className="absolute right-4 top-10 z-20 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[160px]">
                           <button
-                            onClick={() => { navigate(`/permits/status`); setActionMenu(null); }}
+                            onClick={() => { navigate(`${portalBase}/permits/status`); setActionMenu(null); }}
                             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
                           >
                             <Eye size={14} /> View Details

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
+import { getPortalBasePath } from '../../utils/helpers';
 import { ISLANDS, DOCUMENT_TYPES, JOB_CATEGORIES } from '../../data/constants';
 import { calculateWorkPermitFee, formatCurrency } from '../../utils/feeCalculator';
 import {
@@ -78,15 +79,15 @@ const INITIAL_STATE = {
 
 function Stepper({ currentStep, steps }) {
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between">
+    <nav aria-label="Application progress" className="mb-8">
+      <div className="flex items-center justify-between" role="list">
         {steps.map((step, idx) => {
           const Icon = step.icon;
           const isActive = currentStep === step.id;
           const isComplete = currentStep > step.id;
 
           return (
-            <div key={step.id} className="flex items-center flex-1 last:flex-0">
+            <div key={step.id} className="flex items-center flex-1 last:flex-0" role="listitem">
               <div className="flex flex-col items-center">
                 <div
                   className={
@@ -96,6 +97,8 @@ function Stepper({ currentStep, steps }) {
                         ? 'stepper-active'
                         : 'stepper-inactive'
                   }
+                  aria-label={`Step ${step.id}: ${step.label}${isComplete ? ' (completed)' : isActive ? ' (current)' : ''}`}
+                  aria-current={isActive ? 'step' : undefined}
                 >
                   {isComplete ? <Check size={18} /> : <Icon size={18} />}
                 </div>
@@ -116,13 +119,14 @@ function Stepper({ currentStep, steps }) {
                   className={`flex-1 h-0.5 mx-2 ${
                     currentStep > step.id ? 'bg-green-500' : 'bg-gray-200'
                   }`}
+                  aria-hidden="true"
                 />
               )}
             </div>
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }
 
@@ -699,16 +703,18 @@ function DocumentRow({ doc, uploaded, onUpload, onRemove }) {
           onClick={onRemove}
           className="text-red-500 hover:text-red-700 p-1"
           title="Remove"
+          aria-label={`Remove ${doc.label}`}
         >
           <X size={16} />
         </button>
       ) : (
-        <label className="btn-outline text-xs cursor-pointer py-1.5 px-3">
+        <label className="btn-outline text-xs cursor-pointer py-1.5 px-3" aria-label={`Upload ${doc.label}`}>
           <Upload size={12} /> Upload
           <input
             type="file"
             className="hidden"
             accept=".pdf,.jpg,.jpeg,.png"
+            aria-label={`Choose file for ${doc.label}`}
             onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])}
           />
         </label>
@@ -939,6 +945,7 @@ export default function NewPermitForm() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { submitPermit } = useApp();
+  const portalBase = getPortalBasePath(user?.portal);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState(INITIAL_STATE);
@@ -1070,13 +1077,13 @@ export default function NewPermitForm() {
         </p>
         <div className="flex gap-3 justify-center">
           <button
-            onClick={() => navigate('/permits/status')}
+            onClick={() => navigate(`${portalBase}/permits/status`)}
             className="btn-primary"
           >
             Track Application
           </button>
           <button
-            onClick={() => navigate('/permits')}
+            onClick={() => navigate(`${portalBase}/permits`)}
             className="btn-outline"
           >
             Back to Permits

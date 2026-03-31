@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Home, ArrowLeft, Search, HelpCircle } from 'lucide-react';
+import { Home, ArrowLeft, HelpCircle } from 'lucide-react';
 
 export default function NotFoundPage() {
   return (
@@ -42,32 +42,32 @@ export default function NotFoundPage() {
 
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/dashboard" className="btn-primary justify-center">
-              <Home size={18} /> Go to Dashboard
+            <Link to="/" className="btn-primary justify-center">
+              <Home size={18} /> Go to Home
             </Link>
             <Link to="/" className="btn-outline justify-center">
-              <ArrowLeft size={18} /> Back to Home
+              <ArrowLeft size={18} /> Back to Portal Selection
             </Link>
           </div>
 
           {/* Quick links */}
           <div className="mt-12 pt-8 border-t border-gray-200">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-4">Quick Links</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-4">Portals</p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Link to="/permits" className="text-sm text-[#003366] hover:text-[#c5a55a] font-medium transition-colors">
-                Work Permits
+              <Link to="/business/login" className="text-sm text-[#003366] hover:text-[#c5a55a] font-medium transition-colors">
+                Business Portal
               </Link>
               <span className="text-gray-300">|</span>
-              <Link to="/disputes" className="text-sm text-[#003366] hover:text-[#c5a55a] font-medium transition-colors">
-                Disputes
+              <Link to="/worker/login" className="text-sm text-[#003366] hover:text-[#c5a55a] font-medium transition-colors">
+                Worker Portal
               </Link>
               <span className="text-gray-300">|</span>
-              <Link to="/jobs" className="text-sm text-[#003366] hover:text-[#c5a55a] font-medium transition-colors">
-                Job Search
+              <Link to="/jobs/login" className="text-sm text-[#003366] hover:text-[#c5a55a] font-medium transition-colors">
+                Job Centre
               </Link>
               <span className="text-gray-300">|</span>
-              <Link to="/fees/calculator" className="text-sm text-[#003366] hover:text-[#c5a55a] font-medium transition-colors">
-                Fee Calculator
+              <Link to="/dept/login" className="text-sm text-[#003366] hover:text-[#c5a55a] font-medium transition-colors">
+                Department Console
               </Link>
             </div>
           </div>

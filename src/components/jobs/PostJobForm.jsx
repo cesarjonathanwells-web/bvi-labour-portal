@@ -110,21 +110,23 @@ export default function PostJobForm({ onSuccess }) {
   return (
     <div className="max-w-3xl mx-auto">
       {/* Stepper */}
-      <div className="flex items-center justify-between mb-8">
+      <nav aria-label="Job posting progress" className="flex items-center justify-between mb-8">
         {stepLabels.map((label, i) => (
           <div key={i} className="flex items-center flex-1">
             <div className="flex flex-col items-center">
-              <div className={i + 1 < step ? 'stepper-complete' : i + 1 === step ? 'stepper-active' : 'stepper-inactive'}>
+              <div className={i + 1 < step ? 'stepper-complete' : i + 1 === step ? 'stepper-active' : 'stepper-inactive'}
+                aria-label={`Step ${i + 1}: ${label}${i + 1 < step ? ' (completed)' : i + 1 === step ? ' (current)' : ''}`}
+                aria-current={i + 1 === step ? 'step' : undefined}>
                 {i + 1 < step ? <CheckCircle className="w-5 h-5" /> : i + 1}
               </div>
               <span className="text-xs mt-1 text-gray-600 hidden sm:block">{label}</span>
             </div>
             {i < stepLabels.length - 1 && (
-              <div className={`flex-1 h-0.5 mx-2 ${i + 1 < step ? 'bg-[#006633]' : 'bg-gray-200'}`} />
+              <div className={`flex-1 h-0.5 mx-2 ${i + 1 < step ? 'bg-[#006633]' : 'bg-gray-200'}`} aria-hidden="true" />
             )}
           </div>
         ))}
-      </div>
+      </nav>
 
       <div className="card">
         {/* Step 1 */}

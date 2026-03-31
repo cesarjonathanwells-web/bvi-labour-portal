@@ -179,21 +179,23 @@ export default function FileDisputeForm({ onSuccess }) {
   return (
     <div className="max-w-3xl mx-auto">
       {/* Stepper */}
-      <div className="flex items-center justify-between mb-8">
+      <nav aria-label="Dispute filing progress" className="flex items-center justify-between mb-8">
         {stepLabels.map((label, i) => (
           <div key={i} className="flex items-center flex-1">
             <div className="flex flex-col items-center">
-              <div className={i + 1 < step ? 'stepper-complete' : i + 1 === step ? 'stepper-active' : 'stepper-inactive'}>
+              <div className={i + 1 < step ? 'stepper-complete' : i + 1 === step ? 'stepper-active' : 'stepper-inactive'}
+                aria-label={`Step ${i + 1}: ${label}${i + 1 < step ? ' (completed)' : i + 1 === step ? ' (current)' : ''}`}
+                aria-current={i + 1 === step ? 'step' : undefined}>
                 {i + 1 < step ? <CheckCircle className="w-5 h-5" /> : i + 1}
               </div>
               <span className="text-xs mt-1 text-gray-600 hidden sm:block">{label}</span>
             </div>
             {i < stepLabels.length - 1 && (
-              <div className={`flex-1 h-0.5 mx-2 ${i + 1 < step ? 'bg-[#006633]' : 'bg-gray-200'}`} />
+              <div className={`flex-1 h-0.5 mx-2 ${i + 1 < step ? 'bg-[#006633]' : 'bg-gray-200'}`} aria-hidden="true" />
             )}
           </div>
         ))}
-      </div>
+      </nav>
 
       <div className="card">
         {/* Step 1: Complainant */}
@@ -338,6 +340,7 @@ export default function FileDisputeForm({ onSuccess }) {
               <Upload className="w-8 h-8 text-gray-400" />
               <span className="text-gray-500 text-center">Click to upload documents<br /><span className="text-xs">PDF, DOC, JPG, PNG (max 10MB each)</span></span>
               <input type="file" className="hidden" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                aria-label="Upload supporting documents"
                 onChange={handleDocUpload} />
             </label>
 
@@ -349,7 +352,7 @@ export default function FileDisputeForm({ onSuccess }) {
                     <Paperclip className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     <span className="text-sm text-gray-700 flex-1 truncate">{doc.name}</span>
                     <span className="text-xs text-gray-400">{(doc.size / 1024).toFixed(0)} KB</span>
-                    <button type="button" onClick={() => removeDoc(i)} className="text-red-500 hover:text-red-700">
+                    <button type="button" onClick={() => removeDoc(i)} className="text-red-500 hover:text-red-700" aria-label={`Remove ${doc.name}`}>
                       <X className="w-4 h-4" />
                     </button>
                   </div>

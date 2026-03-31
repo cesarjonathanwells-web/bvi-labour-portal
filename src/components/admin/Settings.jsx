@@ -42,7 +42,7 @@ export default function Settings() {
   const { user, getAllUsers, hasPermission } = useAuth();
 
   /* ---------- Permission gate ---------- */
-  if (!user || user.deptRole !== 'commissioner') {
+  if (!user || !hasPermission('settings') || user.deptRole !== 'commissioner') {
     return <AccessDenied />;
   }
 

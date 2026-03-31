@@ -51,7 +51,7 @@ export default function UserManagement() {
   const { getAllUsers, user: currentUser, hasPermission } = useAuth();
 
   /* ---------- Permission gate ---------- */
-  if (!currentUser || !ALLOWED_ROLES.includes(currentUser.deptRole)) {
+  if (!currentUser || !hasPermission('users') || !ALLOWED_ROLES.includes(currentUser.deptRole)) {
     return <AccessDenied />;
   }
 
@@ -72,7 +72,7 @@ export default function UserManagement() {
     const dept = allUsers.filter(u => u.portal === 'dept');
     const business = allUsers.filter(u => u.portal === 'business' || u.role === 'employer');
     const worker = allUsers.filter(u => u.portal === 'worker' || u.role === 'employee');
-    const jobseeker = allUsers.filter(u => u.portal === 'jobs' || u.role === 'jobseeker');
+    const jobseeker = allUsers.filter(u => u.portal === 'jobseeker' || u.role === 'jobseeker');
     return { dept, business, worker, jobseeker };
   }, [allUsers]);
 
