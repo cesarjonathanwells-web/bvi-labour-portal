@@ -157,7 +157,7 @@ function SectionHeader({ title, subtitle }) {
 }
 
 /* ─── Step 1: Employer Info ─── */
-function EmployerStep({ data, onChange, errors }) {
+function EmployerStep({ data, onChange, errors, prefilledFromAccount }) {
   const update = (field, value) =>
     onChange({ ...data, [field]: value });
 
@@ -167,6 +167,14 @@ function EmployerStep({ data, onChange, errors }) {
         title="Employer Information"
         subtitle="Provide details about the sponsoring employer."
       />
+      {prefilledFromAccount && (
+        <div className="mb-5 flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-[#003366]">
+          <Info size={16} className="flex-shrink-0 mt-0.5" />
+          <p>
+            We&apos;ve pre-filled these fields from your registered business profile. Update any details that have changed before submitting.
+          </p>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="label-field">
@@ -953,11 +961,30 @@ export default function NewPermitForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(null);
 
-  // Load draft on mount
+  // Prefill employer info from the logged-in business account.
+  // Registered companies don't need to retype what the system already knows —
+  // the fields are pre-populated and the user can edit them if something is out of date.
+  const employerPrefill = useCallback((employer) => {
+    if (!user || user.portal !== 'business') return employer;
+    return {
+      companyName: employer.companyName || user.companyName || user.organization || '',
+      tradeLicense: employer.tradeLicense || user.tradeLicense || '',
+      address: employer.address || user.businessAddress || user.address || '',
+      phone: employer.phone || user.phone || '',
+      email: employer.email || user.email || '',
+      industry: employer.industry || user.industry || '',
+      authorizedSignatory:
+        employer.authorizedSignatory ||
+        [user.firstName, user.lastName].filter(Boolean).join(' '),
+    };
+  }, [user]);
+
+  // Load draft on mount and prefill employer info from the logged-in account
   useEffect(() => {
     const draft = getStorage(DRAFT_KEY);
-    if (draft) setFormData(draft);
-  }, []);
+    const base = draft || INITIAL_STATE;
+    setFormData({ ...base, employer: employerPrefill(base.employer) });
+  }, [employerPrefill]);
 
   // Auto-save draft
   const saveDraft = useCallback(() => {
@@ -1112,6 +1139,7 @@ export default function NewPermitForm() {
             data={formData.employer}
             onChange={updateSection('employer')}
             errors={errors}
+            prefilledFromAccount={user?.portal === 'business'}
           />
         )}
         {currentStep === 2 && (
