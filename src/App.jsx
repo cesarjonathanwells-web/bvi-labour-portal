@@ -1,6 +1,11 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
+
+// Shared UI
+import ErrorBoundary from './components/common/ErrorBoundary';
+import DemoBanner from './components/common/DemoBanner';
 
 // Portal-specific layouts
 import BusinessLayout from './components/layout/BusinessLayout';
@@ -16,24 +21,26 @@ import ProfilePage from './components/auth/ProfilePage';
 // Dashboards
 import DashboardRouter from './components/dashboard/DashboardRouter';
 
-// Full pages
-import PermitsPage from './pages/PermitsPage';
-import JobsPage from './pages/JobsPage';
-import DisputesPage from './pages/DisputesPage';
-import DocumentsPage from './pages/DocumentsPage';
-import FeesPage from './pages/FeesPage';
-import IDCardPage from './pages/IDCardPage';
+// Public pages — eager
 import LandingPage from './pages/LandingPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-// Admin / Dept
-import UserManagement from './components/admin/UserManagement';
-import PermitReview from './components/admin/PermitReview';
-import Reports from './components/admin/Reports';
-import Settings from './components/admin/Settings';
-import PaymentProcessing from './components/dept/PaymentProcessing';
-import AppointmentManager from './components/dept/AppointmentManager';
-import InspectionManager from './components/dept/InspectionManager';
+// Application pages — lazy (heavy: permits/jobs/disputes forms + PDF libs)
+const PermitsPage = lazy(() => import('./pages/PermitsPage'));
+const JobsPage = lazy(() => import('./pages/JobsPage'));
+const DisputesPage = lazy(() => import('./pages/DisputesPage'));
+const DocumentsPage = lazy(() => import('./pages/DocumentsPage'));
+const FeesPage = lazy(() => import('./pages/FeesPage'));
+const IDCardPage = lazy(() => import('./pages/IDCardPage'));
+
+// Admin / Dept — lazy (restricted to dept staff, no need to ship to public users)
+const UserManagement = lazy(() => import('./components/admin/UserManagement'));
+const PermitReview = lazy(() => import('./components/admin/PermitReview'));
+const Reports = lazy(() => import('./components/admin/Reports'));
+const Settings = lazy(() => import('./components/admin/Settings'));
+const PaymentProcessing = lazy(() => import('./components/dept/PaymentProcessing'));
+const AppointmentManager = lazy(() => import('./components/dept/AppointmentManager'));
+const InspectionManager = lazy(() => import('./components/dept/InspectionManager'));
 
 
 /* ------------------------------------------------------------------ */
@@ -313,12 +320,17 @@ function RedirectToDashboard() {
 /* ------------------------------------------------------------------ */
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppProvider>
-          <AppRoutes />
-        </AppProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppProvider>
+            <DemoBanner />
+            <Suspense fallback={<LoadingScreen />}>
+              <AppRoutes />
+            </Suspense>
+          </AppProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
