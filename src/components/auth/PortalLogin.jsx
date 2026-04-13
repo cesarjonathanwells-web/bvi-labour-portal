@@ -242,8 +242,8 @@ export default function PortalLogin({ portal = 'business' }) {
             </form>
           </div>
 
-          {/* Demo credentials for dept portal */}
-          {portal === 'dept' && (
+          {/* Demo credentials for dept portal — only visible in dev */}
+          {portal === 'dept' && import.meta.env.DEV && (
             <div className="mt-4 bg-purple-50 border border-purple-200 rounded-xl p-4">
               <div className="flex items-start gap-2">
                 <Info size={18} className="text-purple-600 flex-shrink-0 mt-0.5" />

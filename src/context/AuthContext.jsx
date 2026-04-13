@@ -6,6 +6,9 @@ const AuthContext = createContext(null);
 
 const USERS_KEY = 'bvi_labour_users';
 const SESSION_KEY = 'bvi_labour_session';
+const SEED_VERSION_KEY = 'bvi_labour_seed_version';
+// Bump this whenever the default seed users change so returning browsers pick up the update
+const SEED_VERSION = 2;
 
 // ---------------------------------------------------------------------------
 //  Default department staff accounts
@@ -14,14 +17,14 @@ const defaultDeptUsers = [
   {
     id: 'dept-commissioner-001', email: 'commissioner@labour.gov.vg', password: 'admin123',
     portal: 'dept', deptRole: 'commissioner', role: 'admin',
-    firstName: 'Labour', lastName: 'Commissioner',
+    firstName: 'Mervin', lastName: 'Hastings',
     organization: 'Department of Labour and Workforce Development',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'dept-deputy-001', email: 'deputy@labour.gov.vg', password: 'admin123',
     portal: 'dept', deptRole: 'deputy_commissioner', role: 'admin',
-    firstName: 'Deputy', lastName: 'Commissioner',
+    firstName: 'Janelle', lastName: 'Penn',
     organization: 'Department of Labour and Workforce Development',
     createdAt: new Date().toISOString(),
   },
@@ -153,12 +156,23 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const allDefaults = [...defaultDeptUsers, ...defaultPublicUsers];
     const users = getStorage(USERS_KEY);
+    const storedVersion = Number(localStorage.getItem(SEED_VERSION_KEY) || 0);
+    const seedOutdated = storedVersion < SEED_VERSION;
+
     if (!users || users.length === 0) {
       setStorage(USERS_KEY, allDefaults);
     } else {
-      // Ensure all default accounts exist (idempotent merge)
+      // Ensure all default accounts exist. When the seed version bumps, also refresh
+      // any stale default records (preserving non-default user-created accounts).
       let changed = false;
-      const existing = [...users];
+      const defaultIds = new Set(allDefaults.map(d => d.id));
+      const existing = users.map(u => {
+        if (seedOutdated && defaultIds.has(u.id)) {
+          const fresh = allDefaults.find(d => d.id === u.id);
+          if (fresh) { changed = true; return { ...u, ...fresh }; }
+        }
+        return u;
+      });
       for (const def of allDefaults) {
         if (!existing.find(u => u.id === def.id)) {
           existing.push(def);
@@ -167,6 +181,7 @@ export function AuthProvider({ children }) {
       }
       if (changed) setStorage(USERS_KEY, existing);
     }
+    if (seedOutdated) localStorage.setItem(SEED_VERSION_KEY, String(SEED_VERSION));
 
     // Restore session
     const session = getStorage(SESSION_KEY);

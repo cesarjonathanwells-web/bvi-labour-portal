@@ -1,14 +1,11 @@
 import {
-  LayoutDashboard, Search, FileText, Upload, BookOpen, User,
+  LayoutDashboard, Search, User,
 } from 'lucide-react';
 import PortalLayout from './PortalLayout';
 
 const navItems = [
   { label: 'Dashboard', to: '/jobs/dashboard', icon: LayoutDashboard },
   { label: 'Search Jobs', to: '/jobs/search', icon: Search },
-  { label: 'My Applications', to: '/jobs/applications', icon: FileText },
-  { label: 'My Resume', to: '/jobs/resume', icon: Upload },
-  { label: 'Training Programs', to: '/jobs/training', icon: BookOpen },
   { label: 'Profile', to: '/jobs/profile', icon: User },
 ];
 

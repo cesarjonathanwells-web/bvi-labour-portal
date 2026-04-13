@@ -225,11 +225,15 @@ export default function PermitReview() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
                 <div>
                   <p className="text-gray-400 text-xs uppercase mb-0.5">Employee</p>
-                  <p className="font-medium">{merged.employeeFirstName || merged.firstName} {merged.employeeLastName || merged.lastName}</p>
+                  <p className="font-medium">{
+                    merged.employeeName ||
+                    [merged.employeeFirstName || merged.firstName, merged.employeeLastName || merged.lastName].filter(Boolean).join(' ') ||
+                    '-'
+                  }</p>
                 </div>
                 <div>
                   <p className="text-gray-400 text-xs uppercase mb-0.5">Nationality</p>
-                  <p className="font-medium">{merged.nationality || '-'}</p>
+                  <p className="font-medium">{merged.employeeNationality || merged.nationality || '-'}</p>
                 </div>
                 <div>
                   <p className="text-gray-400 text-xs uppercase mb-0.5">Date of Birth</p>
@@ -617,9 +621,11 @@ export default function PermitReview() {
                     <span className="text-[10px] text-gray-400 capitalize">{permit.type?.replace(/-/g, ' ')}</span>
                   </div>
                   <p className="text-sm text-gray-700 truncate">
-                    {permit.employeeFirstName || permit.firstName}{' '}
-                    {permit.employeeLastName || permit.lastName}
-                    {permit.employerName ? ` -- ${permit.employerName}` : ''}
+                    {(() => {
+                      const name = permit.employeeName ||
+                        [permit.employeeFirstName || permit.firstName, permit.employeeLastName || permit.lastName].filter(Boolean).join(' ');
+                      return [name, permit.employerName].filter(Boolean).join(' — ');
+                    })()}
                   </p>
                   <div className="flex items-center gap-3 mt-0.5">
                     <p className="text-xs text-gray-400">
