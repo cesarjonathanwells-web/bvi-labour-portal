@@ -29,6 +29,7 @@ import {
   getStorage,
   setStorage,
 } from '../../utils/helpers';
+import { buildEmployerPrefill, mergePrefill, isTradeLicenceVerified, getPreviousDocuments } from '../../utils/prefill';
 
 const DRAFT_KEY = 'bvi_permit_draft_new';
 
@@ -157,7 +158,7 @@ function SectionHeader({ title, subtitle }) {
 }
 
 /* ─── Step 1: Employer Info ─── */
-function EmployerStep({ data, onChange, errors, prefilledFromAccount }) {
+function EmployerStep({ data, onChange, errors, prefilledFromAccount, licenceVerified }) {
   const update = (field, value) =>
     onChange({ ...data, [field]: value });
 
@@ -191,6 +192,11 @@ function EmployerStep({ data, onChange, errors, prefilledFromAccount }) {
         <div>
           <label className="label-field">
             Trade License Number <span className="text-red-500">*</span>
+            {licenceVerified && (
+              <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-800 text-[10px] font-semibold uppercase tracking-wide">
+                <Check size={10} /> Verified with IRD
+              </span>
+            )}
           </label>
           <input
             className="input-field"
@@ -602,7 +608,7 @@ function PositionStep({ data, onChange, errors }) {
 }
 
 /* ─── Step 4: Documents ─── */
-function DocumentsStep({ documents, onChange }) {
+function DocumentsStep({ documents, onChange, previousDocs = {} }) {
   const handleUpload = async (docId, file) => {
     if (file.size > 5 * 1024 * 1024) {
       alert('File must be under 5 MB.');
@@ -615,6 +621,35 @@ function DocumentsStep({ documents, onChange }) {
     });
   };
 
+  const handleReuse = (docId) => {
+    const prev = previousDocs[docId];
+    if (!prev) return;
+    onChange({
+      ...documents,
+      [docId]: {
+        name: prev.fileName || prev.name,
+        size: prev.fileSize || prev.size || 0,
+        uploadedAt: prev.uploadedAt,
+        reusedFrom: prev.id,
+      },
+    });
+  };
+
+  const handleReuseAll = () => {
+    const next = { ...documents };
+    for (const docId of Object.keys(previousDocs)) {
+      if (next[docId]) continue;
+      const prev = previousDocs[docId];
+      next[docId] = {
+        name: prev.fileName || prev.name,
+        size: prev.fileSize || prev.size || 0,
+        uploadedAt: prev.uploadedAt,
+        reusedFrom: prev.id,
+      };
+    }
+    onChange(next);
+  };
+
   const handleRemove = (docId) => {
     const next = { ...documents };
     delete next[docId];
@@ -625,6 +660,9 @@ function DocumentsStep({ documents, onChange }) {
   const optionalDocs = DOCUMENT_TYPES.filter((d) => !d.required);
   const uploadedCount = Object.keys(documents).length;
   const requiredCount = requiredDocs.filter((d) => documents[d.id]).length;
+  const reusableCount = DOCUMENT_TYPES.filter(
+    (d) => previousDocs[d.id] && !documents[d.id]
+  ).length;
 
   return (
     <div>
@@ -647,13 +685,33 @@ function DocumentsStep({ documents, onChange }) {
         </div>
       </div>
 
+      {reusableCount > 0 && (
+        <div className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm text-green-900">
+            <FileUp size={16} className="flex-shrink-0" />
+            <span>
+              <span className="font-semibold">{reusableCount}</span> document{reusableCount === 1 ? '' : 's'} on file from a previous application can be reused.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleReuseAll}
+            className="shrink-0 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700"
+          >
+            Reuse all
+          </button>
+        </div>
+      )}
+
       <div className="space-y-3 mb-8">
         {requiredDocs.map((doc) => (
           <DocumentRow
             key={doc.id}
             doc={doc}
             uploaded={documents[doc.id]}
+            previous={previousDocs[doc.id]}
             onUpload={(file) => handleUpload(doc.id, file)}
+            onReuse={() => handleReuse(doc.id)}
             onRemove={() => handleRemove(doc.id)}
           />
         ))}
@@ -668,7 +726,9 @@ function DocumentsStep({ documents, onChange }) {
             key={doc.id}
             doc={doc}
             uploaded={documents[doc.id]}
+            previous={previousDocs[doc.id]}
             onUpload={(file) => handleUpload(doc.id, file)}
+            onReuse={() => handleReuse(doc.id)}
             onRemove={() => handleRemove(doc.id)}
           />
         ))}
@@ -677,7 +737,7 @@ function DocumentsStep({ documents, onChange }) {
   );
 }
 
-function DocumentRow({ doc, uploaded, onUpload, onRemove }) {
+function DocumentRow({ doc, uploaded, previous, onUpload, onReuse, onRemove }) {
   return (
     <div
       className={`flex items-center gap-3 p-3 rounded-lg border ${
@@ -707,25 +767,45 @@ function DocumentRow({ doc, uploaded, onUpload, onRemove }) {
       </div>
 
       {uploaded ? (
-        <button
-          onClick={onRemove}
-          className="text-red-500 hover:text-red-700 p-1"
-          title="Remove"
-          aria-label={`Remove ${doc.label}`}
-        >
-          <X size={16} />
-        </button>
+        <>
+          {uploaded.reusedFrom && (
+            <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-800 text-[10px] font-semibold uppercase tracking-wide">
+              Reused
+            </span>
+          )}
+          <button
+            onClick={onRemove}
+            className="text-red-500 hover:text-red-700 p-1"
+            title="Remove"
+            aria-label={`Remove ${doc.label}`}
+          >
+            <X size={16} />
+          </button>
+        </>
       ) : (
-        <label className="btn-outline text-xs cursor-pointer py-1.5 px-3" aria-label={`Upload ${doc.label}`}>
-          <Upload size={12} /> Upload
-          <input
-            type="file"
-            className="hidden"
-            accept=".pdf,.jpg,.jpeg,.png"
-            aria-label={`Choose file for ${doc.label}`}
-            onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])}
-          />
-        </label>
+        <div className="flex items-center gap-2">
+          {previous && (
+            <button
+              type="button"
+              onClick={onReuse}
+              className="text-xs font-semibold text-green-700 hover:text-green-800 px-2 py-1.5 rounded-md hover:bg-green-50"
+              aria-label={`Reuse previously uploaded ${doc.label}`}
+              title={`Reuse ${previous.fileName || previous.name}`}
+            >
+              Reuse previous
+            </button>
+          )}
+          <label className="btn-outline text-xs cursor-pointer py-1.5 px-3" aria-label={`Upload ${doc.label}`}>
+            <Upload size={12} /> Upload
+            <input
+              type="file"
+              className="hidden"
+              accept=".pdf,.jpg,.jpeg,.png"
+              aria-label={`Choose file for ${doc.label}`}
+              onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])}
+            />
+          </label>
+        </div>
       )}
     </div>
   );
@@ -961,30 +1041,19 @@ export default function NewPermitForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(null);
 
-  // Prefill employer info from the logged-in business account.
-  // Registered companies don't need to retype what the system already knows —
-  // the fields are pre-populated and the user can edit them if something is out of date.
-  const employerPrefill = useCallback((employer) => {
-    if (!user || user.portal !== 'business') return employer;
-    return {
-      companyName: employer.companyName || user.companyName || user.organization || '',
-      tradeLicense: employer.tradeLicense || user.tradeLicense || '',
-      address: employer.address || user.businessAddress || user.address || '',
-      phone: employer.phone || user.phone || '',
-      email: employer.email || user.email || '',
-      industry: employer.industry || user.industry || '',
-      authorizedSignatory:
-        employer.authorizedSignatory ||
-        [user.firstName, user.lastName].filter(Boolean).join(' '),
-    };
-  }, [user]);
+  const previousDocs = getPreviousDocuments(user);
 
-  // Load draft on mount and prefill employer info from the logged-in account
+  // Load draft on mount and prefill employer info from the logged-in account.
+  // Registered companies don't need to retype what the system already knows —
+  // fields are pre-populated and remain editable in case anything is out of date.
   useEffect(() => {
     const draft = getStorage(DRAFT_KEY);
     const base = draft || INITIAL_STATE;
-    setFormData({ ...base, employer: employerPrefill(base.employer) });
-  }, [employerPrefill]);
+    setFormData({
+      ...base,
+      employer: mergePrefill(base.employer, buildEmployerPrefill(user)),
+    });
+  }, [user]);
 
   // Auto-save draft
   const saveDraft = useCallback(() => {
@@ -1140,6 +1209,7 @@ export default function NewPermitForm() {
             onChange={updateSection('employer')}
             errors={errors}
             prefilledFromAccount={user?.portal === 'business'}
+            licenceVerified={isTradeLicenceVerified(formData.employer.tradeLicense, user)}
           />
         )}
         {currentStep === 2 && (
@@ -1160,6 +1230,7 @@ export default function NewPermitForm() {
           <DocumentsStep
             documents={formData.documents}
             onChange={updateSection('documents')}
+            previousDocs={previousDocs}
           />
         )}
         {currentStep === 5 && (

@@ -30,6 +30,13 @@ import {
   getStorage,
   setStorage,
 } from '../../utils/helpers';
+import {
+  buildEmployerPrefill,
+  mergePrefill,
+  isTradeLicenceVerified,
+  getOwnedPermits,
+  permitToEmployeePrefill,
+} from '../../utils/prefill';
 
 const DRAFT_KEY = 'bvi_permit_draft_renewal';
 
@@ -141,7 +148,7 @@ function SectionHeader({ title, subtitle }) {
 }
 
 /* ─── Step 1: Current Permit & Employer Info ─── */
-function CurrentPermitStep({ data, onChange, errors }) {
+function CurrentPermitStep({ data, onChange, errors, ownedPermits, onPickPermit, prefilledFromAccount, licenceVerified }) {
   const update = (field, value) => onChange({ ...data, [field]: value });
 
   return (
@@ -157,6 +164,37 @@ function CurrentPermitStep({ data, onChange, errors }) {
         </div>
       </div>
 
+      {/* One-click: pick a permit you already own and carry its data through the form */}
+      {ownedPermits && ownedPermits.length > 0 && (
+        <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
+          <div className="flex items-start gap-2 mb-3">
+            <Info size={16} className="text-[#003366] flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-[#003366]">
+              <span className="font-semibold">Renewing an existing permit?</span> Pick it below and we&apos;ll carry over the employee and position details for you.
+            </p>
+          </div>
+          <select
+            className="input-field text-sm"
+            value={data.permitNumber || ''}
+            onChange={(e) => onPickPermit(e.target.value)}
+          >
+            <option value="">— Select a permit to renew —</option>
+            {ownedPermits.map(p => (
+              <option key={p.id} value={p.permitNumber}>
+                {p.permitNumber} · {p.employeeName || 'Unknown'} · {p.position || 'Unknown position'}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {prefilledFromAccount && (
+        <div className="mb-5 flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-[#003366]">
+          <Info size={16} className="flex-shrink-0 mt-0.5" />
+          <p>Employer fields pre-filled from your registered business profile. Edit any details that are out of date.</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="md:col-span-2">
           <label className="label-field">Current Permit Number <span className="text-red-500">*</span></label>
@@ -169,7 +207,14 @@ function CurrentPermitStep({ data, onChange, errors }) {
           <FieldError error={errors.companyName} />
         </div>
         <div>
-          <label className="label-field">Trade License Number <span className="text-red-500">*</span></label>
+          <label className="label-field">
+            Trade License Number <span className="text-red-500">*</span>
+            {licenceVerified && (
+              <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-800 text-[10px] font-semibold uppercase tracking-wide">
+                <Check size={10} /> Verified with IRD
+              </span>
+            )}
+          </label>
           <input className="input-field" value={data.tradeLicense} onChange={(e) => update('tradeLicense', e.target.value)} placeholder="e.g. TL-2024-12345" />
           <FieldError error={errors.tradeLicense} />
         </div>
@@ -562,7 +607,7 @@ function validateStep3(data) {
 export default function RenewalForm() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { submitPermit } = useApp();
+  const { submitPermit, permits } = useApp();
   const portalBase = getPortalBasePath(user?.portal);
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -571,10 +616,38 @@ export default function RenewalForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(null);
 
+  const ownedPermits = getOwnedPermits(permits, user)
+    .filter(p => p.type !== 'renewal' && p.status !== 'rejected');
+
   useEffect(() => {
     const draft = getStorage(DRAFT_KEY);
-    if (draft) setFormData(draft);
-  }, []);
+    const base = draft || INITIAL_STATE;
+    const employerPrefill = buildEmployerPrefill(user);
+    setFormData({
+      ...base,
+      currentPermit: mergePrefill(base.currentPermit, employerPrefill),
+    });
+  }, [user]);
+
+  // When the user picks an existing permit from the dropdown, carry its
+  // employee and position data through — major time-saver for renewals.
+  const handlePickPermit = (permitNumber) => {
+    const permit = ownedPermits.find(p => p.permitNumber === permitNumber);
+    if (!permit) {
+      setFormData(prev => ({
+        ...prev,
+        currentPermit: { ...prev.currentPermit, permitNumber: '' },
+      }));
+      return;
+    }
+    const prefill = permitToEmployeePrefill(permit);
+    setFormData(prev => ({
+      ...prev,
+      currentPermit: { ...prev.currentPermit, permitNumber: permit.permitNumber },
+      employee: mergePrefill(prev.employee, prefill.employee),
+      position: mergePrefill(prev.position, prefill.position),
+    }));
+  };
 
   const saveDraft = useCallback(() => { setStorage(DRAFT_KEY, formData); }, [formData]);
   useEffect(() => { const t = setTimeout(saveDraft, 1000); return () => clearTimeout(t); }, [saveDraft]);
@@ -654,7 +727,17 @@ export default function RenewalForm() {
       <Stepper currentStep={currentStep} steps={STEPS} />
 
       <div className="card mb-6">
-        {currentStep === 1 && <CurrentPermitStep data={formData.currentPermit} onChange={updateSection('currentPermit')} errors={errors} />}
+        {currentStep === 1 && (
+          <CurrentPermitStep
+            data={formData.currentPermit}
+            onChange={updateSection('currentPermit')}
+            errors={errors}
+            ownedPermits={ownedPermits}
+            onPickPermit={handlePickPermit}
+            prefilledFromAccount={user?.portal === 'business'}
+            licenceVerified={isTradeLicenceVerified(formData.currentPermit.tradeLicense, user)}
+          />
+        )}
         {currentStep === 2 && <EmployeeStep data={formData.employee} onChange={updateSection('employee')} errors={errors} />}
         {currentStep === 3 && <PositionStep data={formData.position} onChange={updateSection('position')} errors={errors} />}
         {currentStep === 4 && <DocumentsStep documents={formData.documents} onChange={updateSection('documents')} />}

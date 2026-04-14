@@ -28,6 +28,7 @@ import {
   getStorage,
   setStorage,
 } from '../../utils/helpers';
+import { buildEmployerPrefill, mergePrefill, isTradeLicenceVerified } from '../../utils/prefill';
 
 const DRAFT_KEY = 'bvi_permit_draft_temp';
 
@@ -126,7 +127,7 @@ function SectionHeader({ title, subtitle }) {
 }
 
 /* ─── Step 1: Employer & Employee ─── */
-function EmployerEmployeeStep({ employer, employee, onEmployerChange, onEmployeeChange, errors }) {
+function EmployerEmployeeStep({ employer, employee, onEmployerChange, onEmployeeChange, errors, prefilledFromAccount, licenceVerified }) {
   const ue = (field, value) => onEmployerChange({ ...employer, [field]: value });
   const uem = (field, value) => onEmployeeChange({ ...employee, [field]: value });
 
@@ -141,6 +142,12 @@ function EmployerEmployeeStep({ employer, employee, onEmployerChange, onEmployee
       </div>
 
       <SectionHeader title="Employer Information" subtitle="Sponsoring company details." />
+      {prefilledFromAccount && (
+        <div className="mb-5 flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-[#003366]">
+          <Info size={16} className="flex-shrink-0 mt-0.5" />
+          <p>Employer fields pre-filled from your registered business profile. Edit any details that are out of date.</p>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
         <div>
           <label className="label-field">Company Name <span className="text-red-500">*</span></label>
@@ -148,7 +155,14 @@ function EmployerEmployeeStep({ employer, employee, onEmployerChange, onEmployee
           <FieldError error={errors.companyName} />
         </div>
         <div>
-          <label className="label-field">Trade License Number <span className="text-red-500">*</span></label>
+          <label className="label-field">
+            Trade License Number <span className="text-red-500">*</span>
+            {licenceVerified && (
+              <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-800 text-[10px] font-semibold uppercase tracking-wide">
+                <Check size={10} /> Verified with IRD
+              </span>
+            )}
+          </label>
           <input className="input-field" value={employer.tradeLicense} onChange={(e) => ue('tradeLicense', e.target.value)} />
           <FieldError error={errors.tradeLicense} />
         </div>
@@ -485,7 +499,11 @@ export default function TemporaryPermitForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(null);
 
-  useEffect(() => { const d = getStorage(DRAFT_KEY); if (d) setFormData(d); }, []);
+  useEffect(() => {
+    const d = getStorage(DRAFT_KEY);
+    const base = d || INITIAL_STATE;
+    setFormData({ ...base, employer: mergePrefill(base.employer, buildEmployerPrefill(user)) });
+  }, [user]);
   const saveDraft = useCallback(() => { setStorage(DRAFT_KEY, formData); }, [formData]);
   useEffect(() => { const t = setTimeout(saveDraft, 1000); return () => clearTimeout(t); }, [saveDraft]);
 
@@ -560,7 +578,7 @@ export default function TemporaryPermitForm() {
       <Stepper currentStep={currentStep} steps={STEPS} />
 
       <div className="card mb-6">
-        {currentStep === 1 && <EmployerEmployeeStep employer={formData.employer} employee={formData.employee} onEmployerChange={updateSection('employer')} onEmployeeChange={updateSection('employee')} errors={errors} />}
+        {currentStep === 1 && <EmployerEmployeeStep employer={formData.employer} employee={formData.employee} onEmployerChange={updateSection('employer')} onEmployeeChange={updateSection('employee')} errors={errors} prefilledFromAccount={user?.portal === 'business'} licenceVerified={isTradeLicenceVerified(formData.employer.tradeLicense, user)} />}
         {currentStep === 2 && <AssignmentDocsStep assignment={formData.assignment} documents={formData.documents} onAssignmentChange={updateSection('assignment')} onDocsChange={updateSection('documents')} errors={errors} />}
         {currentStep === 3 && <ReviewStep formData={formData} fee={fee} termsAccepted={formData.termsAccepted} onTermsChange={(v) => setFormData(p => ({ ...p, termsAccepted: v }))} />}
       </div>
