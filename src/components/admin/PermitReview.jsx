@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   FileText, Search, Filter, X, Check, XCircle, MessageSquare, UserPlus,
   Clock, ChevronRight, Eye, ArrowLeft, Send, History, AlertCircle,
-  ArrowUpRight, ShieldAlert, User,
+  ArrowUpRight, ShieldAlert, User, CheckSquare, Square,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
@@ -61,6 +61,13 @@ export default function PermitReview() {
   const [assignTo, setAssignTo] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [internalNote, setInternalNote] = useState('');
+
+  /* ----- Bulk action state ----- */
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkAssignOpen, setBulkAssignOpen] = useState(false);
+  const [bulkAssignOfficer, setBulkAssignOfficer] = useState('');
+  const [bulkRejectOpen, setBulkRejectOpen] = useState(false);
+  const [bulkRejectReason, setBulkRejectReason] = useState('');
 
   // All hooks must run on every render — do the permission gate AFTER the hooks.
   // Compute derived values using optional chaining so they're safe when the user is absent.
@@ -186,6 +193,157 @@ export default function PermitReview() {
       metadata: { note: entry.text },
     });
     setInternalNote('');
+  };
+
+  /* ============= Bulk action helpers ============= */
+
+  const getSelectedPermits = () =>
+    permits.filter(p => selectedIds.has(p.id));
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAllVisible = () => {
+    setSelectedIds(prev => {
+      const visibleIds = filtered.map(p => p.id);
+      const allSelected = visibleIds.length > 0 && visibleIds.every(id => prev.has(id));
+      if (allSelected) {
+        // deselect visible
+        const next = new Set(prev);
+        visibleIds.forEach(id => next.delete(id));
+        return next;
+      }
+      const next = new Set(prev);
+      visibleIds.forEach(id => next.add(id));
+      return next;
+    });
+  };
+
+  const bulkAssignConfirm = () => {
+    if (!bulkAssignOfficer) return;
+    const targets = getSelectedPermits();
+    const officer = allUsers.find(o => o.id === bulkAssignOfficer);
+    if (!officer) return;
+    const ok = window.confirm(
+      `Assign ${targets.length} permit(s) to ${officer.firstName} ${officer.lastName}?`
+    );
+    if (!ok) return;
+
+    const noteBase = `Assigned to ${officer.firstName} ${officer.lastName} by ${user?.firstName || 'Staff'} ${user?.lastName || ''} (bulk)`;
+    const allPermits = getStorage('bvi_permits') || [];
+    const idSet = new Set(targets.map(p => p.id));
+    const updated = allPermits.map(p =>
+      idSet.has(p.id)
+        ? { ...p, assignedTo: officer.id, status: p.status === 'submitted' ? 'under_review' : p.status, notes: noteBase, updatedAt: new Date().toISOString() }
+        : p
+    );
+    setStorage('bvi_permits', updated);
+    // Per-permit status update (writes individual audit via context)
+    targets.forEach(p => {
+      const newStatus = p.status === 'submitted' ? 'under_review' : p.status;
+      updatePermitStatus(p.id, newStatus, noteBase);
+    });
+
+    // Single summary audit entry for the bulk operation
+    try {
+      logAudit({
+        ...actorFromUser(user),
+        category: 'permit', action: 'bulk assign',
+        targetType: 'permit', targetId: 'bulk', targetLabel: `${targets.length} permits`,
+        metadata: { officerId: officer.id, officerName: `${officer.firstName} ${officer.lastName}`, count: targets.length, ids: targets.map(p => p.id) },
+      });
+    } catch (e) { /* noop */ }
+
+    setBulkAssignOfficer('');
+    setBulkAssignOpen(false);
+    clearSelection();
+  };
+
+  const bulkMarkUnderReview = () => {
+    const targets = getSelectedPermits();
+    const eligible = targets.filter(p => p.status === 'submitted' || p.status === 'under_review');
+    const skipped = targets.length - eligible.length;
+    const ok = window.confirm(
+      `Mark ${eligible.length} permit(s) as Under Review?` +
+      (skipped > 0 ? `\n${skipped} will be skipped (not in submitted/under_review).` : '')
+    );
+    if (!ok) return;
+    const noteBase = `Marked under review by ${user?.firstName || 'Staff'} ${user?.lastName || ''} (bulk) on ${new Date().toLocaleString()}`;
+    eligible.forEach(p => updatePermitStatus(p.id, 'under_review', noteBase));
+
+    try {
+      logAudit({
+        ...actorFromUser(user),
+        category: 'permit', action: 'bulk mark under review',
+        targetType: 'permit', targetId: 'bulk', targetLabel: `${eligible.length} permits`,
+        metadata: { count: eligible.length, skipped, ids: eligible.map(p => p.id) },
+      });
+    } catch (e) { /* noop */ }
+
+    clearSelection();
+  };
+
+  const bulkApprove = () => {
+    const targets = getSelectedPermits();
+    const eligible = targets.filter(p => p.status === 'submitted' || p.status === 'under_review');
+    const skipped = targets.length - eligible.length;
+    if (eligible.length === 0) {
+      window.alert(`No eligible permits to approve (must be submitted or under review). ${skipped} skipped.`);
+      return;
+    }
+    const ok = window.confirm(
+      `Approve ${eligible.length} permit(s)?` +
+      (skipped > 0 ? `\n${skipped} will be skipped (not in submitted/under_review).` : '')
+    );
+    if (!ok) return;
+    const noteBase = `Approved by ${user?.firstName || 'Staff'} ${user?.lastName || ''} (bulk) on ${new Date().toLocaleString()}`;
+    eligible.forEach(p => updatePermitStatus(p.id, 'approved', noteBase));
+
+    try {
+      logAudit({
+        ...actorFromUser(user),
+        category: 'permit', action: 'bulk approve',
+        targetType: 'permit', targetId: 'bulk', targetLabel: `${eligible.length} permits`,
+        metadata: { count: eligible.length, skipped, ids: eligible.map(p => p.id) },
+      });
+    } catch (e) { /* noop */ }
+
+    clearSelection();
+  };
+
+  const bulkRejectConfirm = () => {
+    const reason = bulkRejectReason.trim();
+    if (!reason) return;
+    const targets = getSelectedPermits();
+    const eligible = targets.filter(p => p.status !== 'rejected');
+    const skipped = targets.length - eligible.length;
+    const ok = window.confirm(
+      `Reject ${eligible.length} permit(s) with reason: "${reason}"?` +
+      (skipped > 0 ? `\n${skipped} will be skipped (already rejected).` : '')
+    );
+    if (!ok) return;
+    const noteBase = `Rejected: ${reason} (by ${user?.firstName || 'Staff'} ${user?.lastName || ''} bulk on ${new Date().toLocaleString()})`;
+    eligible.forEach(p => updatePermitStatus(p.id, 'rejected', noteBase));
+
+    try {
+      logAudit({
+        ...actorFromUser(user),
+        category: 'permit', action: 'bulk reject',
+        targetType: 'permit', targetId: 'bulk', targetLabel: `${eligible.length} permits`,
+        metadata: { count: eligible.length, skipped, reason, ids: eligible.map(p => p.id) },
+      });
+    } catch (e) { /* noop */ }
+
+    setBulkRejectReason('');
+    setBulkRejectOpen(false);
+    clearSelection();
   };
 
   /* ============= Detail View ============= */
@@ -587,6 +745,57 @@ export default function PermitReview() {
         />
       </div>
 
+      {/* Bulk action bar (sticky) */}
+      {selectedIds.size > 0 && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="sticky top-0 z-20 mb-4 bg-[#7c3aed] text-white rounded-xl shadow-md px-4 py-3 flex flex-wrap items-center gap-3"
+        >
+          <span className="text-sm font-semibold">
+            {selectedIds.size} permit{selectedIds.size === 1 ? '' : 's'} selected
+          </span>
+          <div className="flex flex-wrap gap-2 ml-auto">
+            <button
+              onClick={() => setBulkAssignOpen(true)}
+              className="px-3 py-1.5 bg-white text-[#7c3aed] rounded-lg text-xs font-semibold hover:bg-purple-50 transition-colors inline-flex items-center gap-1"
+            >
+              <UserPlus size={14} /> Assign to officer…
+            </button>
+            {(canApproveReject || isOfficer) && (
+              <button
+                onClick={bulkMarkUnderReview}
+                className="px-3 py-1.5 bg-white/10 border border-white/40 text-white rounded-lg text-xs font-semibold hover:bg-white/20 transition-colors inline-flex items-center gap-1"
+              >
+                <Eye size={14} /> Mark under review
+              </button>
+            )}
+            {canApproveReject && (
+              <>
+                <button
+                  onClick={bulkApprove}
+                  className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs font-semibold hover:bg-green-600 transition-colors inline-flex items-center gap-1"
+                >
+                  <Check size={14} /> Approve
+                </button>
+                <button
+                  onClick={() => setBulkRejectOpen(true)}
+                  className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition-colors inline-flex items-center gap-1"
+                >
+                  <XCircle size={14} /> Reject
+                </button>
+              </>
+            )}
+            <button
+              onClick={clearSelection}
+              className="px-3 py-1.5 bg-transparent border border-white/50 text-white rounded-lg text-xs font-semibold hover:bg-white/10 transition-colors inline-flex items-center gap-1"
+            >
+              <X size={14} /> Clear selection
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Permits list */}
       {filtered.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl border border-gray-100 shadow-sm">
@@ -601,13 +810,54 @@ export default function PermitReview() {
         </div>
       ) : (
         <div className="space-y-3">
+          {/* Select-all header */}
+          {(() => {
+            const visibleIds = filtered.map(p => p.id);
+            const visibleSelected = visibleIds.filter(id => selectedIds.has(id)).length;
+            const allVisibleSelected = visibleIds.length > 0 && visibleSelected === visibleIds.length;
+            const someVisibleSelected = visibleSelected > 0 && !allVisibleSelected;
+            return (
+              <div className="flex items-center gap-3 px-5 py-2 bg-white rounded-xl border border-gray-100">
+                <input
+                  type="checkbox"
+                  aria-label="Select all visible permits"
+                  aria-checked={someVisibleSelected ? 'mixed' : allVisibleSelected ? 'true' : 'false'}
+                  ref={el => { if (el) el.indeterminate = someVisibleSelected; }}
+                  checked={allVisibleSelected}
+                  onChange={toggleSelectAllVisible}
+                  className="w-4 h-4 accent-[#7c3aed] cursor-pointer"
+                />
+                <span className="text-xs font-medium text-gray-500">
+                  {allVisibleSelected
+                    ? `All ${visibleIds.length} selected`
+                    : someVisibleSelected
+                      ? `${visibleSelected} of ${visibleIds.length} selected`
+                      : `Select all ${visibleIds.length} visible`}
+                </span>
+              </div>
+            );
+          })()}
+
           {filtered.map(permit => (
-            <button
+            <div
               key={permit.id}
+              role="button"
+              tabIndex={0}
               onClick={() => setSelectedPermit(permit)}
-              className="w-full text-left bg-white rounded-xl border border-gray-200 p-5 hover:border-[#7c3aed] hover:shadow-md transition-all group"
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPermit(permit); } }}
+              className={`w-full text-left bg-white rounded-xl border p-5 hover:border-[#7c3aed] hover:shadow-md transition-all group cursor-pointer ${
+                selectedIds.has(permit.id) ? 'border-[#7c3aed] ring-2 ring-purple-100' : 'border-gray-200'
+              }`}
             >
               <div className="flex items-center gap-4">
+                <input
+                  type="checkbox"
+                  aria-label={`Select permit ${permit.permitNumber}`}
+                  checked={selectedIds.has(permit.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => { e.stopPropagation(); toggleSelect(permit.id); }}
+                  className="w-4 h-4 accent-[#7c3aed] cursor-pointer flex-shrink-0"
+                />
                 <div className={`w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   permit.status === 'submitted' ? 'bg-blue-50' :
                   permit.status === 'under_review' ? 'bg-purple-50' :
@@ -655,8 +905,89 @@ export default function PermitReview() {
                   <ChevronRight className="w-5 h-5" />
                 </div>
               </div>
-            </button>
+            </div>
           ))}
+        </div>
+      )}
+
+      {/* Bulk assign modal */}
+      {bulkAssignOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Bulk assign to officer">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-start justify-between mb-4">
+              <h3 className="text-lg font-bold text-[#7c3aed] flex items-center gap-2">
+                <UserPlus size={18} /> Assign {selectedIds.size} Permit{selectedIds.size === 1 ? '' : 's'}
+              </h3>
+              <button onClick={() => { setBulkAssignOpen(false); setBulkAssignOfficer(''); }} className="text-gray-400 hover:text-gray-600">
+                <X size={18} />
+              </button>
+            </div>
+            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Permit Officer</label>
+            <select
+              value={bulkAssignOfficer}
+              onChange={(e) => setBulkAssignOfficer(e.target.value)}
+              className="input-field text-sm w-full"
+            >
+              <option value="">Select Permit Officer</option>
+              {permitOfficers.map(o => (
+                <option key={o.id} value={o.id}>{o.firstName} {o.lastName}</option>
+              ))}
+            </select>
+            <div className="flex gap-2 mt-5">
+              <button
+                onClick={() => { setBulkAssignOpen(false); setBulkAssignOfficer(''); }}
+                className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={bulkAssignConfirm}
+                disabled={!bulkAssignOfficer}
+                className="flex-1 px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-medium hover:bg-[#6d28d9] disabled:opacity-40"
+              >
+                Assign
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk reject modal */}
+      {bulkRejectOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Bulk reject permits">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-start justify-between mb-4">
+              <h3 className="text-lg font-bold text-red-600 flex items-center gap-2">
+                <XCircle size={18} /> Reject {selectedIds.size} Permit{selectedIds.size === 1 ? '' : 's'}
+              </h3>
+              <button onClick={() => { setBulkRejectOpen(false); setBulkRejectReason(''); }} className="text-gray-400 hover:text-gray-600">
+                <X size={18} />
+              </button>
+            </div>
+            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Reason (required)</label>
+            <textarea
+              value={bulkRejectReason}
+              onChange={(e) => setBulkRejectReason(e.target.value)}
+              rows={4}
+              placeholder="Provide a reason that will be applied to all selected permits…"
+              className="input-field text-sm w-full resize-none"
+            />
+            <div className="flex gap-2 mt-5">
+              <button
+                onClick={() => { setBulkRejectOpen(false); setBulkRejectReason(''); }}
+                className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={bulkRejectConfirm}
+                disabled={!bulkRejectReason.trim()}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-40"
+              >
+                Reject All
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

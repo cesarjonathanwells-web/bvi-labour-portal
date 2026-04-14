@@ -9,6 +9,7 @@ import {
   BarChart3, ArrowRight, Clock, CheckCircle2, XCircle, Eye,
   TrendingUp, Shield, Bell, DollarSign, Search, Calendar,
   UserCheck, Scale, Clipboard, Receipt, Building2, Activity, RefreshCw,
+  Camera, Printer, PackageCheck, IdCard, AlertCircle,
 } from 'lucide-react';
 
 /**
@@ -257,17 +258,25 @@ function CommissionerDashboard({ permits, disputes, jobs, applications, allUsers
 // ============================================================
 // Sub-dashboard for Permit Officer
 // ============================================================
-function PermitOfficerDashboard({ permits, navigate }) {
-  const pendingReview = permits.filter(p => p.status === 'submitted' || p.status === 'under_review');
-  const today = new Date().toDateString();
-  const approvedToday = permits.filter(p => p.status === 'approved' && new Date(p.updatedAt).toDateString() === today);
-  const rejectedToday = permits.filter(p => p.status === 'rejected' && new Date(p.updatedAt).toDateString() === today);
+function PermitOfficerDashboard({ permits, user, navigate }) {
+  const myQueue = permits.filter(p =>
+    user && p.assignedTo === user.id &&
+    (p.status === 'submitted' || p.status === 'under_review')
+  );
+  const submittedUnassigned = permits.filter(p => p.status === 'submitted' && !p.assignedTo);
+  const underReview = permits.filter(p => p.status === 'under_review');
+  const pendingPayment = permits.filter(p => p.status === 'pending_payment');
+
+  // Table shows the officer's own queue, or falls back to all pending if none assigned yet
+  const pendingReview = myQueue.length > 0
+    ? myQueue
+    : permits.filter(p => p.status === 'submitted' || p.status === 'under_review');
 
   const statCards = [
-    { title: 'Pending Review', value: pendingReview.length, icon: ClipboardCheck, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
-    { title: 'Approved Today', value: approvedToday.length, icon: CheckCircle2, lightColor: 'bg-green-50', textColor: 'text-green-700' },
-    { title: 'Rejected Today', value: rejectedToday.length, icon: XCircle, lightColor: 'bg-red-50', textColor: 'text-red-600' },
-    { title: 'Avg Processing Time', value: '--', icon: Clock, lightColor: 'bg-purple-50', textColor: 'text-purple-600', isText: true },
+    { title: 'My Queue', value: myQueue.length, icon: ClipboardCheck, lightColor: 'bg-purple-50', textColor: 'text-purple-600' },
+    { title: 'Submitted (Unassigned)', value: submittedUnassigned.length, icon: FileText, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
+    { title: 'Under Review', value: underReview.length, icon: Eye, lightColor: 'bg-amber-50', textColor: 'text-amber-700' },
+    { title: 'Pending Payment', value: pendingPayment.length, icon: DollarSign, lightColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
   ];
 
   return (
@@ -347,22 +356,31 @@ function PermitOfficerDashboard({ permits, navigate }) {
 // ============================================================
 // Sub-dashboard for Dispute Officer
 // ============================================================
-function DisputeOfficerDashboard({ disputes, navigate }) {
+function DisputeOfficerDashboard({ disputes, user, navigate }) {
+  const openStatuses = ['filed', 'investigating', 'mediation'];
+  const openCases = disputes.filter(d => openStatuses.includes(d.status));
+  const myCases = disputes.filter(d => d.assignedTo && user && d.assignedTo === user.id && d.status !== 'resolved' && d.status !== 'closed');
+
+  // Resolved this week (since the start of the current ISO week, Monday)
+  const weekStart = (() => {
+    const d = new Date();
+    const dow = (d.getDay() + 6) % 7; // Mon=0
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - dow);
+    return d;
+  })();
+  const resolvedThisWeek = disputes.filter(d =>
+    d.status === 'resolved' && d.updatedAt && new Date(d.updatedAt) >= weekStart
+  );
+
   const activeCases = disputes.filter(d => d.status !== 'resolved' && d.status !== 'closed');
   const inMediation = disputes.filter(d => d.status === 'mediation');
-  const thisMonth = new Date().getMonth();
-  const thisYear = new Date().getFullYear();
-  const resolvedThisMonth = disputes.filter(d => {
-    if (d.status !== 'resolved') return false;
-    const dt = new Date(d.updatedAt);
-    return dt.getMonth() === thisMonth && dt.getFullYear() === thisYear;
-  });
 
   const statCards = [
-    { title: 'Active Cases', value: activeCases.length, icon: AlertTriangle, lightColor: 'bg-red-50', textColor: 'text-red-600' },
-    { title: 'In Mediation', value: inMediation.length, icon: Scale, lightColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
-    { title: 'Resolved This Month', value: resolvedThisMonth.length, icon: CheckCircle2, lightColor: 'bg-green-50', textColor: 'text-green-700' },
-    { title: 'Avg Resolution Time', value: '--', icon: Clock, lightColor: 'bg-purple-50', textColor: 'text-purple-600', isText: true },
+    { title: 'Open Disputes', value: openCases.length, icon: AlertTriangle, lightColor: 'bg-red-50', textColor: 'text-red-600' },
+    { title: 'My Assigned Cases', value: myCases.length, icon: Scale, lightColor: 'bg-purple-50', textColor: 'text-purple-600' },
+    { title: 'Resolved This Week', value: resolvedThisWeek.length, icon: CheckCircle2, lightColor: 'bg-green-50', textColor: 'text-green-700' },
+    { title: 'In Mediation', value: inMediation.length, icon: Clock, lightColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
   ];
 
   return (
@@ -555,7 +573,7 @@ function PlacementOfficerDashboard({ jobs, applications, allUsers, navigate }) {
 // ============================================================
 // Sub-dashboard for Inspector
 // ============================================================
-function InspectorDashboard({ navigate }) {
+function InspectorDashboard({ disputes = [], navigate }) {
   const inspections = getStorage('bvi_inspections') || [];
   const now = new Date();
   const thisMonth = now.getMonth();
@@ -572,10 +590,17 @@ function InspectorDashboard({ navigate }) {
   const compliant = completed.filter(i => i.overallStatus === 'compliant').length;
   const complianceRate = completed.length > 0 ? `${Math.round((compliant / completed.length) * 100)}%` : '--';
 
+  // Workplace safety disputes open to an inspector
+  const unsafeConditionsOpen = disputes.filter(d =>
+    d.type === 'unsafe_conditions' && d.status !== 'resolved' && d.status !== 'closed'
+  ).length;
+
+  const hasInspectionsData = inspections.length > 0;
+
   const statCards = [
-    { title: 'Inspections This Month', value: inspThisMonth.length, icon: Clipboard, lightColor: 'bg-amber-50', textColor: 'text-amber-700' },
-    { title: 'Violations Found', value: totalViolations, icon: AlertTriangle, lightColor: 'bg-red-50', textColor: 'text-red-600' },
-    { title: 'Follow-ups Due', value: pendingFollowups, icon: Clock, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
+    { title: 'Inspections Scheduled', value: inspThisMonth.length || 0, icon: Clipboard, lightColor: 'bg-amber-50', textColor: 'text-amber-700', note: hasInspectionsData ? null : 'Phase 2' },
+    { title: 'Open Safety Disputes', value: unsafeConditionsOpen, icon: AlertTriangle, lightColor: 'bg-red-50', textColor: 'text-red-600' },
+    { title: 'Violations Found', value: totalViolations, icon: AlertCircle, lightColor: 'bg-orange-50', textColor: 'text-orange-700' },
     { title: 'Compliance Rate', value: complianceRate, icon: CheckCircle2, lightColor: 'bg-green-50', textColor: 'text-green-700', isText: true },
   ];
 
@@ -589,8 +614,43 @@ function InspectorDashboard({ navigate }) {
             </div>
             <h3 className={`text-3xl font-bold text-gray-900 ${card.isText ? 'text-xl' : ''}`}>{card.value}</h3>
             <p className="text-sm font-medium text-gray-500 mt-1">{card.title}</p>
+            {card.note && (
+              <span className="mt-2 inline-block text-[10px] font-semibold uppercase tracking-wide text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                {card.note}
+              </span>
+            )}
           </div>
         ))}
+      </div>
+
+      {/* Quick Links */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <button
+          onClick={() => navigate('/dept/inspections')}
+          className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-purple-200 transition-all text-left flex items-center gap-4"
+        >
+          <div className="bg-purple-50 p-3 rounded-lg">
+            <Clipboard className="w-6 h-6 text-purple-700" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-gray-900">Inspections</p>
+            <p className="text-xs text-gray-500 mt-0.5">Scheduled visits and follow-ups</p>
+          </div>
+          <ArrowRight className="w-5 h-5 text-gray-300" />
+        </button>
+        <button
+          onClick={() => navigate('/dept/reports')}
+          className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-purple-200 transition-all text-left flex items-center gap-4"
+        >
+          <div className="bg-purple-50 p-3 rounded-lg">
+            <BarChart3 className="w-6 h-6 text-purple-700" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-gray-900">Reports</p>
+            <p className="text-xs text-gray-500 mt-0.5">Compliance and violation analytics</p>
+          </div>
+          <ArrowRight className="w-5 h-5 text-gray-300" />
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -670,16 +730,31 @@ function InspectorDashboard({ navigate }) {
 function CashierDashboard({ permits, navigate }) {
   const payments = getStorage('bvi_payments') || [];
   const receipts = getStorage('bvi_receipts') || [];
+  const APPLICATION_FEE = 50;
   const today = new Date().toISOString().slice(0, 10);
-  const todayPayments = payments.filter(p => p.status === 'verified' && p.verifiedAt && p.verifiedAt.slice(0, 10) === today);
-  const todayRevenue = todayPayments.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
-  const pendingCount = permits.filter(p => p.status === 'pending_payment').length;
-  const todayReceipts = receipts.filter(r => r.issuedAt && r.issuedAt.slice(0, 10) === today).length;
+  const isTodayIso = (iso) => iso && iso.slice(0, 10) === today;
+
+  const pendingPermits = permits.filter(p => p.status === 'pending_payment');
+  const approvedToday = permits.filter(p => p.status === 'approved' && isTodayIso(p.updatedAt));
+
+  const todayPayments = payments.filter(p => p.status === 'verified' && isTodayIso(p.verifiedAt));
+  // Prefer real payment totals if they exist, otherwise fall back to fee-count approximation
+  const todayRevenue = todayPayments.length > 0
+    ? todayPayments.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0)
+    : approvedToday.length * APPLICATION_FEE;
+
+  const todayReceipts = receipts.filter(r => isTodayIso(r.issuedAt)).length;
+
+  // Recent activity: last 5 permits that moved to pending_payment or approved
+  const recentActivity = [...permits]
+    .filter(p => p.status === 'pending_payment' || p.status === 'approved')
+    .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0))
+    .slice(0, 5);
 
   const statCards = [
-    { title: 'Payments Today', value: todayPayments.length, icon: DollarSign, lightColor: 'bg-green-50', textColor: 'text-green-700' },
-    { title: 'Revenue Today', value: `$${todayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, icon: TrendingUp, lightColor: 'bg-blue-50', textColor: 'text-blue-700', isText: true },
-    { title: 'Pending Verifications', value: pendingCount, icon: Clock, lightColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
+    { title: 'Pending Payments', value: pendingPermits.length, icon: Clock, lightColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
+    { title: 'Approved Today', value: approvedToday.length, icon: CheckCircle2, lightColor: 'bg-green-50', textColor: 'text-green-700' },
+    { title: 'Revenue Today', value: `$${todayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, icon: DollarSign, lightColor: 'bg-blue-50', textColor: 'text-blue-700', isText: true },
     { title: 'Receipts Issued', value: todayReceipts, icon: Receipt, lightColor: 'bg-purple-50', textColor: 'text-purple-600' },
   ];
 
@@ -734,23 +809,27 @@ function CashierDashboard({ permits, navigate }) {
           })()}
         </div>
 
-        {/* Daily Revenue Summary */}
+        {/* Recent Payment Activity */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-purple-900">Daily Revenue Summary</h2>
+            <h2 className="text-lg font-semibold text-purple-900">Recent Activity</h2>
           </div>
-          {todayPayments.length === 0 ? (
+          {recentActivity.length === 0 ? (
             <div className="p-6 text-center py-12 text-gray-400">
-              <BarChart3 className="w-10 h-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm">No transactions recorded today</p>
-              <p className="text-xs mt-1">Revenue data will populate as payments are processed.</p>
+              <Activity className="w-10 h-10 mx-auto mb-3 opacity-40" />
+              <p className="text-sm">No recent payment activity</p>
             </div>
           ) : (
-            <div className="p-6">
-              <div className="bg-green-50 rounded-xl p-5 text-center">
-                <p className="text-3xl font-bold text-green-700">${todayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
-                <p className="text-sm text-green-600 mt-1">{todayPayments.length} payment(s) verified today</p>
-              </div>
+            <div className="divide-y divide-gray-50">
+              {recentActivity.map(p => (
+                <div key={p.id} className="px-6 py-3 flex items-center justify-between hover:bg-gray-50">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{p.permitNumber}</p>
+                    <p className="text-xs text-gray-500">{p.employeeName || 'N/A'} - {getStatusLabel(p.status)}</p>
+                  </div>
+                  <span className="text-xs text-gray-400">{formatDateShort(p.updatedAt)}</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -761,20 +840,33 @@ function CashierDashboard({ permits, navigate }) {
 
 // ============================================================
 // Sub-dashboard for Front Desk
+// Centres on the physical ID-card lifecycle: photo → print → pickup.
 // ============================================================
-function FrontDeskDashboard({ permits, navigate }) {
-  const appointments = getStorage('bvi_appointments') || [];
-  const walkins = getStorage('bvi_walkins') || [];
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const todayAppointments = appointments.filter(a => a.date === todayStr);
-  const todayWalkins = walkins.filter(w => w.date === todayStr);
-  const totalVisitors = todayAppointments.length + todayWalkins.length;
+function FrontDeskDashboard({ cards = [], permits, navigate }) {
+  const isToday = (iso) => {
+    if (!iso) return false;
+    const d = new Date(iso);
+    const n = new Date();
+    return d.getFullYear() === n.getFullYear()
+      && d.getMonth() === n.getMonth()
+      && d.getDate() === n.getDate();
+  };
+
+  const appointmentsToday = cards.filter(c =>
+    c.appointment?.status === 'scheduled' && isToday(c.appointment?.scheduledAt)
+  );
+  const awaitingPhoto = cards.filter(c => !c.photo);
+  const readyForPickup = cards.filter(c => c.print?.status === 'ready_for_pickup');
+  const printQueue = cards.filter(c =>
+    ['queued', 'printing', 'printed', 'print_failed'].includes(c.print?.status)
+  );
+  const failures = cards.filter(c => (c.print?.failureCount || 0) > 0);
 
   const statCards = [
-    { title: "Today's Appointments", value: todayAppointments.length, icon: Calendar, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
-    { title: 'Walk-ins', value: todayWalkins.length, icon: Users, lightColor: 'bg-green-50', textColor: 'text-green-700' },
-    { title: 'Visitors Today', value: totalVisitors, icon: UserCheck, lightColor: 'bg-purple-50', textColor: 'text-purple-600' },
-    { title: 'Available Slots', value: Math.max(0, 16 - todayAppointments.length), icon: Clock, lightColor: 'bg-amber-50', textColor: 'text-amber-700' },
+    { title: "Today's Photo Appointments", value: appointmentsToday.length, icon: Camera, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
+    { title: 'Awaiting Photo', value: awaitingPhoto.length, icon: IdCard, lightColor: 'bg-amber-50', textColor: 'text-amber-700' },
+    { title: 'Ready for Pickup', value: readyForPickup.length, icon: PackageCheck, lightColor: 'bg-green-50', textColor: 'text-green-700' },
+    { title: 'Print Queue Depth', value: printQueue.length, icon: Printer, lightColor: 'bg-purple-50', textColor: 'text-purple-600' },
   ];
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -787,15 +879,61 @@ function FrontDeskDashboard({ permits, navigate }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statCards.map(card => (
-          <div key={card.title} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-            <div className={`${card.lightColor} p-3 rounded-lg w-fit mb-3`}>
-              <card.icon className={`w-6 h-6 ${card.textColor}`} />
-            </div>
-            <h3 className="text-3xl font-bold text-gray-900">{card.value}</h3>
-            <p className="text-sm font-medium text-gray-500 mt-1">{card.title}</p>
+      {/* Print failure banner */}
+      {failures.length > 0 && (
+        <div className="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
+          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-red-800">
+              {failures.length} card{failures.length === 1 ? '' : 's'} had a print failure
+            </p>
+            <p className="text-xs text-red-700 mt-0.5">
+              Review the print queue — failed jobs have been re-queued automatically.
+            </p>
           </div>
+          <button
+            onClick={() => navigate('/dept/cards')}
+            className="text-xs font-semibold bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700"
+          >
+            Open Print Queue
+          </button>
+        </div>
+      )}
+
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+        {statCards.map(card => (
+          <div key={card.title} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+            <div className={`${card.lightColor} p-2.5 rounded-lg w-fit mb-3`}>
+              <card.icon className={`w-5 h-5 ${card.textColor}`} />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">{card.value}</h3>
+            <p className="text-xs font-medium text-gray-500 mt-1">{card.title}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick Access */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {[
+          { label: 'Photo Queue', icon: Camera, badge: awaitingPhoto.length, path: '/dept/cards' },
+          { label: 'Print Queue', icon: Printer, badge: printQueue.length, path: '/dept/cards' },
+          { label: 'Pickup Desk', icon: PackageCheck, badge: readyForPickup.length, path: '/dept/cards' },
+        ].map(action => (
+          <button
+            key={action.label}
+            onClick={() => navigate(action.path)}
+            className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-purple-200 transition-all text-left flex items-center gap-4"
+          >
+            <div className="bg-purple-50 p-3 rounded-lg">
+              <action.icon className="w-6 h-6 text-purple-700" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-gray-900">Go to {action.label}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{action.badge} item{action.badge === 1 ? '' : 's'} waiting</p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-gray-300" />
+          </button>
         ))}
       </div>
 
@@ -839,64 +977,44 @@ function FrontDeskDashboard({ permits, navigate }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Today's Appointments */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-purple-900">Today's Appointment Schedule</h2>
-            <button
-              onClick={() => navigate('/dept/appointments')}
-              className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium"
-            >
-              View All <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-          {todayAppointments.length === 0 ? (
-            <div className="p-6 text-center py-12 text-gray-400">
-              <Calendar className="w-10 h-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm">No appointments scheduled for today</p>
-              <p className="text-xs mt-1">Appointments will appear here once booked.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-50">
-              {todayAppointments.sort((a, b) => a.time.localeCompare(b.time)).slice(0, 6).map(a => (
-                <div key={a.id} className="px-6 py-3 flex items-center justify-between hover:bg-gray-50">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{a.visitorName}</p>
-                    <p className="text-xs text-gray-500">{a.purpose}</p>
-                  </div>
-                  <span className="text-xs font-medium text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">{a.time}</span>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* Today's Photo Appointments */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-purple-900 flex items-center gap-2">
+            <Camera className="w-5 h-5" /> Today's Photo Appointments
+          </h2>
+          <button
+            onClick={() => navigate('/dept/cards')}
+            className="text-sm text-purple-700 hover:text-purple-900 flex items-center gap-1 font-medium"
+          >
+            Open Photo Queue <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
-
-        {/* Visitor Log */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-purple-900">Visitor Log</h2>
+        {appointmentsToday.length === 0 ? (
+          <div className="p-6 text-center py-12 text-gray-400">
+            <Calendar className="w-10 h-10 mx-auto mb-3 opacity-40" />
+            <p className="text-sm">No photo appointments scheduled for today</p>
           </div>
-          {todayWalkins.length === 0 ? (
-            <div className="p-6 text-center py-12 text-gray-400">
-              <Users className="w-10 h-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm">No visitors logged today</p>
-              <p className="text-xs mt-1">Log walk-in visitors for tracking.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-50">
-              {todayWalkins.map(w => (
-                <div key={w.id} className="px-6 py-3 flex items-center gap-4">
-                  <span className="text-sm font-medium text-gray-600 w-16">{w.time}</span>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{w.visitorName}</p>
-                    <p className="text-xs text-gray-500">{w.purpose}</p>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {appointmentsToday
+              .sort((a, b) => new Date(a.appointment.scheduledAt) - new Date(b.appointment.scheduledAt))
+              .slice(0, 8)
+              .map(c => {
+                const t = new Date(c.appointment.scheduledAt);
+                const time = t.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                return (
+                  <div key={c.id} className="px-6 py-3 flex items-center justify-between hover:bg-gray-50">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{c.workerName || c.permitNumber || 'Worker'}</p>
+                      <p className="text-xs text-gray-500">{c.appointment.location || 'Road Town office'}</p>
+                    </div>
+                    <span className="text-xs font-medium text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">{time}</span>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                );
+              })}
+          </div>
+        )}
       </div>
     </>
   );
@@ -908,7 +1026,7 @@ function FrontDeskDashboard({ permits, navigate }) {
 export default function DeptDashboard() {
   const navigate = useNavigate();
   const { user, getAllUsers } = useAuth();
-  const { permits, disputes, jobs, applications, notifications } = useApp();
+  const { permits, disputes, jobs, applications, notifications, cards = [] } = useApp();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -944,17 +1062,17 @@ export default function DeptDashboard() {
       case 'deputy_commissioner':
         return <CommissionerDashboard {...commonProps} />;
       case 'permit_officer':
-        return <PermitOfficerDashboard permits={permits} navigate={navigate} />;
+        return <PermitOfficerDashboard permits={permits} user={user} navigate={navigate} />;
       case 'dispute_officer':
-        return <DisputeOfficerDashboard disputes={disputes} navigate={navigate} />;
+        return <DisputeOfficerDashboard disputes={disputes} user={user} navigate={navigate} />;
       case 'placement_officer':
         return <PlacementOfficerDashboard jobs={jobs} applications={applications} allUsers={allUsers} navigate={navigate} />;
       case 'inspector':
-        return <InspectorDashboard navigate={navigate} />;
+        return <InspectorDashboard disputes={disputes} navigate={navigate} />;
       case 'cashier':
         return <CashierDashboard permits={permits} navigate={navigate} />;
       case 'front_desk':
-        return <FrontDeskDashboard permits={permits} navigate={navigate} />;
+        return <FrontDeskDashboard cards={cards} permits={permits} navigate={navigate} />;
       default:
         // Fallback: show commissioner view for admin-level users
         return <CommissionerDashboard {...commonProps} />;

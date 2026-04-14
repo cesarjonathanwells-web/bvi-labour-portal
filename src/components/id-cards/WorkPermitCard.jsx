@@ -1,42 +1,40 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import { Download, Printer, RotateCcw } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { formatDateShort } from '../../utils/helpers';
 import { DEPARTMENT_INFO } from '../../data/constants';
+import { generateQrSvg } from '../../utils/qrcode';
 
-/* ---------- tiny QR-like pattern (purely decorative) ---------- */
-function QRPlaceholder({ size = 80 }) {
-  const cells = 9;
-  const cellPx = size / cells;
-  // deterministic "random" pattern
-  const pattern = [
-    1,1,1,0,1,0,1,1,1,
-    1,0,1,1,0,1,1,0,1,
-    1,1,1,0,1,0,1,1,1,
-    0,1,0,0,1,1,0,1,0,
-    1,0,1,1,0,0,1,0,1,
-    0,1,0,1,1,0,0,1,0,
-    1,1,1,0,0,1,1,1,1,
-    1,0,1,1,1,0,1,0,1,
-    1,1,1,0,1,0,1,1,1,
-  ];
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {pattern.map((v, i) =>
-        v ? (
-          <rect
-            key={i}
-            x={(i % cells) * cellPx}
-            y={Math.floor(i / cells) * cellPx}
-            width={cellPx}
-            height={cellPx}
-            fill="#003366"
-          />
-        ) : null,
-      )}
-    </svg>
-  );
+/* ---------- Real scannable QR (byte-mode, ECC level M) ---------- */
+function VerifyQR({ permitNumber, size = 112 }) {
+  const svgMarkup = useMemo(() => {
+    if (!permitNumber) return null;
+    try {
+      const origin =
+        typeof window !== 'undefined' && window.location?.origin
+          ? window.location.origin
+          : 'https://labour.gov.vg';
+      const url = `${origin}/verify?permit=${encodeURIComponent(permitNumber)}`;
+      return generateQrSvg(url, size);
+    } catch (e) {
+      console.error('QR generation failed', e);
+      return null;
+    }
+  }, [permitNumber, size]);
+
+  if (!svgMarkup) {
+    return (
+      <div
+        style={{ width: size, height: size }}
+        className="flex items-center justify-center border border-dashed border-gray-400 rounded text-center"
+      >
+        <span className="text-[7px] text-gray-500 px-1 leading-tight">No QR available</span>
+      </div>
+    );
+  }
+  // eslint-disable-next-line react/no-danger
+  return <div style={{ width: size, height: size }} dangerouslySetInnerHTML={{ __html: svgMarkup }} />;
 }
 
 /* ---------- barcode placeholder ---------- */
@@ -278,12 +276,14 @@ export default function WorkPermitCard({ permit, onFlip, showBack = false }) {
       </div>
 
       <div className="flex p-3 gap-3" style={{ height: CARD_H - 28 - 48 }}>
-        {/* QR code */}
+        {/* QR code — encodes /verify?permit=<num> on the live site */}
         <div className="flex flex-col items-center gap-1 flex-shrink-0">
-          <div className="border border-gray-200 p-1 rounded">
-            <QRPlaceholder size={72} />
+          <div className="border border-gray-200 p-1 rounded bg-white">
+            <VerifyQR permitNumber={permit?.permitNumber} size={104} />
           </div>
-          <p className="text-[6px] text-gray-400 text-center">Scan to verify</p>
+          <p className="text-[6px] text-gray-500 text-center whitespace-nowrap">
+            Scan to verify at labour.gov.vg
+          </p>
         </div>
 
         {/* Info */}
