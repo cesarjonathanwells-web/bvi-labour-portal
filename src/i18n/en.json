@@ -1,0 +1,403 @@
+{
+  "common": {
+    "back_home": "Back to Home",
+    "phone": "Phone",
+    "email": "Email",
+    "contact_us": "Contact Us",
+    "language": "Language"
+  },
+  "landing": {
+    "hero_badge": "Official Government Digital Services",
+    "hero_title_prefix": "Department of Labour &",
+    "hero_title_highlight": "Workforce Development",
+    "hero_lead": "Access BVI labour services through our dedicated digital portals. Select the portal that matches your needs below.",
+    "hero_sub": "Employers, work permit holders, job seekers, and department staff each have a specialized portal with the tools and services relevant to them.",
+    "choose_portal_heading": "Choose Your Portal",
+    "choose_portal_sub": "Each portal provides specialized services tailored to your role.",
+    "portal": {
+      "business": {
+        "title": "Business Portal",
+        "subtitle": "For Employers & Companies",
+        "description": "Apply for work permits, post job vacancies, manage renewals, calculate fees"
+      },
+      "worker": {
+        "title": "Worker Portal",
+        "subtitle": "For Work Permit Holders",
+        "description": "Track your permit status, view your digital ID card, file workplace disputes"
+      },
+      "jobs": {
+        "title": "Job Centre",
+        "subtitle": "For Job Seekers",
+        "description": "Search available positions, submit applications, access workforce training"
+      },
+      "dept": {
+        "title": "Department Access",
+        "subtitle": "Department Staff Only",
+        "description": "Authorized personnel access for case management and administration"
+      }
+    },
+    "sign_in": "Sign In",
+    "register": "Register",
+    "staff_only": "Staff accounts only",
+    "contact_heading": "Contact Us",
+    "hours_heading": "Office Hours",
+    "visit_heading": "Visit Us",
+    "fax_label": "Fax",
+    "cashier_label": "Cashier",
+    "closed_weekends": "Closed weekends and public holidays",
+    "commissioner_label": "Commissioner",
+    "footer": {
+      "roadmap": "Delivery Roadmap",
+      "limitations": "Known Limitations",
+      "stats": "Statistics",
+      "faq": "Help & FAQ"
+    },
+    "copyright": "© {{year}} Government of the Virgin Islands. All rights reserved."
+  },
+  "roadmap": {
+    "hero_badge": "Delivery Roadmap",
+    "hero_title_prefix": "BVI Labour Portal —",
+    "hero_title_highlight": "Delivery Roadmap",
+    "hero_lead": "What ships today, what ships in Phase 2, and what is planned for the future.",
+    "phase1": {
+      "title": "Available today",
+      "timeline": "Phase 1 · Live",
+      "items": [
+        "Four role-based portals: Business, Worker, Job Centre, Department Console",
+        "Eight department staff roles with a permission matrix (Commissioner, Deputy, Permit Officer, Dispute Officer, Placement Officer, Inspector, Cashier, Front Desk)",
+        "Six work-permit types with salary-based fee calculation",
+        "Permit submission wizard with document upload and draft autosave",
+        "Digital work-permit ID card with PDF export",
+        "Dispute filing, case timeline, and status tracking",
+        "Job posting and application workflow",
+        "Department dashboard with pipeline, workload, and revenue panels",
+        "Demo-environment safeguards: prototype banner, reset button, mock-data badges",
+        "Pre-filled forms using registered business profile data",
+        "Document reuse across applications to avoid re-uploads"
+      ]
+    },
+    "phase2": {
+      "title": "Phase 2 — In build",
+      "timeline": "Target: Q3 2026",
+      "items": [
+        "Postgres backend with server-side auth, hashed passwords, and session management",
+        "Server-side audit log (immutable, exportable for Auditor General)",
+        "IRD Trade Licence registry integration (real-time verification)",
+        "SSB, NHI, and Immigration certificate-of-good-standing integrations",
+        "Police clearance request and response workflow",
+        "Email delivery (SendGrid or AWS SES) and SMS delivery (Twilio) for notifications",
+        "Online card payments via local payment gateway",
+        "Scheduled permit-expiry reminder emails (60 / 30 / 15-day cadence)",
+        "File upload to cloud object storage with virus scanning",
+        "Full accessibility certification (WCAG 2.1 AA)",
+        "Multi-factor authentication for department staff",
+        "Rate limiting, pen-test, and security hardening"
+      ]
+    },
+    "phase3": {
+      "title": "Phase 3 — Future",
+      "timeline": "Target: 2027 and beyond",
+      "items": [
+        "Single sign-on with BVI Government VG-ID",
+        "Public labour-market analytics and open-data publishing",
+        "Appeals tribunal case management",
+        "Multilingual support (English, Spanish, French-Creole)",
+        "Mobile applications for inspectors and front-desk staff",
+        "API for approved third-party HR and payroll software",
+        "Workforce training enrolment and certification tracking",
+        "Automated fraud detection and risk scoring",
+        "Regional reciprocity with other CARICOM member states"
+      ]
+    },
+    "cta_heading": "Questions about the roadmap?",
+    "cta_sub": "Contact the Department of Labour and Workforce Development."
+  },
+  "limitations": {
+    "hero_badge": "Honest disclosure",
+    "hero_title": "Known Limitations",
+    "hero_lead": "This prototype demonstrates the user experience. The following are explicitly <1>not</1> yet in scope and are documented here so reviewers can scope Phase 2 with confidence.",
+    "why_heading": "Why this page exists",
+    "why_body": "Every digital service carries limitations. Listing them publicly is a practice we plan to carry into the live service, to set correct expectations with applicants, employers, and oversight bodies.",
+    "cta_heading": "Want the full Phase 2 scope?",
+    "cta_sub": "See the delivery roadmap for what Phase 2 adds and when.",
+    "cta_sub_link": "delivery roadmap",
+    "items": [
+      {
+        "title": "Authentication is front-end only",
+        "body": "Passwords are stored in the browser for demonstration purposes. The production system will use server-side authentication with hashed passwords, session management, and optional multi-factor authentication."
+      },
+      {
+        "title": "No real backend database",
+        "body": "All data resets per browser. The production system will use Postgres with daily backups, point-in-time recovery, and regional replication."
+      },
+      {
+        "title": "IRD, SSB, NHI, and Immigration integrations are mocked",
+        "body": "Any \"Verified\" badge in the prototype is a client-side check against seed data. Real integrations with the Inland Revenue Department, Social Security Board, National Health Insurance, and Immigration are scheduled for Phase 2."
+      },
+      {
+        "title": "No email or SMS delivery",
+        "body": "Notifications appear in the in-app notification centre only. Phase 2 wires a real delivery provider (SendGrid for email, Twilio for SMS) with user-preference controls."
+      },
+      {
+        "title": "No audit-log persistence",
+        "body": "State changes are logged in-browser for demonstration. Phase 2 uses a server-side immutable log, exportable for the Auditor General and Internal Audit."
+      },
+      {
+        "title": "No file-content validation or virus scanning",
+        "body": "Uploaded documents are not scanned. Phase 2 integrates a cloud scanning service and enforces signed-URL upload to protected object storage."
+      },
+      {
+        "title": "No payment processing",
+        "body": "Fee calculations are correct; no money moves. Phase 2 integrates a local payment gateway with reconciliation exports for Treasury."
+      },
+      {
+        "title": "Not WCAG 2.1 AA certified",
+        "body": "The interface has been self-audited against AA standards but has not been formally certified by a third party. Phase 2 includes an independent accessibility audit and remediation."
+      },
+      {
+        "title": "Not penetration-tested",
+        "body": "Security review by an external firm is a Phase 2 prerequisite before any public launch. No known credentials, secrets, or sensitive data should be entered into this prototype."
+      },
+      {
+        "title": "Data is not sovereign to BVI",
+        "body": "Railway hosting is currently US-based for the prototype. Phase 2 hosting decisions — including data-residency, sovereign-cloud options, and disaster recovery — are pending Ministry review."
+      },
+      {
+        "title": "No appeals flow, permit transfer, or variation workflow yet",
+        "body": "The Labour Code provides for appeals of decisions and for permit variations (position change, employer transfer). These workflows are scaffolded for Phase 2."
+      },
+      {
+        "title": "No Belonger verification against Immigration registry",
+        "body": "Belonger status is currently self-declared in user profiles. Phase 2 will verify against the Immigration registry at application time."
+      },
+      {
+        "title": "No multilingual support yet",
+        "body": "The interface is English-only. Phase 2 adds Spanish and French-Creole translations for public-facing pages."
+      },
+      {
+        "title": "No offline or low-bandwidth optimisation",
+        "body": "The site requires an online connection. Phase 2 introduces a Progressive Web App shell for Anegada and other low-bandwidth locations."
+      }
+    ]
+  },
+  "stats": {
+    "hero_badge": "Public Transparency",
+    "hero_title": "Labour Services Statistics",
+    "hero_lead": "Operational metrics from the portal and projected impact targets for Phase 2.",
+    "info_banner": "The figures below are computed live from the prototype's seed data plus any actions taken in your browser. Baseline metrics marked \"[DLWD to confirm]\" require the Department to supply authoritative numbers for the live service.",
+    "section_live": "Live operational snapshot",
+    "section_phase2": "Phase 2 impact projections",
+    "section_baseline": "Baseline indicators",
+    "phase2_badge": "Projected — Phase 2",
+    "phase2_badge_title": "Targets the digital service aims to meet once Phase 2 is live.",
+    "dlwd_confirm": "[DLWD to confirm]",
+    "label": {
+      "total_permits": "Total permits",
+      "approval_rate": "Approval rate",
+      "open_disputes": "Open disputes",
+      "active_jobs": "Active job postings",
+      "businesses": "Registered businesses",
+      "workers": "Registered workers",
+      "avg_salary": "Average permit salary",
+      "snapshot": "Snapshot taken"
+    },
+    "sub": {
+      "total_permits": "All types, all statuses",
+      "approval_rate": "{{approved}} approved / {{rejected}} rejected",
+      "open_disputes": "{{resolved}} resolved historically",
+      "active_jobs": "{{total}} applications · {{perJob}} per job",
+      "avg_salary": "Across all approved permits"
+    },
+    "breakdown": {
+      "by_status": "Permits by status",
+      "by_type": "Permits by type",
+      "disputes_by_type": "Disputes by type",
+      "disputes_by_status": "Disputes by status",
+      "no_permits": "No permits yet.",
+      "no_disputes": "No disputes on record."
+    },
+    "phase2_cards": {
+      "processing_time_label": "Processing time",
+      "processing_time_value": "30 → 10",
+      "processing_time_sub": "Working days from submission to decision (67% reduction)",
+      "office_visits_label": "Office visits",
+      "office_visits_value": "−80%",
+      "office_visits_sub": "Reduction in physical office visits for routine permits",
+      "first_approval_label": "First-submission approval",
+      "first_approval_value": "75%",
+      "first_approval_sub": "Target rate when pre-validation is enabled",
+      "availability_label": "Availability",
+      "availability_value": "24 / 7",
+      "availability_sub": "Submission available outside office hours"
+    },
+    "baseline": {
+      "annual_volume": "Annual permit volume",
+      "active_holders": "Active permit holders",
+      "processing_staff": "Processing staff (FTE)",
+      "backlog": "Current backlog",
+      "estimate_sub": "Estimate — awaiting Department confirmation"
+    },
+    "cta_heading": "Questions about these figures?",
+    "cta_sub_prefix": "The",
+    "cta_sub_roadmap": "delivery roadmap",
+    "cta_sub_middle": "explains what is shipping now and what Phase 2 delivers. Known limitations are listed",
+    "cta_sub_limitations": "here",
+    "cta_sub_suffix": "."
+  },
+  "faq": {
+    "hero_badge": "Help & FAQ",
+    "hero_title": "Questions, answered",
+    "hero_lead": "{{count}} common questions about permits, disputes, jobs, data, and the digital service.",
+    "search_placeholder": "Search the FAQ...",
+    "filter_label": "Filter by category",
+    "showing_count": "Showing <1>{{shown}}</1> of {{total}} entries",
+    "no_results": "No FAQ entries match your search.",
+    "cta_heading": "Still have a question?",
+    "cta_sub": "The Department is available during office hours: {{hours}}.",
+    "categories": [
+      "All",
+      "Getting started",
+      "Work permits",
+      "Transfers, variations, appeals",
+      "Disputes",
+      "Jobs",
+      "Identity & ID cards",
+      "Data & privacy",
+      "Accessibility & languages",
+      "Department staff",
+      "Technical"
+    ],
+    "items": [
+      {
+        "category": "Getting started",
+        "q": "Who is this portal for?",
+        "a": "The portal serves four audiences: Employers (Business Portal), work permit holders (Worker Portal), Virgin Islanders and Belongers looking for work (Job Centre), and Department staff (Staff Console). Each portal shows only the services relevant to that audience."
+      },
+      {
+        "category": "Getting started",
+        "q": "Do I need a separate account for each portal?",
+        "a": "No. Your account belongs to one portal based on your role. If you are an employer, you register for the Business Portal. If you hold a work permit, the Worker Portal. Trying to access a different portal while signed in will redirect you to your own dashboard."
+      },
+      {
+        "category": "Work permits",
+        "q": "What permit types are supported?",
+        "a": "Six: New Work Permit (up to 3 years), Renewal (up to 1 year), Temporary (up to 3 months), Periodic (short engagements within a year), Self-Employed, and Emergency (up to 7 days, expedited)."
+      },
+      {
+        "category": "Work permits",
+        "q": "How are fees calculated?",
+        "a": "Fees are salary-based with three tiers: 3% up to $25,000, 5% from $25,001 to $50,000, and 7% above $50,001. Domestic workers are assessed at a flat 1%. A $50 application fee applies to all new applications. The cap is $10,000."
+      },
+      {
+        "category": "Work permits",
+        "q": "What documents are required?",
+        "a": "Standard new applications require: a valid passport, passport photograph, police clearance, medical certificate, employer trade licence, employment contract, job description, evidence of local recruitment efforts, and SSB / IRD / NHI certificates of good standing. Additional documents may apply to specific permit types."
+      },
+      {
+        "category": "Work permits",
+        "q": "How long does a decision take?",
+        "a": "Current manual process: 30 working days for new permits, 2 weeks for renewals, 10–15 working days for temporary permits, expedited for emergencies. Phase 2 of the digital service targets 10 working days for new permits."
+      },
+      {
+        "category": "Work permits",
+        "q": "Can I save a draft and finish later?",
+        "a": "Yes. Every permit form autosaves your progress as you type. When you return to the form, your draft is restored."
+      },
+      {
+        "category": "Work permits",
+        "q": "Can I reuse documents from a previous application?",
+        "a": "Yes. On the documents step of a new application, any document you uploaded previously appears with a \"Reuse previous\" button. A \"Reuse all\" option carries every eligible document forward in one click."
+      },
+      {
+        "category": "Transfers, variations, appeals",
+        "q": "Can a worker move to a new employer mid-permit?",
+        "a": "Yes. The new employer submits a transfer request from the Business Portal, citing the existing permit number, the proposed new position / salary / location, and the worker's written consent. The Department reviews and decides; approved transfers update the existing permit without a new permit number."
+      },
+      {
+        "category": "Transfers, variations, appeals",
+        "q": "What if my permit application is rejected?",
+        "a": "Rejected applications can be appealed from the Business Portal. Appeals are reviewed by the Labour Commissioner or Deputy Commissioner, the appellate authority under the Labour Code. Typical turnaround is ten working days. If upheld, the original permit is returned to review."
+      },
+      {
+        "category": "Disputes",
+        "q": "How do I file a workplace dispute?",
+        "a": "Workers file from the Worker Portal → Disputes. The form captures complainant details, respondent (employer) details, complaint type, incident date, detailed description, and desired resolution. Supporting evidence can be uploaded. A Dispute Officer reviews and may progress the case through investigation, mediation, or referral."
+      },
+      {
+        "category": "Disputes",
+        "q": "What types of disputes can I file?",
+        "a": "Unpaid wages, unfair dismissal, discrimination, unsafe working conditions, breach of contract, harassment, wrongful deduction of wages, denial of leave entitlements, and other. Each type maps to a section of the Labour Code."
+      },
+      {
+        "category": "Jobs",
+        "q": "How do employers post a vacancy?",
+        "a": "From the Business Portal → Job Postings → Post a Job. The form captures title, category, description, requirements, salary range, working hours, location, employment type, deadline, and a Belonger-preference toggle as required by policy."
+      },
+      {
+        "category": "Jobs",
+        "q": "Who can apply through the Job Centre?",
+        "a": "Virgin Islanders and Belongers. Applicants register in the Job Centre, complete their profile (including skills and education), and apply to posted vacancies. Employers see applications in their Business Portal."
+      },
+      {
+        "category": "Identity & ID cards",
+        "q": "How do I get my digital work permit ID card?",
+        "a": "Once your permit is approved, the Worker Portal shows your digital ID card under the ID Card section. You can export it as a PDF. Phase 2 will add a QR code for on-site verification."
+      },
+      {
+        "category": "Identity & ID cards",
+        "q": "What if I lose my ID card?",
+        "a": "Digital ID cards can be re-exported as many times as needed from your Worker Portal. Physical card reissuance will be a Phase 2 feature."
+      },
+      {
+        "category": "Data & privacy",
+        "q": "Where is my data stored?",
+        "a": "The prototype stores data only in your browser (localStorage) — nothing leaves your device. Phase 2 uses a hosted database with data-residency decisions pending Ministry review."
+      },
+      {
+        "category": "Data & privacy",
+        "q": "Can I export my data?",
+        "a": "Yes. From your Profile page, use \"Export my data\" to download a JSON file of everything the system has about you — permits, disputes, jobs, applications, documents, appeals, transfers."
+      },
+      {
+        "category": "Data & privacy",
+        "q": "Who can see my audit trail?",
+        "a": "Only the Labour Commissioner and Deputy Commissioner can view the internal audit log. Every permit, dispute, and job action performed in the system is recorded with actor, timestamp, and target. Phase 2 makes this log immutable and exportable for the Auditor General."
+      },
+      {
+        "category": "Accessibility & languages",
+        "q": "Does the portal support Spanish or Creole?",
+        "a": "Currently English-only. Phase 2 adds Spanish and French-Creole translations for public-facing pages."
+      },
+      {
+        "category": "Accessibility & languages",
+        "q": "Is the portal WCAG compliant?",
+        "a": "Self-audited against WCAG 2.1 AA. Phase 2 includes independent certification by a third-party accessibility firm."
+      },
+      {
+        "category": "Accessibility & languages",
+        "q": "Does it work on low-bandwidth connections?",
+        "a": "The current build requires an online connection. Phase 2 introduces a Progressive Web App shell optimised for Anegada, Jost Van Dyke, and other low-bandwidth locations."
+      },
+      {
+        "category": "Department staff",
+        "q": "How do Department staff log in?",
+        "a": "Department accounts are provisioned by administration — there is no public registration. Staff sign in at /dept/login using their departmental email. Eight roles are supported with a permission matrix governing access."
+      },
+      {
+        "category": "Department staff",
+        "q": "Who approves permits?",
+        "a": "Permit Officers review submissions and can request documents or mark them under review. Final approval or rejection authority rests with the Commissioner or Deputy Commissioner. Officers can escalate to the Deputy for a decision."
+      },
+      {
+        "category": "Technical",
+        "q": "Is this the live service?",
+        "a": "No. The environment currently visible is a Phase 1 prototype demonstrating the user experience, hosted for review. The Phase 2 backend (database, real authentication, integrations with IRD / SSB / NHI / Immigration) is planned for Q3 2026."
+      },
+      {
+        "category": "Technical",
+        "q": "What browsers are supported?",
+        "a": "Chrome, Firefox, Safari, and Edge in their current and previous major versions. Internet Explorer is not supported. The interface adapts to mobile, tablet, and desktop viewports."
+      }
+    ]
+  }
+}

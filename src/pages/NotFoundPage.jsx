@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom';
 import { Home, ArrowLeft, HelpCircle } from 'lucide-react';
+import SkipToContent from '../components/common/SkipToContent';
 
 export default function NotFoundPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0f4f8] to-white flex flex-col">
+      <SkipToContent />
       {/* Top bar */}
-      <div className="bg-[#003366] text-white px-6 py-3">
+      <header role="banner" className="bg-[#003366] text-white px-6 py-3">
         <div className="max-w-5xl mx-auto flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#c5a55a] flex items-center justify-center font-bold text-[#003366] text-xs">
+          <div className="w-8 h-8 rounded-full bg-[#c5a55a] flex items-center justify-center font-bold text-[#003366] text-xs" aria-hidden="true">
             BVI
           </div>
           <div className="leading-tight">
@@ -15,10 +17,10 @@ export default function NotFoundPage() {
             <p className="text-[10px] text-gray-300">Department of Labour &amp; Workforce Development</p>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main content */}
-      <div className="flex-1 flex items-center justify-center px-4 py-16">
+      <main id="main-content" className="flex-1 flex items-center justify-center px-4 py-16">
         <div className="max-w-lg w-full text-center">
           {/* Large 404 */}
           <div className="relative mb-8">
@@ -72,12 +74,12 @@ export default function NotFoundPage() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Footer */}
-      <div className="bg-[#003366] text-gray-400 text-center py-4 text-xs">
+      <footer role="contentinfo" className="bg-[#003366] text-gray-400 text-center py-4 text-xs">
         <p>Government of the Virgin Islands &mdash; Department of Labour &amp; Workforce Development</p>
-      </div>
+      </footer>
     </div>
   );
 }

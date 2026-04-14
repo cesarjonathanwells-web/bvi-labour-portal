@@ -1,49 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   CheckCircle2, Clock, Sparkles, ArrowLeft, Phone, Mail, Shield,
 } from 'lucide-react';
 import { DEPARTMENT_INFO } from '../data/constants';
-
-const phase1Items = [
-  'Four role-based portals: Business, Worker, Job Centre, Department Console',
-  'Eight department staff roles with a permission matrix (Commissioner, Deputy, Permit Officer, Dispute Officer, Placement Officer, Inspector, Cashier, Front Desk)',
-  'Six work-permit types with salary-based fee calculation',
-  'Permit submission wizard with document upload and draft autosave',
-  'Digital work-permit ID card with PDF export',
-  'Dispute filing, case timeline, and status tracking',
-  'Job posting and application workflow',
-  'Department dashboard with pipeline, workload, and revenue panels',
-  'Demo-environment safeguards: prototype banner, reset button, mock-data badges',
-  'Pre-filled forms using registered business profile data',
-  'Document reuse across applications to avoid re-uploads',
-];
-
-const phase2Items = [
-  'Postgres backend with server-side auth, hashed passwords, and session management',
-  'Server-side audit log (immutable, exportable for Auditor General)',
-  'IRD Trade Licence registry integration (real-time verification)',
-  'SSB, NHI, and Immigration certificate-of-good-standing integrations',
-  'Police clearance request and response workflow',
-  'Email delivery (SendGrid or AWS SES) and SMS delivery (Twilio) for notifications',
-  'Online card payments via local payment gateway',
-  'Scheduled permit-expiry reminder emails (60 / 30 / 15-day cadence)',
-  'File upload to cloud object storage with virus scanning',
-  'Full accessibility certification (WCAG 2.1 AA)',
-  'Multi-factor authentication for department staff',
-  'Rate limiting, pen-test, and security hardening',
-];
-
-const phase3Items = [
-  'Single sign-on with BVI Government VG-ID',
-  'Public labour-market analytics and open-data publishing',
-  'Appeals tribunal case management',
-  'Multilingual support (English, Spanish, French-Creole)',
-  'Mobile applications for inspectors and front-desk staff',
-  'API for approved third-party HR and payroll software',
-  'Workforce training enrolment and certification tracking',
-  'Automated fraud detection and risk scoring',
-  'Regional reciprocity with other CARICOM member states',
-];
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
 
 function PhaseColumn({ title, timeline, icon: Icon, accentClass, iconBg, items }) {
   return (
@@ -70,6 +31,11 @@ function PhaseColumn({ title, timeline, icon: Icon, accentClass, iconBg, items }
 }
 
 export default function RoadmapPage() {
+  const { t } = useTranslation();
+  const phase1Items = t('roadmap.phase1.items', { returnObjects: true }) || [];
+  const phase2Items = t('roadmap.phase2.items', { returnObjects: true }) || [];
+  const phase3Items = t('roadmap.phase3.items', { returnObjects: true }) || [];
+
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       <nav className="bg-[#003366] text-white sticky top-0 z-50 shadow-lg">
@@ -83,9 +49,12 @@ export default function RoadmapPage() {
               <p className="text-[10px] text-gray-300">Department of Labour &amp; Workforce Development</p>
             </div>
           </Link>
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors">
-            <ArrowLeft size={16} /> Back to Home
-          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors">
+              <ArrowLeft size={16} /> {t('common.back_home')}
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -93,13 +62,13 @@ export default function RoadmapPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm mb-6">
             <Shield size={14} className="text-[#c5a55a]" />
-            <span className="text-gray-200">Delivery Roadmap</span>
+            <span className="text-gray-200">{t('roadmap.hero_badge')}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight mb-4 max-w-3xl mx-auto">
-            BVI Labour Portal &mdash; <span className="text-[#c5a55a]">Delivery Roadmap</span>
+            {t('roadmap.hero_title_prefix')} <span className="text-[#c5a55a]">{t('roadmap.hero_title_highlight')}</span>
           </h1>
           <p className="text-lg text-gray-200 max-w-2xl mx-auto">
-            What ships today, what ships in Phase 2, and what is planned for the future.
+            {t('roadmap.hero_lead')}
           </p>
         </div>
       </section>
@@ -107,24 +76,24 @@ export default function RoadmapPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           <PhaseColumn
-            title="Available today"
-            timeline="Phase 1 · Live"
+            title={t('roadmap.phase1.title')}
+            timeline={t('roadmap.phase1.timeline')}
             icon={CheckCircle2}
             accentClass="border-green-200"
             iconBg="bg-green-600"
             items={phase1Items}
           />
           <PhaseColumn
-            title="Phase 2 &mdash; In build"
-            timeline="Target: Q3 2026"
+            title={t('roadmap.phase2.title')}
+            timeline={t('roadmap.phase2.timeline')}
             icon={Clock}
             accentClass="border-amber-200"
             iconBg="bg-amber-500"
             items={phase2Items}
           />
           <PhaseColumn
-            title="Phase 3 &mdash; Future"
-            timeline="Target: 2027 and beyond"
+            title={t('roadmap.phase3.title')}
+            timeline={t('roadmap.phase3.timeline')}
             icon={Sparkles}
             accentClass="border-purple-200"
             iconBg="bg-[#7c3aed]"
@@ -135,9 +104,9 @@ export default function RoadmapPage() {
 
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm text-center">
-          <h2 className="text-xl font-bold text-[#003366] mb-2">Questions about the roadmap?</h2>
+          <h2 className="text-xl font-bold text-[#003366] mb-2">{t('roadmap.cta_heading')}</h2>
           <p className="text-sm text-gray-600 mb-5">
-            Contact the Department of Labour and Workforce Development.
+            {t('roadmap.cta_sub')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
             <a href={`tel:${DEPARTMENT_INFO.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 text-[#003366] font-semibold hover:underline">

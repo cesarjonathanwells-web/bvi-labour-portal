@@ -1,16 +1,15 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Building2, UserCheck, Briefcase, Shield,
   Phone, Mail, MapPin, Clock, ArrowRight, Star,
 } from 'lucide-react';
 import { DEPARTMENT_INFO } from '../data/constants';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
 
-const portals = [
+const portalDefs = [
   {
     id: 'business',
-    title: 'Business Portal',
-    subtitle: 'For Employers & Companies',
-    description: 'Apply for work permits, post job vacancies, manage renewals, calculate fees',
     icon: Building2,
     color: '#003366',
     bgGradient: 'from-[#003366] to-[#004d99]',
@@ -20,9 +19,6 @@ const portals = [
   },
   {
     id: 'worker',
-    title: 'Worker Portal',
-    subtitle: 'For Work Permit Holders',
-    description: 'Track your permit status, view your digital ID card, file workplace disputes',
     icon: UserCheck,
     color: '#006633',
     bgGradient: 'from-[#006633] to-[#008844]',
@@ -32,9 +28,6 @@ const portals = [
   },
   {
     id: 'jobs',
-    title: 'Job Centre',
-    subtitle: 'For Job Seekers',
-    description: 'Search available positions, submit applications, access workforce training',
     icon: Briefcase,
     color: '#c5a55a',
     bgGradient: 'from-[#c5a55a] to-[#d4b86a]',
@@ -45,9 +38,6 @@ const portals = [
   },
   {
     id: 'dept',
-    title: 'Department Access',
-    subtitle: 'Department Staff Only',
-    description: 'Authorized personnel access for case management and administration',
     icon: Shield,
     color: '#7c3aed',
     bgGradient: 'from-[#7c3aed] to-[#6d28d9]',
@@ -57,6 +47,8 @@ const portals = [
 ];
 
 export default function LandingPage() {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-white">
       {/* ========= GOVERNMENT HEADER ========= */}
@@ -68,12 +60,15 @@ export default function LandingPage() {
             </div>
             <div className="hidden sm:block leading-tight">
               <p className="text-sm font-bold text-[#c5a55a]">BVI Government</p>
-              <p className="text-[10px] text-gray-300">Department of Labour &amp; Workforce Development</p>
+              <p className="text-[10px] text-gray-300">{t('landing.hero_title_prefix')} {t('landing.hero_title_highlight')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-300">
-            <Phone size={14} />
-            <span className="hidden sm:inline">{DEPARTMENT_INFO.phone}</span>
+          <div className="flex items-center gap-3 text-sm text-gray-300">
+            <div className="flex items-center gap-2">
+              <Phone size={14} />
+              <span className="hidden sm:inline">{DEPARTMENT_INFO.phone}</span>
+            </div>
+            <LanguageSwitcher />
           </div>
         </div>
       </nav>
@@ -90,22 +85,20 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-28 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm mb-6">
             <Star size={14} className="text-[#c5a55a]" />
-            <span className="text-gray-200">Official Government Digital Services</span>
+            <span className="text-gray-200">{t('landing.hero_badge')}</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight mb-4 max-w-4xl mx-auto">
-            Department of Labour &amp;{' '}
-            <span className="text-[#c5a55a]">Workforce Development</span>
+            {t('landing.hero_title_prefix')}{' '}
+            <span className="text-[#c5a55a]">{t('landing.hero_title_highlight')}</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-gray-300 mb-4 max-w-3xl mx-auto leading-relaxed">
-            Access BVI labour services through our dedicated digital portals.
-            Select the portal that matches your needs below.
+            {t('landing.hero_lead')}
           </p>
 
           <p className="text-sm text-gray-400 max-w-2xl mx-auto">
-            Employers, work permit holders, job seekers, and department staff each have
-            a specialized portal with the tools and services relevant to them.
+            {t('landing.hero_sub')}
           </p>
         </div>
 
@@ -122,15 +115,15 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-[#003366] mb-3">
-              Choose Your Portal
+              {t('landing.choose_portal_heading')}
             </h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              Each portal provides specialized services tailored to your role.
+              {t('landing.choose_portal_sub')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
-            {portals.map((portal) => {
+            {portalDefs.map((portal) => {
               const Icon = portal.icon;
               const textColor = portal.darkText ? 'text-[#003366]' : 'text-white';
               const subtextColor = portal.darkText ? 'text-[#003366]/70' : 'text-white/80';
@@ -160,15 +153,15 @@ export default function LandingPage() {
 
                     {/* Title */}
                     <h3 className={`text-xl font-bold mb-1 ${textColor}`}>
-                      {portal.title}
+                      {t(`landing.portal.${portal.id}.title`)}
                     </h3>
                     <p className={`text-sm font-medium mb-3 ${subtextColor}`}>
-                      {portal.subtitle}
+                      {t(`landing.portal.${portal.id}.subtitle`)}
                     </p>
 
                     {/* Description */}
                     <p className={`text-sm mb-6 leading-relaxed ${subtextColor}`}>
-                      {portal.description}
+                      {t(`landing.portal.${portal.id}.description`)}
                     </p>
 
                     {/* Buttons */}
@@ -177,19 +170,19 @@ export default function LandingPage() {
                         to={portal.loginPath}
                         className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors ${btnSecondary}`}
                       >
-                        Sign In <ArrowRight size={16} />
+                        {t('landing.sign_in')} <ArrowRight size={16} />
                       </Link>
                       {portal.hasRegister && (
                         <Link
                           to={portal.registerPath}
                           className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors ${btnPrimary}`}
                         >
-                          Register
+                          {t('landing.register')}
                         </Link>
                       )}
                       {!portal.hasRegister && (
                         <span className={`text-xs ${subtextColor} italic`}>
-                          Staff accounts only
+                          {t('landing.staff_only')}
                         </span>
                       )}
                     </div>
@@ -209,11 +202,11 @@ export default function LandingPage() {
             <div className="w-12 h-12 rounded-xl bg-[#003366]/5 flex items-center justify-center mb-4">
               <Phone size={22} className="text-[#003366]" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-3">Contact Us</h3>
+            <h3 className="font-bold text-gray-900 mb-3">{t('landing.contact_heading')}</h3>
             <div className="space-y-2 text-sm text-gray-600">
               <p>{DEPARTMENT_INFO.phone}</p>
               <p>{DEPARTMENT_INFO.email}</p>
-              <p className="text-xs text-gray-400">Fax: {DEPARTMENT_INFO.fax}</p>
+              <p className="text-xs text-gray-400">{t('landing.fax_label')}: {DEPARTMENT_INFO.fax}</p>
             </div>
           </div>
 
@@ -222,11 +215,11 @@ export default function LandingPage() {
             <div className="w-12 h-12 rounded-xl bg-[#003366]/5 flex items-center justify-center mb-4">
               <Clock size={22} className="text-[#003366]" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-3">Office Hours</h3>
+            <h3 className="font-bold text-gray-900 mb-3">{t('landing.hours_heading')}</h3>
             <div className="space-y-2 text-sm text-gray-600">
               <p>{DEPARTMENT_INFO.hours}</p>
-              <p className="text-xs text-gray-500">Cashier: {DEPARTMENT_INFO.cashierHours}</p>
-              <p className="text-xs text-gray-400">Closed weekends and public holidays</p>
+              <p className="text-xs text-gray-500">{t('landing.cashier_label')}: {DEPARTMENT_INFO.cashierHours}</p>
+              <p className="text-xs text-gray-400">{t('landing.closed_weekends')}</p>
             </div>
           </div>
 
@@ -235,10 +228,10 @@ export default function LandingPage() {
             <div className="w-12 h-12 rounded-xl bg-[#003366]/5 flex items-center justify-center mb-4">
               <MapPin size={22} className="text-[#003366]" />
             </div>
-            <h3 className="font-bold text-gray-900 mb-3">Visit Us</h3>
+            <h3 className="font-bold text-gray-900 mb-3">{t('landing.visit_heading')}</h3>
             <div className="space-y-2 text-sm text-gray-600">
               <p>{DEPARTMENT_INFO.address}</p>
-              <p className="text-xs text-gray-500">Commissioner: {DEPARTMENT_INFO.commissioner}</p>
+              <p className="text-xs text-gray-500">{t('landing.commissioner_label')}: {DEPARTMENT_INFO.commissioner}</p>
             </div>
           </div>
         </div>
@@ -273,23 +266,23 @@ export default function LandingPage() {
           <div className="mt-6 pt-6 border-t border-white/10">
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs mb-4">
               <Link to="/roadmap" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
-                Delivery Roadmap
+                {t('landing.footer.roadmap')}
               </Link>
               <span className="hidden sm:inline text-gray-600">·</span>
               <Link to="/limitations" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
-                Known Limitations
+                {t('landing.footer.limitations')}
               </Link>
               <span className="hidden sm:inline text-gray-600">·</span>
               <Link to="/stats" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
-                Statistics
+                {t('landing.footer.stats')}
               </Link>
               <span className="hidden sm:inline text-gray-600">·</span>
               <Link to="/faq" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
-                Help &amp; FAQ
+                {t('landing.footer.faq')}
               </Link>
             </div>
             <div className="text-center text-xs text-gray-500">
-              <p>&copy; {new Date().getFullYear()} Government of the Virgin Islands. All rights reserved.</p>
+              <p>{t('landing.copyright', { year: new Date().getFullYear() })}</p>
               <p className="mt-1">{DEPARTMENT_INFO.name} &mdash; {DEPARTMENT_INFO.ministry}</p>
             </div>
           </div>

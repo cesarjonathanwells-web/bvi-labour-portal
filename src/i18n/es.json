@@ -1,0 +1,403 @@
+{
+  "common": {
+    "back_home": "Volver al inicio",
+    "phone": "Teléfono",
+    "email": "Correo electrónico",
+    "contact_us": "Contáctenos",
+    "language": "Idioma"
+  },
+  "landing": {
+    "hero_badge": "Servicios digitales oficiales del Gobierno",
+    "hero_title_prefix": "Departamento de Trabajo y",
+    "hero_title_highlight": "Desarrollo de la Fuerza Laboral",
+    "hero_lead": "Acceda a los servicios laborales de las Islas Vírgenes Británicas a través de nuestros portales digitales dedicados. Seleccione a continuación el portal que se ajuste a sus necesidades.",
+    "hero_sub": "Empleadores, titulares de permisos de trabajo, solicitantes de empleo y personal del Departamento disponen cada uno de un portal especializado con las herramientas y servicios pertinentes para ellos.",
+    "choose_portal_heading": "Elija su portal",
+    "choose_portal_sub": "Cada portal ofrece servicios especializados adaptados a su función.",
+    "portal": {
+      "business": {
+        "title": "Portal Empresarial",
+        "subtitle": "Para empleadores y empresas",
+        "description": "Solicite permisos de trabajo, publique vacantes, gestione renovaciones y calcule tarifas"
+      },
+      "worker": {
+        "title": "Portal del Trabajador",
+        "subtitle": "Para titulares de permisos de trabajo",
+        "description": "Consulte el estado de su permiso, vea su carné digital y presente disputas laborales"
+      },
+      "jobs": {
+        "title": "Centro de Empleo",
+        "subtitle": "Para solicitantes de empleo",
+        "description": "Busque vacantes disponibles, envíe solicitudes y acceda a formación laboral"
+      },
+      "dept": {
+        "title": "Acceso del Departamento",
+        "subtitle": "Solo personal del Departamento",
+        "description": "Acceso para personal autorizado a la gestión de casos y administración"
+      }
+    },
+    "sign_in": "Iniciar sesión",
+    "register": "Registrarse",
+    "staff_only": "Solo cuentas de personal",
+    "contact_heading": "Contáctenos",
+    "hours_heading": "Horario de oficina",
+    "visit_heading": "Visítenos",
+    "fax_label": "Fax",
+    "cashier_label": "Caja",
+    "closed_weekends": "Cerrado los fines de semana y festivos",
+    "commissioner_label": "Comisionado",
+    "footer": {
+      "roadmap": "Hoja de ruta de entrega",
+      "limitations": "Limitaciones conocidas",
+      "stats": "Estadísticas",
+      "faq": "Ayuda y preguntas frecuentes"
+    },
+    "copyright": "© {{year}} Gobierno de las Islas Vírgenes. Todos los derechos reservados."
+  },
+  "roadmap": {
+    "hero_badge": "Hoja de ruta de entrega",
+    "hero_title_prefix": "Portal Laboral de las IVB —",
+    "hero_title_highlight": "Hoja de ruta de entrega",
+    "hero_lead": "Lo que se entrega hoy, lo que se entregará en la Fase 2 y lo previsto para el futuro.",
+    "phase1": {
+      "title": "Disponible hoy",
+      "timeline": "Fase 1 · En vivo",
+      "items": [
+        "Cuatro portales por rol: Empresa, Trabajador, Centro de Empleo y Consola del Departamento",
+        "Ocho roles de personal del Departamento con matriz de permisos (Comisionado, Subcomisionado, Oficial de Permisos, Oficial de Disputas, Oficial de Colocación, Inspector, Cajero, Recepción)",
+        "Seis tipos de permisos de trabajo con cálculo de tarifas según el salario",
+        "Asistente de solicitud de permiso con carga de documentos y guardado automático del borrador",
+        "Carné digital del permiso de trabajo con exportación a PDF",
+        "Presentación de disputas, cronología del caso y seguimiento de estado",
+        "Flujo de publicación de vacantes y solicitudes",
+        "Panel del Departamento con canales de tramitación, carga de trabajo e ingresos",
+        "Salvaguardias del entorno de demostración: banner de prototipo, botón de reinicio, insignias de datos simulados",
+        "Formularios precargados con los datos del perfil empresarial registrado",
+        "Reutilización de documentos entre solicitudes para evitar volver a subirlos"
+      ]
+    },
+    "phase2": {
+      "title": "Fase 2 — En construcción",
+      "timeline": "Objetivo: T3 de 2026",
+      "items": [
+        "Backend en Postgres con autenticación del lado del servidor, contraseñas cifradas y gestión de sesiones",
+        "Registro de auditoría del lado del servidor (inmutable y exportable para el Auditor General)",
+        "Integración con el registro de licencias comerciales del IRD (verificación en tiempo real)",
+        "Integraciones con SSB, NHI e Inmigración para certificados de buena situación",
+        "Flujo de solicitud y respuesta de certificados de antecedentes policiales",
+        "Envío de correos electrónicos (SendGrid o AWS SES) y SMS (Twilio) para notificaciones",
+        "Pagos con tarjeta en línea a través de una pasarela local",
+        "Recordatorios por correo de vencimiento de permisos programados (a 60 / 30 / 15 días)",
+        "Carga de archivos a almacenamiento de objetos en la nube con análisis antivirus",
+        "Certificación completa de accesibilidad (WCAG 2.1 AA)",
+        "Autenticación multifactor para el personal del Departamento",
+        "Limitación de tasa, pruebas de intrusión y refuerzo de seguridad"
+      ]
+    },
+    "phase3": {
+      "title": "Fase 3 — Futuro",
+      "timeline": "Objetivo: 2027 en adelante",
+      "items": [
+        "Inicio de sesión único con VG-ID del Gobierno de las IVB",
+        "Analítica pública del mercado laboral y publicación de datos abiertos",
+        "Gestión de casos del tribunal de apelaciones",
+        "Soporte multilingüe (inglés, español y criollo francés)",
+        "Aplicaciones móviles para inspectores y personal de recepción",
+        "API para software aprobado de recursos humanos y nóminas de terceros",
+        "Inscripción en formación laboral y seguimiento de certificaciones",
+        "Detección automatizada de fraude y puntuación de riesgo",
+        "Reciprocidad regional con otros Estados miembros de la CARICOM"
+      ]
+    },
+    "cta_heading": "¿Preguntas sobre la hoja de ruta?",
+    "cta_sub": "Contacte con el Departamento de Trabajo y Desarrollo de la Fuerza Laboral."
+  },
+  "limitations": {
+    "hero_badge": "Divulgación honesta",
+    "hero_title": "Limitaciones conocidas",
+    "hero_lead": "Este prototipo demuestra la experiencia de usuario. Los siguientes puntos explícitamente <1>no</1> están todavía dentro del alcance y se documentan aquí para que los revisores puedan definir la Fase 2 con confianza.",
+    "why_heading": "Por qué existe esta página",
+    "why_body": "Todo servicio digital tiene limitaciones. Publicarlas abiertamente es una práctica que pensamos mantener en el servicio definitivo, para establecer expectativas correctas con solicitantes, empleadores y organismos de control.",
+    "cta_heading": "¿Quiere el alcance completo de la Fase 2?",
+    "cta_sub": "Consulte la hoja de ruta de entrega para saber qué añade la Fase 2 y cuándo.",
+    "cta_sub_link": "hoja de ruta de entrega",
+    "items": [
+      {
+        "title": "La autenticación es solo en el lado del cliente",
+        "body": "Las contraseñas se almacenan en el navegador con fines de demostración. El sistema de producción utilizará autenticación del lado del servidor con contraseñas cifradas, gestión de sesiones y autenticación multifactor opcional."
+      },
+      {
+        "title": "No hay base de datos de backend real",
+        "body": "Todos los datos se reinician en cada navegador. El sistema de producción utilizará Postgres con copias de seguridad diarias, recuperación a un punto en el tiempo y replicación regional."
+      },
+      {
+        "title": "Las integraciones con IRD, SSB, NHI e Inmigración están simuladas",
+        "body": "Cualquier insignia de \"Verificado\" del prototipo es una comprobación en el cliente contra datos de prueba. Las integraciones reales con el Departamento de Rentas Internas, la Junta de Seguridad Social, el Seguro Nacional de Salud e Inmigración están previstas para la Fase 2."
+      },
+      {
+        "title": "No hay envío de correo electrónico ni SMS",
+        "body": "Las notificaciones aparecen únicamente en el centro de notificaciones de la aplicación. La Fase 2 conectará un proveedor real de entrega (SendGrid para correo, Twilio para SMS) con controles de preferencias del usuario."
+      },
+      {
+        "title": "No hay persistencia del registro de auditoría",
+        "body": "Los cambios de estado se registran en el navegador con fines demostrativos. La Fase 2 utilizará un registro inmutable del lado del servidor, exportable para el Auditor General y la Auditoría Interna."
+      },
+      {
+        "title": "No hay validación de contenido de archivos ni análisis antivirus",
+        "body": "Los documentos cargados no se analizan. La Fase 2 integrará un servicio de análisis en la nube y aplicará cargas con URL firmadas a almacenamiento de objetos protegido."
+      },
+      {
+        "title": "No hay procesamiento de pagos",
+        "body": "Los cálculos de tarifas son correctos; no se mueve dinero. La Fase 2 integrará una pasarela de pago local con exportaciones de conciliación para el Tesoro."
+      },
+      {
+        "title": "Sin certificación WCAG 2.1 AA",
+        "body": "La interfaz ha sido auditada internamente según el nivel AA, pero no ha sido certificada formalmente por un tercero. La Fase 2 incluye una auditoría de accesibilidad independiente y su subsanación."
+      },
+      {
+        "title": "Sin pruebas de intrusión",
+        "body": "La revisión de seguridad por una firma externa es un requisito previo de la Fase 2 antes de cualquier lanzamiento público. No deben introducirse credenciales, secretos ni datos sensibles reales en este prototipo."
+      },
+      {
+        "title": "Los datos no son soberanos de las IVB",
+        "body": "El alojamiento en Railway se encuentra actualmente en EE. UU. para el prototipo. Las decisiones de alojamiento de la Fase 2 — incluidas la residencia de datos, las opciones de nube soberana y la recuperación ante desastres — están pendientes de revisión ministerial."
+      },
+      {
+        "title": "Aún no hay flujos de apelación, transferencia o variación de permisos",
+        "body": "El Código Laboral contempla apelaciones de decisiones y variaciones de permisos (cambio de puesto, transferencia de empleador). Estos flujos están planteados para la Fase 2."
+      },
+      {
+        "title": "Sin verificación de estatus de Belonger contra el registro de Inmigración",
+        "body": "El estatus de Belonger se autodeclara actualmente en los perfiles de usuario. La Fase 2 lo verificará contra el registro de Inmigración en el momento de la solicitud."
+      },
+      {
+        "title": "Aún no hay soporte multilingüe completo",
+        "body": "La interfaz está principalmente en inglés. La Fase 2 añade traducciones al español y al criollo francés para las páginas públicas."
+      },
+      {
+        "title": "Sin optimización para uso sin conexión o con poco ancho de banda",
+        "body": "El sitio requiere conexión a internet. La Fase 2 introducirá una capa de aplicación web progresiva (PWA) para Anegada y otras ubicaciones con ancho de banda limitado."
+      }
+    ]
+  },
+  "stats": {
+    "hero_badge": "Transparencia pública",
+    "hero_title": "Estadísticas de servicios laborales",
+    "hero_lead": "Métricas operativas del portal y objetivos de impacto previstos para la Fase 2.",
+    "info_banner": "Las cifras a continuación se calculan en tiempo real a partir de los datos de prueba del prototipo y de las acciones realizadas en su navegador. Las métricas de referencia marcadas como \"[Pendiente de confirmación del DLWD]\" requieren que el Departamento facilite cifras oficiales para el servicio definitivo.",
+    "section_live": "Instantánea operativa en vivo",
+    "section_phase2": "Proyecciones de impacto de la Fase 2",
+    "section_baseline": "Indicadores de referencia",
+    "phase2_badge": "Proyectado — Fase 2",
+    "phase2_badge_title": "Objetivos que el servicio digital aspira a alcanzar una vez en vivo la Fase 2.",
+    "dlwd_confirm": "[Pendiente de confirmación del DLWD]",
+    "label": {
+      "total_permits": "Permisos totales",
+      "approval_rate": "Tasa de aprobación",
+      "open_disputes": "Disputas abiertas",
+      "active_jobs": "Vacantes activas",
+      "businesses": "Empresas registradas",
+      "workers": "Trabajadores registrados",
+      "avg_salary": "Salario medio del permiso",
+      "snapshot": "Instantánea tomada"
+    },
+    "sub": {
+      "total_permits": "Todos los tipos y estados",
+      "approval_rate": "{{approved}} aprobados / {{rejected}} rechazados",
+      "open_disputes": "{{resolved}} resueltas históricamente",
+      "active_jobs": "{{total}} solicitudes · {{perJob}} por vacante",
+      "avg_salary": "En todos los permisos aprobados"
+    },
+    "breakdown": {
+      "by_status": "Permisos por estado",
+      "by_type": "Permisos por tipo",
+      "disputes_by_type": "Disputas por tipo",
+      "disputes_by_status": "Disputas por estado",
+      "no_permits": "Aún no hay permisos.",
+      "no_disputes": "No hay disputas registradas."
+    },
+    "phase2_cards": {
+      "processing_time_label": "Tiempo de tramitación",
+      "processing_time_value": "30 → 10",
+      "processing_time_sub": "Días hábiles desde la presentación hasta la decisión (reducción del 67%)",
+      "office_visits_label": "Visitas a la oficina",
+      "office_visits_value": "−80%",
+      "office_visits_sub": "Reducción de visitas físicas a la oficina para permisos rutinarios",
+      "first_approval_label": "Aprobación en primera presentación",
+      "first_approval_value": "75%",
+      "first_approval_sub": "Tasa objetivo cuando se active la validación previa",
+      "availability_label": "Disponibilidad",
+      "availability_value": "24 / 7",
+      "availability_sub": "Presentación disponible fuera del horario de oficina"
+    },
+    "baseline": {
+      "annual_volume": "Volumen anual de permisos",
+      "active_holders": "Titulares de permisos activos",
+      "processing_staff": "Personal de tramitación (ETC)",
+      "backlog": "Atraso actual",
+      "estimate_sub": "Estimación — pendiente de confirmación del Departamento"
+    },
+    "cta_heading": "¿Preguntas sobre estas cifras?",
+    "cta_sub_prefix": "La",
+    "cta_sub_roadmap": "hoja de ruta de entrega",
+    "cta_sub_middle": "explica lo que se está entregando ahora y lo que aporta la Fase 2. Las limitaciones conocidas se enumeran",
+    "cta_sub_limitations": "aquí",
+    "cta_sub_suffix": "."
+  },
+  "faq": {
+    "hero_badge": "Ayuda y preguntas frecuentes",
+    "hero_title": "Preguntas, respondidas",
+    "hero_lead": "{{count}} preguntas frecuentes sobre permisos, disputas, empleo, datos y el servicio digital.",
+    "search_placeholder": "Buscar en las preguntas frecuentes...",
+    "filter_label": "Filtrar por categoría",
+    "showing_count": "Mostrando <1>{{shown}}</1> de {{total}} entradas",
+    "no_results": "Ninguna entrada coincide con su búsqueda.",
+    "cta_heading": "¿Aún tiene alguna pregunta?",
+    "cta_sub": "El Departamento está disponible durante el horario de oficina: {{hours}}.",
+    "categories": [
+      "Todas",
+      "Primeros pasos",
+      "Permisos de trabajo",
+      "Transferencias, variaciones y apelaciones",
+      "Disputas",
+      "Empleo",
+      "Identidad y carnés",
+      "Datos y privacidad",
+      "Accesibilidad e idiomas",
+      "Personal del Departamento",
+      "Técnico"
+    ],
+    "items": [
+      {
+        "category": "Primeros pasos",
+        "q": "¿Para quién es este portal?",
+        "a": "El portal atiende a cuatro públicos: empleadores (Portal Empresarial), titulares de permisos de trabajo (Portal del Trabajador), isleños vírgenes y Belongers en búsqueda de empleo (Centro de Empleo) y personal del Departamento (Consola del Personal). Cada portal muestra únicamente los servicios relevantes para ese público."
+      },
+      {
+        "category": "Primeros pasos",
+        "q": "¿Necesito una cuenta distinta para cada portal?",
+        "a": "No. Su cuenta pertenece a un único portal según su rol. Si es empleador, se registra en el Portal Empresarial. Si tiene un permiso de trabajo, en el Portal del Trabajador. Intentar acceder a otro portal con la sesión iniciada le redirigirá a su propio panel."
+      },
+      {
+        "category": "Permisos de trabajo",
+        "q": "¿Qué tipos de permiso se admiten?",
+        "a": "Seis: Nuevo Permiso de Trabajo (hasta 3 años), Renovación (hasta 1 año), Temporal (hasta 3 meses), Periódico (encargos breves dentro del año), Autónomo y de Emergencia (hasta 7 días, vía rápida)."
+      },
+      {
+        "category": "Permisos de trabajo",
+        "q": "¿Cómo se calculan las tarifas?",
+        "a": "Las tarifas se basan en el salario en tres tramos: 3% hasta 25.000 $, 5% de 25.001 $ a 50.000 $, y 7% por encima de 50.001 $. Los trabajadores domésticos tributan a un 1% fijo. Se aplica una tarifa de solicitud de 50 $ a todas las nuevas solicitudes. El tope es de 10.000 $."
+      },
+      {
+        "category": "Permisos de trabajo",
+        "q": "¿Qué documentos se requieren?",
+        "a": "Las nuevas solicitudes estándar requieren: pasaporte válido, fotografía tamaño pasaporte, certificado de antecedentes policiales, certificado médico, licencia comercial del empleador, contrato de trabajo, descripción del puesto, evidencia de esfuerzos de contratación local y certificados de buena situación de SSB / IRD / NHI. Algunos tipos de permiso pueden requerir documentos adicionales."
+      },
+      {
+        "category": "Permisos de trabajo",
+        "q": "¿Cuánto tarda una decisión?",
+        "a": "Proceso manual actual: 30 días hábiles para permisos nuevos, 2 semanas para renovaciones, 10–15 días hábiles para permisos temporales y vía rápida para emergencias. La Fase 2 del servicio digital tiene como objetivo 10 días hábiles para permisos nuevos."
+      },
+      {
+        "category": "Permisos de trabajo",
+        "q": "¿Puedo guardar un borrador y terminar más tarde?",
+        "a": "Sí. Todos los formularios de permiso guardan automáticamente su progreso a medida que escribe. Al volver al formulario, se restaura su borrador."
+      },
+      {
+        "category": "Permisos de trabajo",
+        "q": "¿Puedo reutilizar documentos de una solicitud anterior?",
+        "a": "Sí. En el paso de documentos de una nueva solicitud, cada documento cargado previamente aparece con un botón \"Reutilizar anterior\". La opción \"Reutilizar todo\" lleva adelante todos los documentos elegibles con un solo clic."
+      },
+      {
+        "category": "Transferencias, variaciones y apelaciones",
+        "q": "¿Puede un trabajador cambiar de empleador a mitad del permiso?",
+        "a": "Sí. El nuevo empleador presenta una solicitud de transferencia desde el Portal Empresarial, indicando el número de permiso existente, el nuevo puesto / salario / ubicación propuestos y el consentimiento por escrito del trabajador. El Departamento revisa y decide; las transferencias aprobadas actualizan el permiso existente sin generar un nuevo número."
+      },
+      {
+        "category": "Transferencias, variaciones y apelaciones",
+        "q": "¿Qué ocurre si mi solicitud de permiso es rechazada?",
+        "a": "Las solicitudes rechazadas pueden apelarse desde el Portal Empresarial. Las apelaciones son revisadas por el Comisionado o Subcomisionado de Trabajo, autoridad competente según el Código Laboral. El plazo habitual es de diez días hábiles. Si se estima la apelación, el permiso original vuelve a revisión."
+      },
+      {
+        "category": "Disputas",
+        "q": "¿Cómo presento una disputa laboral?",
+        "a": "Los trabajadores presentan la disputa desde el Portal del Trabajador → Disputas. El formulario recoge los datos del denunciante, los datos del denunciado (empleador), el tipo de reclamación, la fecha del incidente, una descripción detallada y la resolución deseada. Pueden cargarse pruebas de apoyo. Un Oficial de Disputas revisa el caso y puede avanzarlo mediante investigación, mediación o remisión."
+      },
+      {
+        "category": "Disputas",
+        "q": "¿Qué tipos de disputa puedo presentar?",
+        "a": "Salarios impagados, despido injustificado, discriminación, condiciones laborales inseguras, incumplimiento de contrato, acoso, deducción indebida de salarios, denegación de derechos de licencia y otros. Cada tipo se corresponde con un artículo del Código Laboral."
+      },
+      {
+        "category": "Empleo",
+        "q": "¿Cómo publican los empleadores una vacante?",
+        "a": "Desde el Portal Empresarial → Ofertas de empleo → Publicar una vacante. El formulario recoge título, categoría, descripción, requisitos, rango salarial, jornada, ubicación, tipo de contrato, fecha límite y un interruptor de preferencia a Belongers, según requiere la política."
+      },
+      {
+        "category": "Empleo",
+        "q": "¿Quién puede postular a través del Centro de Empleo?",
+        "a": "Isleños vírgenes y Belongers. Los candidatos se registran en el Centro de Empleo, completan su perfil (incluidas competencias y formación) y postulan a las vacantes publicadas. Los empleadores ven las candidaturas en su Portal Empresarial."
+      },
+      {
+        "category": "Identidad y carnés",
+        "q": "¿Cómo obtengo mi carné digital de permiso de trabajo?",
+        "a": "Una vez aprobado su permiso, el Portal del Trabajador muestra su carné digital en la sección Carné. Puede exportarlo en PDF. La Fase 2 añadirá un código QR para verificación in situ."
+      },
+      {
+        "category": "Identidad y carnés",
+        "q": "¿Qué ocurre si pierdo mi carné?",
+        "a": "Los carnés digitales pueden volver a exportarse tantas veces como sea necesario desde su Portal del Trabajador. La reemisión del carné físico será una función de la Fase 2."
+      },
+      {
+        "category": "Datos y privacidad",
+        "q": "¿Dónde se almacenan mis datos?",
+        "a": "El prototipo almacena datos únicamente en su navegador (localStorage) — nada sale de su dispositivo. La Fase 2 utilizará una base de datos alojada, con decisiones de residencia de datos pendientes de revisión ministerial."
+      },
+      {
+        "category": "Datos y privacidad",
+        "q": "¿Puedo exportar mis datos?",
+        "a": "Sí. Desde su página de Perfil, use \"Exportar mis datos\" para descargar un archivo JSON con todo lo que el sistema tiene sobre usted: permisos, disputas, empleos, solicitudes, documentos, apelaciones y transferencias."
+      },
+      {
+        "category": "Datos y privacidad",
+        "q": "¿Quién puede ver mi rastro de auditoría?",
+        "a": "Solo el Comisionado y el Subcomisionado de Trabajo pueden consultar el registro interno de auditoría. Cada acción sobre permisos, disputas y empleos se registra con actor, marca de tiempo y objetivo. La Fase 2 hará este registro inmutable y exportable para el Auditor General."
+      },
+      {
+        "category": "Accesibilidad e idiomas",
+        "q": "¿El portal admite español o criollo?",
+        "a": "Actualmente está disponible en inglés y español para las páginas públicas. La Fase 2 añade además traducciones al criollo francés para las páginas públicas."
+      },
+      {
+        "category": "Accesibilidad e idiomas",
+        "q": "¿Cumple el portal con WCAG?",
+        "a": "Autoauditado según WCAG 2.1 AA. La Fase 2 incluye certificación independiente por una empresa externa especializada en accesibilidad."
+      },
+      {
+        "category": "Accesibilidad e idiomas",
+        "q": "¿Funciona con conexiones de bajo ancho de banda?",
+        "a": "La versión actual requiere conexión a internet. La Fase 2 introduce una capa de aplicación web progresiva optimizada para Anegada, Jost Van Dyke y otras ubicaciones con bajo ancho de banda."
+      },
+      {
+        "category": "Personal del Departamento",
+        "q": "¿Cómo inicia sesión el personal del Departamento?",
+        "a": "Las cuentas del Departamento son creadas por administración — no existe registro público. El personal inicia sesión en /dept/login con su correo departamental. Se admiten ocho roles con una matriz de permisos que rige el acceso."
+      },
+      {
+        "category": "Personal del Departamento",
+        "q": "¿Quién aprueba los permisos?",
+        "a": "Los Oficiales de Permisos revisan las presentaciones y pueden solicitar documentos o marcarlas en revisión. La autoridad final de aprobación o rechazo corresponde al Comisionado o Subcomisionado. Los oficiales pueden escalar al Subcomisionado para una decisión."
+      },
+      {
+        "category": "Técnico",
+        "q": "¿Este es el servicio en vivo?",
+        "a": "No. El entorno visible actualmente es un prototipo de la Fase 1 que demuestra la experiencia de usuario, alojado para su revisión. El backend de la Fase 2 (base de datos, autenticación real, integraciones con IRD / SSB / NHI / Inmigración) está previsto para el T3 de 2026."
+      },
+      {
+        "category": "Técnico",
+        "q": "¿Qué navegadores se admiten?",
+        "a": "Chrome, Firefox, Safari y Edge en sus versiones principales actual y anterior. Internet Explorer no se admite. La interfaz se adapta a dispositivos móviles, tabletas y escritorio."
+      }
+    ]
+  }
+}

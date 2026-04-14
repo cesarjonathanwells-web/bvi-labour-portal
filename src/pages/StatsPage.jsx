@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   BarChart3, Clock, ArrowLeft, TrendingDown, TrendingUp, CheckCircle2,
   FileText, Scale, Briefcase, Building2, UserCheck, Info, Phone, Mail,
 } from 'lucide-react';
 import { DEPARTMENT_INFO } from '../data/constants';
 import MockBadge from '../components/common/MockBadge';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
 
 /** Read all seeded collections from localStorage so the stats reflect the
  * current demo state. This page is public (no login required). */
@@ -48,7 +50,9 @@ function BreakdownRow({ label, count, total, color = 'bg-[#003366]' }) {
 }
 
 export default function StatsPage() {
+  const { t, i18n } = useTranslation();
   const [asOf, setAsOf] = useState(() => new Date().toISOString());
+  const locale = i18n.resolvedLanguage === 'es' ? 'es' : 'en-GB';
 
   // Compute all stats client-side from seed + any user-created records
   const data = useMemo(() => {
@@ -105,8 +109,8 @@ export default function StatsPage() {
 
   useEffect(() => {
     // Refresh stats every 30 seconds in case the demo user adds new records
-    const t = setInterval(() => setAsOf(new Date().toISOString()), 30000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setAsOf(new Date().toISOString()), 30000);
+    return () => clearInterval(timer);
   }, []);
 
   const permitTotal = data.permits.length;
@@ -127,9 +131,12 @@ export default function StatsPage() {
               <p className="text-[10px] text-gray-300">Department of Labour &amp; Workforce Development</p>
             </div>
           </Link>
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors">
-            <ArrowLeft size={16} /> Back to Home
-          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors">
+              <ArrowLeft size={16} /> {t('common.back_home')}
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -137,13 +144,13 @@ export default function StatsPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-18 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm mb-5">
             <BarChart3 size={14} className="text-[#c5a55a]" />
-            <span className="text-gray-200">Public Transparency</span>
+            <span className="text-gray-200">{t('stats.hero_badge')}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-4 max-w-3xl mx-auto">
-            Labour Services Statistics
+            {t('stats.hero_title')}
           </h1>
           <p className="text-lg text-gray-200 max-w-2xl mx-auto">
-            Operational metrics from the portal and projected impact targets for Phase 2.
+            {t('stats.hero_lead')}
           </p>
         </div>
       </section>
@@ -152,36 +159,35 @@ export default function StatsPage() {
         <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-[#003366]">
           <Info size={16} className="mt-0.5 flex-shrink-0" />
           <p>
-            The figures below are computed live from the prototype&apos;s seed data plus any actions taken in your browser.
-            Baseline metrics marked &quot;[DLWD to confirm]&quot; require the Department to supply authoritative numbers for the live service.
+            {t('stats.info_banner')}
           </p>
         </div>
 
-        <h2 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">Live operational snapshot</h2>
+        <h2 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">{t('stats.section_live')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-          <StatCard label="Total permits" value={permitTotal} sub="All types, all statuses" Icon={FileText} />
-          <StatCard label="Approval rate" value={`${data.approvalPct}%`} sub={`${data.approved} approved / ${data.rejected} rejected`} accent="text-green-700" Icon={CheckCircle2} />
-          <StatCard label="Open disputes" value={data.openDisputes} sub={`${data.resolvedDisputes} resolved historically`} accent="text-amber-700" Icon={Scale} />
-          <StatCard label="Active job postings" value={data.openJobs} sub={`${data.totalApplications} applications · ${data.appsPerJob} per job`} Icon={Briefcase} />
-          <StatCard label="Registered businesses" value={data.employerCount} Icon={Building2} />
-          <StatCard label="Registered workers" value={data.workerCount} Icon={UserCheck} />
-          <StatCard label="Average permit salary" value={`$${data.avgSalary.toLocaleString()}`} sub="Across all approved permits" />
-          <StatCard label="Snapshot taken" value={new Date(asOf).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} sub={new Date(asOf).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} Icon={Clock} />
+          <StatCard label={t('stats.label.total_permits')} value={permitTotal} sub={t('stats.sub.total_permits')} Icon={FileText} />
+          <StatCard label={t('stats.label.approval_rate')} value={`${data.approvalPct}%`} sub={t('stats.sub.approval_rate', { approved: data.approved, rejected: data.rejected })} accent="text-green-700" Icon={CheckCircle2} />
+          <StatCard label={t('stats.label.open_disputes')} value={data.openDisputes} sub={t('stats.sub.open_disputes', { resolved: data.resolvedDisputes })} accent="text-amber-700" Icon={Scale} />
+          <StatCard label={t('stats.label.active_jobs')} value={data.openJobs} sub={t('stats.sub.active_jobs', { total: data.totalApplications, perJob: data.appsPerJob })} Icon={Briefcase} />
+          <StatCard label={t('stats.label.businesses')} value={data.employerCount} Icon={Building2} />
+          <StatCard label={t('stats.label.workers')} value={data.workerCount} Icon={UserCheck} />
+          <StatCard label={t('stats.label.avg_salary')} value={`$${data.avgSalary.toLocaleString()}`} sub={t('stats.sub.avg_salary')} />
+          <StatCard label={t('stats.label.snapshot')} value={new Date(asOf).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} sub={new Date(asOf).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })} Icon={Clock} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
           <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">Permits by status</h3>
+            <h3 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">{t('stats.breakdown.by_status')}</h3>
             <div className="space-y-3">
               {Object.entries(data.permitStatusCounts).map(([k, v]) => (
                 <BreakdownRow key={k} label={k.replace(/_/g, ' ')} count={v} total={permitTotal} color={STATUS_COLOURS[k] || 'bg-gray-300'} />
               ))}
-              {permitTotal === 0 && <p className="text-sm text-gray-500">No permits yet.</p>}
+              {permitTotal === 0 && <p className="text-sm text-gray-500">{t('stats.breakdown.no_permits')}</p>}
             </div>
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">Permits by type</h3>
+            <h3 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">{t('stats.breakdown.by_type')}</h3>
             <div className="space-y-3">
               {Object.entries(data.permitTypeCounts).map(([k, v]) => (
                 <BreakdownRow key={k} label={k.replace(/-/g, ' ')} count={v} total={permitTotal} color="bg-[#003366]" />
@@ -190,17 +196,17 @@ export default function StatsPage() {
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">Disputes by type</h3>
+            <h3 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">{t('stats.breakdown.disputes_by_type')}</h3>
             <div className="space-y-3">
               {Object.entries(data.disputeTypeCounts).map(([k, v]) => (
                 <BreakdownRow key={k} label={k.replace(/_/g, ' ')} count={v} total={data.disputes.length} color="bg-red-400" />
               ))}
-              {data.disputes.length === 0 && <p className="text-sm text-gray-500">No disputes on record.</p>}
+              {data.disputes.length === 0 && <p className="text-sm text-gray-500">{t('stats.breakdown.no_disputes')}</p>}
             </div>
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">Disputes by status</h3>
+            <h3 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-4">{t('stats.breakdown.disputes_by_status')}</h3>
             <div className="space-y-3">
               {Object.entries(data.disputeStatusCounts).map(([k, v]) => (
                 <BreakdownRow key={k} label={k.replace(/_/g, ' ')} count={v} total={data.disputes.length} color="bg-amber-400" />
@@ -212,63 +218,67 @@ export default function StatsPage() {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-bold text-[#003366] uppercase tracking-wider">Phase 2 impact projections</h2>
-          <MockBadge variant="phase2" label="Projected — Phase 2" title="Targets the digital service aims to meet once Phase 2 is live." />
+          <h2 className="text-sm font-bold text-[#003366] uppercase tracking-wider">{t('stats.section_phase2')}</h2>
+          <MockBadge variant="phase2" label={t('stats.phase2_badge')} title={t('stats.phase2_badge_title')} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-2xl border border-amber-200 p-5">
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown className="w-4 h-4 text-green-600" />
-              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Processing time</p>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">{t('stats.phase2_cards.processing_time_label')}</p>
             </div>
-            <p className="text-3xl font-extrabold text-[#003366]">30 → 10</p>
-            <p className="text-xs text-gray-500 mt-1">Working days from submission to decision (67% reduction)</p>
+            <p className="text-3xl font-extrabold text-[#003366]">{t('stats.phase2_cards.processing_time_value')}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('stats.phase2_cards.processing_time_sub')}</p>
           </div>
           <div className="bg-white rounded-2xl border border-amber-200 p-5">
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown className="w-4 h-4 text-green-600" />
-              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Office visits</p>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">{t('stats.phase2_cards.office_visits_label')}</p>
             </div>
-            <p className="text-3xl font-extrabold text-[#003366]">−80%</p>
-            <p className="text-xs text-gray-500 mt-1">Reduction in physical office visits for routine permits</p>
+            <p className="text-3xl font-extrabold text-[#003366]">{t('stats.phase2_cards.office_visits_value')}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('stats.phase2_cards.office_visits_sub')}</p>
           </div>
           <div className="bg-white rounded-2xl border border-amber-200 p-5">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-green-600" />
-              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">First-submission approval</p>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">{t('stats.phase2_cards.first_approval_label')}</p>
             </div>
-            <p className="text-3xl font-extrabold text-[#003366]">75%</p>
-            <p className="text-xs text-gray-500 mt-1">Target rate when pre-validation is enabled</p>
+            <p className="text-3xl font-extrabold text-[#003366]">{t('stats.phase2_cards.first_approval_value')}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('stats.phase2_cards.first_approval_sub')}</p>
           </div>
           <div className="bg-white rounded-2xl border border-amber-200 p-5">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-green-600" />
-              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Availability</p>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">{t('stats.phase2_cards.availability_label')}</p>
             </div>
-            <p className="text-3xl font-extrabold text-[#003366]">24 / 7</p>
-            <p className="text-xs text-gray-500 mt-1">Submission available outside office hours</p>
+            <p className="text-3xl font-extrabold text-[#003366]">{t('stats.phase2_cards.availability_value')}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('stats.phase2_cards.availability_sub')}</p>
           </div>
         </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-bold text-[#003366] uppercase tracking-wider">Baseline indicators</h2>
-          <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">[DLWD to confirm]</span>
+          <h2 className="text-sm font-bold text-[#003366] uppercase tracking-wider">{t('stats.section_baseline')}</h2>
+          <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{t('stats.dlwd_confirm')}</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Annual permit volume" value="~3,500" sub="Estimate — awaiting Department confirmation" accent="text-gray-500" />
-          <StatCard label="Active permit holders" value="~4,500" sub="Estimate — awaiting Department confirmation" accent="text-gray-500" />
-          <StatCard label="Processing staff (FTE)" value="—" sub="[DLWD to confirm]" accent="text-gray-400" />
-          <StatCard label="Current backlog" value="—" sub="[DLWD to confirm]" accent="text-gray-400" />
+          <StatCard label={t('stats.baseline.annual_volume')} value="~3,500" sub={t('stats.baseline.estimate_sub')} accent="text-gray-500" />
+          <StatCard label={t('stats.baseline.active_holders')} value="~4,500" sub={t('stats.baseline.estimate_sub')} accent="text-gray-500" />
+          <StatCard label={t('stats.baseline.processing_staff')} value="—" sub={t('stats.dlwd_confirm')} accent="text-gray-400" />
+          <StatCard label={t('stats.baseline.backlog')} value="—" sub={t('stats.dlwd_confirm')} accent="text-gray-400" />
         </div>
       </section>
 
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm text-center">
-          <h2 className="text-xl font-bold text-[#003366] mb-2">Questions about these figures?</h2>
+          <h2 className="text-xl font-bold text-[#003366] mb-2">{t('stats.cta_heading')}</h2>
           <p className="text-sm text-gray-600 mb-5">
-            The <Link to="/roadmap" className="font-semibold text-[#003366] hover:underline">delivery roadmap</Link> explains what is shipping now and what Phase 2 delivers. Known limitations are listed <Link to="/limitations" className="font-semibold text-[#003366] hover:underline">here</Link>.
+            {t('stats.cta_sub_prefix')}{' '}
+            <Link to="/roadmap" className="font-semibold text-[#003366] hover:underline">{t('stats.cta_sub_roadmap')}</Link>{' '}
+            {t('stats.cta_sub_middle')}{' '}
+            <Link to="/limitations" className="font-semibold text-[#003366] hover:underline">{t('stats.cta_sub_limitations')}</Link>
+            {t('stats.cta_sub_suffix')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
             <a href={`tel:${DEPARTMENT_INFO.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 text-[#003366] font-semibold hover:underline">

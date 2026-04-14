@@ -13,9 +13,9 @@ export default function DemoBanner() {
   if (!visible) return null;
 
   return (
-    <div className="bg-amber-100 border-b border-amber-300 text-amber-900 text-xs">
+    <div role="status" aria-live="polite" className="bg-amber-100 border-b border-amber-300 text-amber-900 text-xs">
       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-2">
-        <Info size={14} className="flex-shrink-0" />
+        <Info size={14} aria-hidden="true" className="flex-shrink-0" />
         <p className="flex-1">
           <span className="font-semibold">Demo environment.</span>{' '}
           This is a prototype of the BVI Labour Portal. Data is stored in your browser only and is not connected to live Department of Labour systems.
@@ -24,9 +24,9 @@ export default function DemoBanner() {
           type="button"
           onClick={() => { sessionStorage.setItem(DISMISS_KEY, '1'); setVisible(false); }}
           aria-label="Dismiss demo notice"
-          className="p-1 rounded hover:bg-amber-200 transition-colors flex-shrink-0"
+          className="p-1 rounded hover:bg-amber-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-900 transition-colors flex-shrink-0"
         >
-          <X size={14} />
+          <X size={14} aria-hidden="true" />
         </button>
       </div>
     </div>
