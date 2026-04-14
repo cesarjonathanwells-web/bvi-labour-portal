@@ -26,14 +26,14 @@ export const DEPT_ROLES = {
 
 // Permission matrix - what each dept role can access
 export const DEPT_PERMISSIONS = {
-  commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'settings', 'approvals', 'appointments'],
-  deputy_commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'approvals', 'appointments'],
+  commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'settings', 'approvals', 'appointments', 'cards'],
+  deputy_commissioner: ['permits', 'disputes', 'jobs', 'inspections', 'payments', 'users', 'reports', 'approvals', 'appointments', 'cards'],
   permit_officer: ['permits', 'payments'],
   dispute_officer: ['disputes'],
   placement_officer: ['jobs'],
   inspector: ['inspections', 'reports'],
   cashier: ['payments'],
-  front_desk: ['appointments', 'lookup'],
+  front_desk: ['appointments', 'lookup', 'cards'],
 };
 
 // Portal definitions

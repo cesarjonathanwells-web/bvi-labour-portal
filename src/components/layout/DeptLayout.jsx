@@ -2,7 +2,7 @@ import {
   LayoutDashboard, FileText, Scale, Briefcase, ClipboardCheck,
   CreditCard, Calendar, Users, BarChart3, Settings, Shield,
   ListChecks, FileSearch, Receipt, DollarSign, Eye, BookOpen,
-  Search, User, History, ArrowRightLeft, Edit3,
+  Search, User, History, ArrowRightLeft, Edit3, Printer,
 } from 'lucide-react';
 import PortalLayout from './PortalLayout';
 
@@ -19,6 +19,7 @@ const roleNavConfigs = {
     { label: 'Inspections', to: '/dept/inspections', icon: ClipboardCheck },
     { label: 'Payments', to: '/dept/payments', icon: CreditCard },
     { label: 'Appointments', to: '/dept/appointments', icon: Calendar },
+    { label: 'Card Management', to: '/dept/cards', icon: Printer },
     { label: 'Users', to: '/dept/users', icon: Users },
     { label: 'Audit Log', to: '/dept/audit-log', icon: History },
     { label: 'Reports', to: '/dept/reports', icon: BarChart3 },
@@ -35,6 +36,7 @@ const roleNavConfigs = {
     { label: 'Inspections', to: '/dept/inspections', icon: ClipboardCheck },
     { label: 'Payments', to: '/dept/payments', icon: CreditCard },
     { label: 'Appointments', to: '/dept/appointments', icon: Calendar },
+    { label: 'Card Management', to: '/dept/cards', icon: Printer },
     { label: 'Users', to: '/dept/users', icon: Users },
     { label: 'Audit Log', to: '/dept/audit-log', icon: History },
     { label: 'Reports', to: '/dept/reports', icon: BarChart3 },
@@ -70,6 +72,7 @@ const roleNavConfigs = {
   front_desk: [
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
     { label: 'Appointments', to: '/dept/appointments', icon: Calendar },
+    { label: 'Card Management', to: '/dept/cards', icon: Printer },
     { label: 'Permit Lookup', to: '/dept/lookup', icon: Search },
   ],
 };

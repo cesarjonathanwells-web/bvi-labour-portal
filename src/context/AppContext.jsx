@@ -3,6 +3,7 @@ import { getStorage, setStorage, generateId, generatePermitNumber } from '../uti
 import { seedAll } from '../data/seedData';
 import { useAuth } from './AuthContext';
 import { logAudit, actorFromUser } from '../utils/auditLog';
+import { CARD_KEY, newCardForPermit } from '../utils/cardLifecycle';
 
 const AppContext = createContext(null);
 
@@ -10,6 +11,7 @@ const KEYS = {
   permits: 'bvi_permits', disputes: 'bvi_disputes', jobs: 'bvi_jobs',
   applications: 'bvi_applications', documents: 'bvi_documents', notifications: 'bvi_notifications',
   appeals: 'bvi_appeals', transfers: 'bvi_transfers', variations: 'bvi_variations',
+  cards: CARD_KEY,
 };
 
 // Bump this key whenever seed data changes so returning browsers pick up the refresh
@@ -26,6 +28,7 @@ export function AppProvider({ children }) {
   const [appeals, setAppeals] = useState([]);
   const [transfers, setTransfers] = useState([]);
   const [variations, setVariations] = useState([]);
+  const [cards, setCards] = useState([]);
 
   /** Record an audit entry tagged with the current signed-in user. */
   const audit = useCallback((entry) => logAudit({ ...actorFromUser(user), ...entry }), [user]);
@@ -49,6 +52,7 @@ export function AppProvider({ children }) {
     setAppeals(getStorage(KEYS.appeals) || []);
     setTransfers(getStorage(KEYS.transfers) || []);
     setVariations(getStorage(KEYS.variations) || []);
+    setCards(getStorage(KEYS.cards) || []);
   }, []);
 
   const save = (key, setter) => (data) => { setter(data); setStorage(key, data); };
@@ -86,6 +90,20 @@ export function AppProvider({ children }) {
         targetType: 'permit', targetId: permit.id, targetLabel: permit.permitNumber,
         metadata: { status, notes },
       });
+      // Approval issues the digital ID card record immediately. The physical
+      // card follows through the photo / print / pickup lifecycle.
+      if (status === 'approved' && !cards.find(c => c.permitId === permit.id)) {
+        const card = newCardForPermit(permit);
+        save(KEYS.cards, setCards)([card, ...cards]);
+        if (permit.userId) {
+          addNotification(permit.userId, `Digital ID card issued for ${permit.permitNumber}. View it in the Worker Portal.`, 'success');
+        }
+        audit({
+          category: 'permit', action: 'digital ID issued',
+          targetType: 'card', targetId: card.id, targetLabel: card.permitNumber,
+          metadata: { workerUserId: card.workerUserId },
+        });
+      }
     }
   };
 
@@ -394,6 +412,104 @@ export function AppProvider({ children }) {
 
   const getVariationsByUser = (userId) => variations.filter(v => v.userId === userId || v.employerId === userId);
 
+  // ─── CARDS — physical work-permit ID card lifecycle ─────────────────
+  const updateCard = (cardId, mutator, auditEntry) => {
+    let changed = null;
+    const next = cards.map(c => {
+      if (c.id !== cardId) return c;
+      changed = { ...mutator(c), updatedAt: new Date().toISOString() };
+      return changed;
+    });
+    save(KEYS.cards, setCards)(next);
+    if (changed && auditEntry) {
+      audit({
+        category: 'permit', targetType: 'card',
+        targetId: changed.id, targetLabel: changed.permitNumber,
+        ...auditEntry,
+      });
+    }
+    return changed;
+  };
+
+  const scheduleCardPhoto = (cardId, { scheduledAt, location }) => {
+    const c = updateCard(cardId, (card) => ({
+      ...card,
+      appointment: { scheduledAt, location, status: 'scheduled' },
+    }), { action: 'photo appointment scheduled', metadata: { scheduledAt, location } });
+    if (c) addNotification(c.workerUserId, `Photo appointment scheduled for ${new Date(scheduledAt).toLocaleString('en-GB')}.`, 'info');
+    return c;
+  };
+
+  const captureCardPhoto = (cardId, photoData) => {
+    const c = updateCard(cardId, (card) => ({
+      ...card,
+      appointment: card.appointment ? { ...card.appointment, status: 'completed' } : { status: 'completed' },
+      photo: { capturedAt: new Date().toISOString(), capturedBy: user?.id || null, photoData },
+      print: { ...card.print, status: 'queued', queuedAt: new Date().toISOString() },
+    }), { action: 'photo captured and queued for print' });
+    if (c) addNotification(c.workerUserId, 'Your photo has been captured. Card is in the print queue.', 'info');
+    return c;
+  };
+
+  const markCardPrinting = (cardId) => updateCard(cardId,
+    (card) => ({ ...card, print: { ...card.print, status: 'printing' } }),
+    { action: 'print started' });
+
+  const markCardPrinted = (cardId) => updateCard(cardId,
+    (card) => ({
+      ...card,
+      print: { ...card.print, status: 'printed', printedAt: new Date().toISOString(), printedBy: user?.id || null },
+    }),
+    { action: 'print completed' });
+
+  const markCardPrintFailed = (cardId, note) => updateCard(cardId,
+    (card) => ({
+      ...card,
+      print: {
+        ...card.print,
+        status: 'print_failed',
+        failureCount: (card.print?.failureCount || 0) + 1,
+        failureNotes: [
+          ...(card.print?.failureNotes || []),
+          { at: new Date().toISOString(), by: user?.id || null, note: note || 'Machine fault' },
+        ],
+      },
+    }),
+    { action: 'print failed — re-queued', metadata: { note } });
+
+  const markCardReadyForPickup = (cardId, { channels = [], location } = {}) => {
+    const c = updateCard(cardId, (card) => ({
+      ...card,
+      print: { ...card.print, status: 'ready_for_pickup' },
+      collection: { ...(card.collection || {}), location: location || card.collection?.location || 'road_town' },
+      notifications: {
+        readyNotifiedAt: new Date().toISOString(),
+        channels,
+      },
+    }), { action: 'marked ready for pickup', metadata: { channels, location } });
+    if (c) addNotification(c.workerUserId, 'Your physical work permit ID card is ready for collection. Bring valid photo ID.', 'success');
+    return c;
+  };
+
+  const recordCardCollection = (cardId, { idVerificationType, idReference }) => {
+    const c = updateCard(cardId, (card) => ({
+      ...card,
+      print: { ...card.print, status: 'collected' },
+      collection: {
+        ...(card.collection || {}),
+        collectedAt: new Date().toISOString(),
+        verifiedBy: user?.id || null,
+        idVerificationType,
+        idReference: idReference || null,
+      },
+    }), { action: 'card collected', metadata: { idVerificationType } });
+    if (c) addNotification(c.workerUserId, 'Your physical ID card has been collected. Thank you.', 'success');
+    return c;
+  };
+
+  const getCardByPermit = (permitId) => cards.find(c => c.permitId === permitId);
+  const getCardsByWorker = (userId) => cards.filter(c => c.workerUserId === userId);
+
   const getPermitsByUser = (userId) => permits.filter(p => p.userId === userId || p.employerId === userId);
   const getDisputesByUser = (userId) => disputes.filter(d => d.userId === userId);
   const getJobsByEmployer = (userId) => jobs.filter(j => j.employerId === userId);
@@ -403,12 +519,15 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      permits, disputes, jobs, applications, documents, notifications, appeals, transfers, variations,
+      permits, disputes, jobs, applications, documents, notifications, appeals, transfers, variations, cards,
       submitPermit, updatePermitStatus, fileDispute, updateDisputeStatus, addDisputeResponse,
       postJob, applyToJob, uploadDocument, markNotificationRead, addNotification,
       fileAppeal, updateAppealStatus,
       submitTransferRequest, updateTransferStatus,
       submitVariation, updateVariationStatus,
+      scheduleCardPhoto, captureCardPhoto, markCardPrinting, markCardPrinted,
+      markCardPrintFailed, markCardReadyForPickup, recordCardCollection,
+      getCardByPermit, getCardsByWorker,
       getPermitsByUser, getDisputesByUser, getJobsByEmployer, getApplicationsByUser,
       getDocsByUser, getNotificationsByUser, getAppealsByUser, getTransfersByUser, getVariationsByUser,
     }}>
