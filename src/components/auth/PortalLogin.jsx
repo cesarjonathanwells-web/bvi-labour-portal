@@ -139,8 +139,8 @@ export default function PortalLogin({ portal = 'business' }) {
             {/* Form */}
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {error && (
-                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
+                <div role="alert" aria-live="assertive" className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  <AlertCircle size={18} aria-hidden="true" className="flex-shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
               )}
@@ -175,10 +175,12 @@ export default function PortalLogin({ portal = 'business' }) {
                   <button
                     type="button"
                     onClick={() => setShowPassword(p => !p)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     tabIndex={-1}
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                   </button>
                 </div>
               </div>

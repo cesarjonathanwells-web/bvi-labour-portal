@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import {
   ShieldCheck, Search, CheckCircle2, XCircle, Clock, AlertTriangle,
   ArrowLeft, Phone, Mail, Info, Building2, Briefcase, Calendar,
@@ -203,9 +204,12 @@ export default function VerifyPage() {
               <p className="text-[10px] text-gray-300">Department of Labour &amp; Workforce Development</p>
             </div>
           </Link>
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors">
-            <ArrowLeft size={16} /> Back to Home
-          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors">
+              <ArrowLeft size={16} /> Back to Home
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -247,7 +251,7 @@ export default function VerifyPage() {
               disabled={loading}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#003366] text-white rounded-lg font-semibold text-sm hover:bg-[#002244] disabled:opacity-40"
             >
-              <Search size={14} /> {loading ? 'Checking…' : 'Verify'}
+              <Search size={14} /> {loading ? 'Checking…' : 'Verify permit'}
             </button>
           </form>
           {inputError && (
@@ -260,8 +264,14 @@ export default function VerifyPage() {
             <Info size={14} className="mt-0.5 flex-shrink-0" />
             <p>
               Only the minimum information needed to confirm a permit is shown — holder name, sponsoring employer, position, issue and expiry dates. Nationality, date of birth, salary, contact details, and addresses are never returned by this service.
-              <MockBadge variant="phase2" label="Phase 2: QR + rate limit" className="ml-2" title="Phase 2 adds QR-code scan from the physical card, anti-abuse rate limiting, and a per-requester audit trail." />
             </p>
+          </div>
+          <div className="mt-3 flex">
+            <MockBadge
+              variant="phase2"
+              label="Phase 2: QR + rate limit"
+              title="Phase 2 adds QR-code scan from the physical card, anti-abuse rate limiting, and a per-requester audit trail."
+            />
           </div>
         </div>
 

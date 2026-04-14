@@ -15,6 +15,15 @@ function getInitialLang() {
   return 'en';
 }
 
+function syncDocumentLang(lang) {
+  // WCAG 3.1.1 Language of Page — keep the html lang attribute in sync with
+  // the active i18n locale so screen readers pronounce content with the
+  // correct language phonemes.
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+  }
+}
+
 i18n
   .use(initReactI18next)
   .init({
@@ -27,6 +36,10 @@ i18n
     interpolation: { escapeValue: false },
     returnObjects: true,
   });
+
+// Initial sync (in case the stored locale isn't 'en') and listen for changes.
+syncDocumentLang(i18n.language || 'en');
+i18n.on('languageChanged', syncDocumentLang);
 
 export function setLanguage(lang) {
   try {

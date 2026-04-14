@@ -27,11 +27,23 @@
   /* Prevent body scroll when mobile sidebar is open */
   body.sidebar-open { overflow: hidden; }
 
-  /* Focus-visible for accessibility (WCAG 2.1 AA) */
+  /* Focus-visible for accessibility (WCAG 2.1 AA / 2.4.7 Focus Visible) */
   :focus-visible {
-    outline: 2px solid var(--bvi-blue);
+    outline: 3px solid var(--bvi-gold);
     outline-offset: 2px;
     border-radius: 4px;
+  }
+  /* Anchors inside dark headers — gold ring is invisible against navy, so
+     use a white inner ring + gold outer ring for double-layer visibility. */
+  nav a:focus-visible,
+  nav button:focus-visible,
+  header a:focus-visible,
+  header button:focus-visible,
+  footer a:focus-visible,
+  footer button:focus-visible {
+    outline: 3px solid var(--bvi-gold);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.9);
   }
 
   /* Remove outline for mouse users */

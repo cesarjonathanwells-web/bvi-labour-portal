@@ -157,7 +157,7 @@ function EmployerEmployeeStep({ employer, employee, onEmployerChange, onEmployee
         </div>
         <div>
           <label className="label-field">
-            Trade License Number <span className="text-red-500">*</span>
+            Trade Licence Number <span className="text-red-500">*</span>
             {licenceVerified && (
               <MockBadge
                 variant="verified"
@@ -365,7 +365,7 @@ function ReviewStep({ formData, fee, termsAccepted, onTermsChange }) {
         <h3 className="text-sm font-bold text-[#003366] uppercase tracking-wider mb-3">Employer</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
           <RF label="Company" value={employer.companyName} />
-          <RF label="Trade License" value={employer.tradeLicense} />
+          <RF label="Trade Licence" value={employer.tradeLicense} />
           <RF label="Industry" value={employer.industry} />
           <RF label="Phone" value={employer.phone} />
           <RF label="Email" value={employer.email} />

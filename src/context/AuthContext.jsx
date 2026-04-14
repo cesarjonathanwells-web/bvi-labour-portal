@@ -199,7 +199,7 @@ export function AuthProvider({ children }) {
   const login = (email, password) => {
     const users = getStorage(USERS_KEY) || [];
     const found = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-    if (!found) return { success: false, error: 'Invalid email or password' };
+    if (!found) return { success: false, error: 'Invalid email or password.' };
     setUser(found);
     setStorage(SESSION_KEY, { userId: found.id });
     return { success: true, user: found };

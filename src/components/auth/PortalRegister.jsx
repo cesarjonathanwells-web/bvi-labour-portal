@@ -251,7 +251,7 @@ export default function PortalRegister({ portal = 'business' }) {
           <input id="reg-companyName" className="input-field" value={form.companyName} onChange={update('companyName')} placeholder="Acme Ltd." aria-required="true" />
         </div>
         <div>
-          <label htmlFor="reg-tradeLicense" className="label-field">Trade License Number *</label>
+          <label htmlFor="reg-tradeLicense" className="label-field">Trade Licence Number *</label>
           <input id="reg-tradeLicense" className="input-field" value={form.tradeLicense} onChange={update('tradeLicense')} placeholder="TL-0000-0000" aria-required="true" />
         </div>
         <div>

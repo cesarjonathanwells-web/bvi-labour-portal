@@ -194,7 +194,7 @@ function EmployerStep({ data, onChange, errors, prefilledFromAccount, licenceVer
         </div>
         <div>
           <label className="label-field">
-            Trade License Number <span className="text-red-500">*</span>
+            Trade Licence Number <span className="text-red-500">*</span>
             {licenceVerified && (
               <MockBadge
                 variant="verified"
@@ -845,7 +845,7 @@ function ReviewStep({ formData, fee, termsAccepted, onTermsChange }) {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
           <ReviewField label="Company" value={employer.companyName} />
-          <ReviewField label="Trade License" value={employer.tradeLicense} />
+          <ReviewField label="Trade Licence" value={employer.tradeLicense} />
           <ReviewField label="Industry" value={employer.industry} />
           <ReviewField label="Phone" value={employer.phone} />
           <ReviewField label="Email" value={employer.email} />

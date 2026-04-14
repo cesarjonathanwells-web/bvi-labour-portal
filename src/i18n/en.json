@@ -172,8 +172,8 @@
         "body": "Belonger status is currently self-declared in user profiles. Phase 2 will verify against the Immigration registry at application time."
       },
       {
-        "title": "No multilingual support yet",
-        "body": "The interface is English-only. Phase 2 adds Spanish and French-Creole translations for public-facing pages."
+        "title": "Partial multilingual support",
+        "body": "Public-facing pages are available in English and Spanish. Internal portal screens remain English-only. Phase 2 adds French-Creole and translates the internal workflows."
       },
       {
         "title": "No offline or low-bandwidth optimisation",
@@ -367,7 +367,7 @@
       {
         "category": "Accessibility & languages",
         "q": "Does the portal support Spanish or Creole?",
-        "a": "Currently English-only. Phase 2 adds Spanish and French-Creole translations for public-facing pages."
+        "a": "Public-facing pages are available in English and Spanish — use the EN / ES toggle in the page header. Internal portal workflows remain English-only for now. Phase 2 adds French-Creole and translates the internal screens."
       },
       {
         "category": "Accessibility & languages",

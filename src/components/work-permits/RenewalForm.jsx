@@ -211,7 +211,7 @@ function CurrentPermitStep({ data, onChange, errors, ownedPermits, onPickPermit,
         </div>
         <div>
           <label className="label-field">
-            Trade License Number <span className="text-red-500">*</span>
+            Trade Licence Number <span className="text-red-500">*</span>
             {licenceVerified && (
               <MockBadge
                 variant="verified"
@@ -481,7 +481,7 @@ function ReviewStep({ formData, fee, termsAccepted, onTermsChange }) {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
           <RField label="Permit Number" value={currentPermit.permitNumber} />
           <RField label="Company" value={currentPermit.companyName} />
-          <RField label="Trade License" value={currentPermit.tradeLicense} />
+          <RField label="Trade Licence" value={currentPermit.tradeLicense} />
           <RField label="Industry" value={currentPermit.industry} />
           <RField label="Phone" value={currentPermit.phone} />
           <RField label="Signatory" value={currentPermit.authorizedSignatory} />

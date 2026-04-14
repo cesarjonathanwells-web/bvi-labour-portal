@@ -172,8 +172,8 @@
         "body": "El estatus de Belonger se autodeclara actualmente en los perfiles de usuario. La Fase 2 lo verificará contra el registro de Inmigración en el momento de la solicitud."
       },
       {
-        "title": "Aún no hay soporte multilingüe completo",
-        "body": "La interfaz está principalmente en inglés. La Fase 2 añade traducciones al español y al criollo francés para las páginas públicas."
+        "title": "Soporte multilingüe parcial",
+        "body": "Las páginas públicas están disponibles en inglés y español. Las páginas internas del portal son solo en inglés. La Fase 2 añade el criollo francés y traduce los flujos de trabajo internos."
       },
       {
         "title": "Sin optimización para uso sin conexión o con poco ancho de banda",
@@ -367,7 +367,7 @@
       {
         "category": "Accesibilidad e idiomas",
         "q": "¿El portal admite español o criollo?",
-        "a": "Actualmente está disponible en inglés y español para las páginas públicas. La Fase 2 añade además traducciones al criollo francés para las páginas públicas."
+        "a": "Las páginas públicas están disponibles en inglés y español — use el selector EN / ES en el encabezado de la página. Los flujos internos del portal siguen únicamente en inglés por ahora. La Fase 2 añade el criollo francés y traduce las pantallas internas."
       },
       {
         "category": "Accesibilidad e idiomas",

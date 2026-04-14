@@ -284,7 +284,7 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <div>
-                  <label className="label-field">Trade License #</label>
+                  <label className="label-field">Trade Licence #</label>
                   {editing ? (
                     <input className="input-field" value={form.tradeLicense} onChange={update('tradeLicense')} />
                   ) : (
