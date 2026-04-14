@@ -1,11 +1,48 @@
 import { useState, useRef } from 'react';
 import {
   User, Camera, Save, Mail, Phone, MapPin, Building, Shield,
-  FileText, AlertCircle, Check,
+  FileText, AlertCircle, Check, Download,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { validateEmail, validatePhone, fileToBase64 } from '../../utils/helpers';
 import { ISLANDS, JOB_CATEGORIES, ROLES } from '../../data/constants';
+import MockBadge from '../common/MockBadge';
+
+/**
+ * Export everything the system knows about the signed-in user as a JSON
+ * file. Implements the prototype version of a Subject Access Request
+ * under the Data Protection Act. Phase 2 will do this server-side with a
+ * signed download URL and an audit entry.
+ */
+function exportMyData(user) {
+  if (!user) return;
+  const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch { return []; } };
+  const mine = {
+    exportedAt: new Date().toISOString(),
+    subject: {
+      id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName,
+      portal: user.portal, role: user.role, deptRole: user.deptRole,
+      profile: { ...user, password: undefined },
+    },
+    permits: read('bvi_permits').filter(p => p.userId === user.id || p.employerId === user.id),
+    disputes: read('bvi_disputes').filter(d => d.userId === user.id),
+    jobs: read('bvi_jobs').filter(j => j.employerId === user.id),
+    applications: read('bvi_applications').filter(a => a.userId === user.id),
+    documents: read('bvi_documents').filter(d => d.userId === user.id),
+    notifications: read('bvi_notifications').filter(n => n.userId === user.id),
+    appeals: read('bvi_appeals').filter(a => a.userId === user.id),
+    transfers: read('bvi_transfers').filter(t => t.newEmployerId === user.id || t.originalEmployerId === user.id || t.workerUserId === user.id),
+  };
+  const blob = new Blob([JSON.stringify(mine, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bvi-labour-${user.id}-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 export default function ProfilePage() {
   const { user, updateProfile } = useAuth();
@@ -102,7 +139,18 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <h1 className="page-title">My Profile</h1>
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <h1 className="page-title m-0">My Profile</h1>
+        <button
+          type="button"
+          onClick={() => exportMyData(user)}
+          className="inline-flex items-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg text-xs font-semibold hover:bg-gray-50 transition-colors flex-shrink-0"
+          title="Download everything the system knows about you as a JSON file"
+        >
+          <Download size={12} /> Export my data
+          <MockBadge variant="phase2" label="DPA" title="Subject Access Request — Phase 2 will add PDF export and email delivery." />
+        </button>
+      </div>
 
       {/* Messages */}
       {error && (

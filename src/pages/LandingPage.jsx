@@ -271,7 +271,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-6 pt-6 border-t border-white/10">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-xs mb-4">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs mb-4">
               <Link to="/roadmap" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
                 Delivery Roadmap
               </Link>
@@ -280,7 +280,13 @@ export default function LandingPage() {
                 Known Limitations
               </Link>
               <span className="hidden sm:inline text-gray-600">·</span>
-              <span className="text-gray-500 italic">Phase 2 Documentation (coming soon)</span>
+              <Link to="/stats" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
+                Statistics
+              </Link>
+              <span className="hidden sm:inline text-gray-600">·</span>
+              <Link to="/faq" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
+                Help &amp; FAQ
+              </Link>
             </div>
             <div className="text-center text-xs text-gray-500">
               <p>&copy; {new Date().getFullYear()} Government of the Virgin Islands. All rights reserved.</p>

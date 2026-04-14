@@ -28,6 +28,8 @@ import NotFoundPage from './pages/NotFoundPage';
 // Public info pages — lazy
 const RoadmapPage = lazy(() => import('./pages/RoadmapPage'));
 const LimitationsPage = lazy(() => import('./pages/LimitationsPage'));
+const StatsPage = lazy(() => import('./pages/StatsPage'));
+const FAQPage = lazy(() => import('./pages/FAQPage'));
 
 // Application pages — lazy (heavy: permits/jobs/disputes forms + PDF libs)
 const PermitsPage = lazy(() => import('./pages/PermitsPage'));
@@ -172,6 +174,8 @@ function AppRoutes() {
       {/* Public info pages */}
       <Route path="/roadmap" element={<RoadmapPage />} />
       <Route path="/limitations" element={<LimitationsPage />} />
+      <Route path="/stats" element={<StatsPage />} />
+      <Route path="/faq" element={<FAQPage />} />
 
       {/* ============================================================ */}
       {/*  BUSINESS PORTAL  (/business/*)                               */}
