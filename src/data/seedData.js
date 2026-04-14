@@ -11,6 +11,7 @@ const APPLICATIONS_KEY = 'bvi_applications';
 const DOCUMENTS_KEY = 'bvi_documents';
 const NOTIFICATIONS_KEY = 'bvi_notifications';
 const CARDS_KEY = 'bvi_cards';
+const INSPECTIONS_KEY = 'bvi_inspections';
 
 function get(k) { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } }
 function set(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
@@ -202,6 +203,65 @@ const extraWorkers = [
   { id: 'wrk-009', email: 'priya.menon@email.com', password: 'test123', portal: 'worker', role: 'employee', firstName: 'Priya', lastName: 'Menon', nationality: 'India', currentEmployer: 'BVI Builders Corp', permitNumber: 'WP-2026-1009', phone: '284-555-0209', createdAt: '2026-03-25T10:00:00Z' },
 ];
 
+// ── MOCK INSPECTIONS ────────────────────────────────────────────────
+// Spread across statuses + types so the Inspector dashboard, the
+// Inspections workbench, and the Reports page all show meaningful data.
+const inspections = [
+  {
+    id: 'insp-001',
+    workplaceName: 'Tropic Resorts Ltd',
+    address: 'Wickham\'s Cay, Road Town',
+    island: 'Tortola',
+    date: '2026-04-08',
+    type: 'routine',
+    status: 'completed',
+    inspector: 'Kevon Penn',
+    notes: 'Annual workplace safety inspection. All required signage in place. Minor observation: first-aid kit needs restocking.',
+    violations: [
+      { id: 'v-001', code: 'OSH-12.4', description: 'First-aid kit incomplete', severity: 'low', resolved: true, resolvedDate: '2026-04-10' },
+    ],
+  },
+  {
+    id: 'insp-002',
+    workplaceName: 'BVI Builders Corp — East End site',
+    address: 'East End, Tortola',
+    island: 'Tortola',
+    date: '2026-04-11',
+    type: 'complaint',
+    status: 'completed',
+    inspector: 'Kevon Penn',
+    notes: 'Inspection triggered by dispute DC-2026-4001 (overtime / wage complaint).',
+    violations: [
+      { id: 'v-002', code: 'WAGE-8.1', description: 'Overtime records incomplete for Jan–Feb 2026', severity: 'high', resolved: false },
+      { id: 'v-003', code: 'OSH-3.2', description: 'PPE not consistently worn on scaffolding', severity: 'medium', resolved: false },
+    ],
+  },
+  {
+    id: 'insp-003',
+    workplaceName: 'Island Tech Solutions',
+    address: 'Spanish Town, Virgin Gorda',
+    island: 'Virgin Gorda',
+    date: '2026-04-16',
+    type: 'routine',
+    status: 'scheduled',
+    inspector: 'Kevon Penn',
+    notes: 'First annual inspection following business registration.',
+    violations: [],
+  },
+  {
+    id: 'insp-004',
+    workplaceName: 'Anegada Pink Flamingo Restaurant',
+    address: 'The Settlement, Anegada',
+    island: 'Anegada',
+    date: '2026-04-22',
+    type: 'follow_up',
+    status: 'scheduled',
+    inspector: 'Kevon Penn',
+    notes: 'Follow-up to verify resolution of fire-extinguisher placement issues from January inspection.',
+    violations: [],
+  },
+];
+
 /** Merge seed items into an existing array by id without duplicating */
 function mergeById(key, seedItems) {
   const existing = get(key);
@@ -231,6 +291,7 @@ export function seedAll() {
   mergeById(APPLICATIONS_KEY, applications);
   mergeById(DOCUMENTS_KEY, documents);
   mergeById(NOTIFICATIONS_KEY, notifications);
+  mergeById(INSPECTIONS_KEY, inspections);
   return true;
 }
 

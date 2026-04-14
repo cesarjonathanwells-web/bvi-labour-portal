@@ -15,7 +15,7 @@ const KEYS = {
 };
 
 // Bump this key whenever seed data changes so returning browsers pick up the refresh
-const SEED_FLAG = 'bvi_data_seeded_v2026_cards';
+const SEED_FLAG = 'bvi_data_seeded_v2026_inspections';
 
 export function AppProvider({ children }) {
   const { user } = useAuth();

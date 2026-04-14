@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogIn, Eye, EyeOff, AlertCircle, Info, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { validateEmail } from '../../utils/helpers';
@@ -71,7 +71,12 @@ const portalConfig = {
 export default function PortalLogin({ portal = 'business' }) {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const config = portalConfig[portal] || portalConfig.business;
+  // RequirePortalAuth stashes the originally-requested URL in
+  // location.state.from when bouncing an unauthenticated user here.
+  // After a successful login, return them to where they wanted to go.
+  const intendedPath = location.state?.from?.pathname;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -92,7 +97,15 @@ export default function PortalLogin({ portal = 'business' }) {
     setTimeout(() => {
       const result = login(email, password);
       if (result.success) {
-        navigate(config.dashboardPath);
+        // Honour the deep-link if the user was redirected here from a
+        // protected route AND the intended path is in the same portal.
+        // Cross-portal deep links fall back to the user's own dashboard
+        // (the wrong-portal guard would just bounce them anyway).
+        const portalPrefix = portal === 'jobseeker' ? '/jobs' : `/${portal}`;
+        const target = intendedPath && intendedPath.startsWith(portalPrefix)
+          ? intendedPath
+          : config.dashboardPath;
+        navigate(target, { replace: true });
       } else {
         setError(result.error);
       }
