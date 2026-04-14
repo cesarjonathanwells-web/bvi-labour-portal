@@ -10,6 +10,7 @@ const JOBS_KEY = 'bvi_jobs';
 const APPLICATIONS_KEY = 'bvi_applications';
 const DOCUMENTS_KEY = 'bvi_documents';
 const NOTIFICATIONS_KEY = 'bvi_notifications';
+const CARDS_KEY = 'bvi_cards';
 
 function get(k) { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } }
 function set(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
@@ -86,6 +87,121 @@ const notifications = [
   { id: 'ntf-007', userId: 'js-002', message: 'Interview scheduled for Electrician position at BVI Builders Corp.', type: 'info', read: false, createdAt: '2026-03-18T10:00:00Z' },
 ];
 
+// ── MOCK PHYSICAL ID CARDS ──────────────────────────────────────────
+// Spread across every lifecycle state so all four dept queues show content.
+const cards = [
+  // Carlos Garcia (wrk-001, pmt-001) — card was issued and collected months ago
+  {
+    id: 'card-pmt-001',
+    permitId: 'pmt-001',
+    permitNumber: 'WP-2024-1001',
+    workerUserId: 'wrk-001',
+    workerName: 'Carlos Garcia',
+    employerName: 'Tropic Resorts Ltd',
+    digitalIssuedAt: '2024-07-10T10:30:00Z',
+    appointment: { scheduledAt: '2024-07-12T10:00:00Z', location: 'road_town', status: 'completed' },
+    photo: { capturedAt: '2024-07-12T10:15:00Z', capturedBy: 'dept-frontdesk-001', photoData: 'seed-photo-carlos' },
+    print: { status: 'collected', queuedAt: '2024-07-12T10:20:00Z', printedAt: '2024-07-12T14:00:00Z', printedBy: 'dept-frontdesk-001', failureCount: 0, failureNotes: [] },
+    notifications: { readyNotifiedAt: '2024-07-12T14:30:00Z', channels: ['in_app', 'email', 'sms'] },
+    collection: { collectedAt: '2024-07-15T09:20:00Z', verifiedBy: 'dept-frontdesk-001', idVerificationType: 'passport', idReference: 'DOM123456', location: 'road_town' },
+    createdAt: '2024-07-10T10:30:00Z', updatedAt: '2024-07-15T09:20:00Z',
+  },
+
+  // Anika James (wrk-002, pmt-002) — printed and waiting for pickup, notification sent
+  {
+    id: 'card-pmt-002',
+    permitId: 'pmt-002',
+    permitNumber: 'WP-2024-1002',
+    workerUserId: 'wrk-002',
+    workerName: 'Anika James',
+    employerName: 'BVI Builders Corp',
+    digitalIssuedAt: '2024-09-25T11:00:00Z',
+    appointment: { scheduledAt: '2026-04-10T14:00:00Z', location: 'road_town', status: 'completed' },
+    photo: { capturedAt: '2026-04-10T14:10:00Z', capturedBy: 'dept-frontdesk-001', photoData: 'seed-photo-anika' },
+    print: { status: 'ready_for_pickup', queuedAt: '2026-04-10T14:15:00Z', printedAt: '2026-04-11T11:30:00Z', printedBy: 'dept-frontdesk-001', failureCount: 0, failureNotes: [] },
+    notifications: { readyNotifiedAt: '2026-04-11T11:35:00Z', channels: ['in_app', 'email', 'sms'] },
+    collection: { location: 'road_town' },
+    createdAt: '2024-09-25T11:00:00Z', updatedAt: '2026-04-11T11:35:00Z',
+  },
+
+  // Synthetic Maria Fernandez — photographed, currently in print queue
+  {
+    id: 'card-pmt-007',
+    permitId: 'pmt-007',
+    permitNumber: 'WP-2026-1007',
+    workerUserId: 'wrk-007',
+    workerName: 'Maria Fernandez',
+    employerName: 'Tropic Resorts Ltd',
+    digitalIssuedAt: '2026-04-02T09:00:00Z',
+    appointment: { scheduledAt: '2026-04-09T11:00:00Z', location: 'road_town', status: 'completed' },
+    photo: { capturedAt: '2026-04-09T11:08:00Z', capturedBy: 'dept-frontdesk-001', photoData: 'seed-photo-maria' },
+    print: { status: 'printing', queuedAt: '2026-04-09T11:10:00Z', failureCount: 0, failureNotes: [] },
+    notifications: { readyNotifiedAt: null, channels: [] },
+    collection: null,
+    createdAt: '2026-04-02T09:00:00Z', updatedAt: '2026-04-13T09:00:00Z',
+  },
+
+  // Synthetic Kwame Ansah — two print failures on this record (shows the
+  // machine-fault narrative for the presentation). Queue position preserved.
+  {
+    id: 'card-pmt-008',
+    permitId: 'pmt-008',
+    permitNumber: 'WP-2026-1008',
+    workerUserId: 'wrk-008',
+    workerName: 'Kwame Ansah',
+    employerName: 'Island Tech Solutions',
+    digitalIssuedAt: '2026-03-28T10:00:00Z',
+    appointment: { scheduledAt: '2026-04-05T09:30:00Z', location: 'virgin_gorda', status: 'completed' },
+    photo: { capturedAt: '2026-04-05T09:40:00Z', capturedBy: 'dept-frontdesk-001', photoData: 'seed-photo-kwame' },
+    print: {
+      status: 'print_failed',
+      queuedAt: '2026-04-05T09:45:00Z',
+      failureCount: 2,
+      failureNotes: [
+        { at: '2026-04-06T10:15:00Z', by: 'dept-frontdesk-001', note: 'Ribbon jam — machine requires service.' },
+        { at: '2026-04-08T11:20:00Z', by: 'dept-frontdesk-001', note: 'Machine offline, vendor dispatched.' },
+      ],
+    },
+    notifications: { readyNotifiedAt: null, channels: [] },
+    collection: null,
+    createdAt: '2026-03-28T10:00:00Z', updatedAt: '2026-04-08T11:20:00Z',
+  },
+
+  // Synthetic Priya Menon — approved recently, photo appointment booked, awaiting capture.
+  // Shows up in the Photo Queue tab.
+  {
+    id: 'card-pmt-009',
+    permitId: 'pmt-009',
+    permitNumber: 'WP-2026-1009',
+    workerUserId: 'wrk-009',
+    workerName: 'Priya Menon',
+    employerName: 'BVI Builders Corp',
+    digitalIssuedAt: '2026-04-11T14:00:00Z',
+    appointment: { scheduledAt: '2026-04-16T10:00:00Z', location: 'road_town', status: 'scheduled' },
+    photo: null,
+    print: { status: 'not_started', failureCount: 0, failureNotes: [] },
+    notifications: { readyNotifiedAt: null, channels: [] },
+    collection: null,
+    createdAt: '2026-04-11T14:00:00Z', updatedAt: '2026-04-11T14:00:00Z',
+  },
+];
+
+// Synthetic permits that back the synthetic cards above. Only include the
+// fields the CardsPage relies on (permitNumber, status=approved, user refs).
+const extraPermits = [
+  { id: 'pmt-007', permitNumber: 'WP-2026-1007', type: 'new', status: 'approved', userId: 'wrk-007', employerId: 'biz-001', employeeName: 'Maria Fernandez', employeeNationality: 'Colombia', employerName: 'Tropic Resorts Ltd', position: 'Pastry Chef', salary: 38000, island: 'Tortola', submittedAt: '2026-03-18T10:00:00Z', updatedAt: '2026-04-02T09:00:00Z', issuedDate: '2026-04-02', expiryDate: '2029-04-02', notes: 'Approved' },
+  { id: 'pmt-008', permitNumber: 'WP-2026-1008', type: 'new', status: 'approved', userId: 'wrk-008', employerId: 'biz-003', employeeName: 'Kwame Ansah', employeeNationality: 'Ghana', employerName: 'Island Tech Solutions', position: 'Network Engineer', salary: 62000, island: 'Virgin Gorda', submittedAt: '2026-03-10T10:00:00Z', updatedAt: '2026-03-28T10:00:00Z', issuedDate: '2026-03-28', expiryDate: '2029-03-28', notes: 'Approved' },
+  { id: 'pmt-009', permitNumber: 'WP-2026-1009', type: 'new', status: 'approved', userId: 'wrk-009', employerId: 'biz-002', employeeName: 'Priya Menon', employeeNationality: 'India', employerName: 'BVI Builders Corp', position: 'Quantity Surveyor', salary: 55000, island: 'Tortola', submittedAt: '2026-03-25T10:00:00Z', updatedAt: '2026-04-11T14:00:00Z', issuedDate: '2026-04-11', expiryDate: '2029-04-11', notes: 'Approved' },
+];
+
+// Synthetic workers referenced by the extra permits/cards. These let the
+// dept staff search for them in the queue and let audit entries resolve.
+const extraWorkers = [
+  { id: 'wrk-007', email: 'maria.fernandez@email.com', password: 'test123', portal: 'worker', role: 'employee', firstName: 'Maria', lastName: 'Fernandez', nationality: 'Colombia', currentEmployer: 'Tropic Resorts Ltd', permitNumber: 'WP-2026-1007', phone: '284-555-0207', createdAt: '2026-03-18T10:00:00Z' },
+  { id: 'wrk-008', email: 'kwame.ansah@email.com', password: 'test123', portal: 'worker', role: 'employee', firstName: 'Kwame', lastName: 'Ansah', nationality: 'Ghana', currentEmployer: 'Island Tech Solutions', permitNumber: 'WP-2026-1008', phone: '284-555-0208', createdAt: '2026-03-10T10:00:00Z' },
+  { id: 'wrk-009', email: 'priya.menon@email.com', password: 'test123', portal: 'worker', role: 'employee', firstName: 'Priya', lastName: 'Menon', nationality: 'India', currentEmployer: 'BVI Builders Corp', permitNumber: 'WP-2026-1009', phone: '284-555-0209', createdAt: '2026-03-25T10:00:00Z' },
+];
+
 /** Merge seed items into an existing array by id without duplicating */
 function mergeById(key, seedItems) {
   const existing = get(key);
@@ -106,9 +222,10 @@ function mergeById(key, seedItems) {
 }
 
 export function seedAll() {
-  const allMockUsers = [...businessUsers, ...workerUsers, ...jobSeekerUsers];
+  const allMockUsers = [...businessUsers, ...workerUsers, ...jobSeekerUsers, ...extraWorkers];
   mergeById(USERS_KEY, allMockUsers);
-  mergeById(PERMITS_KEY, permits);
+  mergeById(PERMITS_KEY, [...permits, ...extraPermits]);
+  mergeById(CARDS_KEY, cards);
   mergeById(DISPUTES_KEY, disputes);
   mergeById(JOBS_KEY, jobs);
   mergeById(APPLICATIONS_KEY, applications);
