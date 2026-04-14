@@ -71,7 +71,10 @@ export default function InstallPrompt() {
         <div
           role="dialog"
           aria-label="Install BVI Labour Portal"
-          className="fixed bottom-4 right-4 z-50 max-w-sm rounded-lg border border-slate-200 bg-white shadow-xl p-4 flex gap-3 items-start"
+          // Sits above the offline banner, never above modals (which use z-50 too
+          // but render later in the tree). Constrained width so it doesn't cover
+          // wide dashboard KPI rows.
+          className="fixed bottom-4 right-4 z-30 max-w-xs sm:max-w-sm rounded-lg border border-slate-200 bg-white shadow-xl p-3 sm:p-4 flex gap-3 items-start"
         >
           <div className="flex-shrink-0 rounded-md bg-[#003366] text-white p-2">
             <Download size={20} aria-hidden="true" />

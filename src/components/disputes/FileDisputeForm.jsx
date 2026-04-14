@@ -208,9 +208,9 @@ export default function FileDisputeForm({ onSuccess }) {
         {/* Step 1: Complainant */}
         {step === 1 && (
           <div className="space-y-5">
-            <h3 className="section-title flex items-center gap-2">
+            <h2 className="section-title flex items-center gap-2">
               <User className="w-5 h-5 text-[#003366]" />Complainant Information
-            </h3>
+            </h2>
             <p className="text-sm text-gray-500 -mt-2">Your personal details (pre-filled from your profile)</p>
 
             <div>
@@ -252,9 +252,9 @@ export default function FileDisputeForm({ onSuccess }) {
         {/* Step 2: Respondent */}
         {step === 2 && (
           <div className="space-y-5">
-            <h3 className="section-title flex items-center gap-2">
+            <h2 className="section-title flex items-center gap-2">
               <Building2 className="w-5 h-5 text-[#003366]" />Respondent (Employer) Information
-            </h3>
+            </h2>
 
             <div>
               <label className="label-field">Employer / Company Name *</label>
@@ -281,9 +281,9 @@ export default function FileDisputeForm({ onSuccess }) {
         {/* Step 3: Complaint details */}
         {step === 3 && (
           <div className="space-y-5">
-            <h3 className="section-title flex items-center gap-2">
+            <h2 className="section-title flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-[#003366]" />Nature of Complaint
-            </h3>
+            </h2>
 
             <div>
               <label className="label-field">Type of Complaint *</label>
@@ -342,9 +342,9 @@ export default function FileDisputeForm({ onSuccess }) {
         {/* Step 4: Documents */}
         {step === 4 && (
           <div className="space-y-5">
-            <h3 className="section-title flex items-center gap-2">
+            <h2 className="section-title flex items-center gap-2">
               <FileText className="w-5 h-5 text-[#003366]" />Supporting Documents
-            </h3>
+            </h2>
             <p className="text-sm text-gray-500 -mt-2">
               Upload any documents that support your complaint (contracts, pay slips, correspondence, photos, etc.)
             </p>
@@ -385,9 +385,9 @@ export default function FileDisputeForm({ onSuccess }) {
         {/* Step 5: Review */}
         {step === 5 && (
           <div className="space-y-6">
-            <h3 className="section-title flex items-center gap-2">
+            <h2 className="section-title flex items-center gap-2">
               <Scale className="w-5 h-5 text-[#003366]" />Review &amp; Submit
-            </h3>
+            </h2>
 
             {/* Summary */}
             <div className="bg-gray-50 rounded-lg p-5 space-y-4">

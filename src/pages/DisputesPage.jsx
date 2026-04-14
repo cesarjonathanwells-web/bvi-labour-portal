@@ -67,7 +67,7 @@ export default function DisputesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {activeTab === TABS.FILE && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-[#003366] mb-1">Before Filing a Dispute</h3>
+            <h2 className="font-semibold text-[#003366] mb-1">Before Filing a Dispute</h2>
             <ul className="text-sm text-gray-700 space-y-1 list-disc ml-4">
               <li>Ensure you have attempted to resolve the matter with your employer first</li>
               <li>Gather all relevant documentation (contracts, pay stubs, correspondence)</li>
