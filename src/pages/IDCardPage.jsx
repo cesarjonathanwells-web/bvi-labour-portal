@@ -132,9 +132,12 @@ export default function IDCardPage() {
                       )}
                     </div>
                     <p className="text-sm text-gray-700 truncate">
-                      {permit.employeeFirstName || permit.firstName}{' '}
-                      {permit.employeeLastName || permit.lastName}
-                      {permit.employerName ? ` - ${permit.employerName}` : ''}
+                      {(() => {
+                        const name = permit.employeeName ||
+                          [permit.employeeFirstName || permit.firstName, permit.employeeLastName || permit.lastName]
+                            .filter(Boolean).join(' ');
+                        return [name, permit.employerName].filter(Boolean).join(' — ');
+                      })()}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">
                       {permit.type?.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Work Permit'}

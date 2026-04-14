@@ -148,8 +148,12 @@ export default function WorkPermitCard({ permit, onFlip, showBack = false }) {
   }, [capture]);
 
   /* ---------- data ---------- */
-  const name = [permit?.employeeFirstName || permit?.firstName, permit?.employeeLastName || permit?.lastName].filter(Boolean).join(' ') || 'John A. Doe';
-  const nationality = permit?.nationality || 'N/A';
+  const name =
+    permit?.employeeName ||
+    [permit?.employeeFirstName || permit?.firstName, permit?.employeeLastName || permit?.lastName]
+      .filter(Boolean).join(' ') ||
+    'Name Unavailable';
+  const nationality = permit?.employeeNationality || permit?.nationality || 'N/A';
   const dob = permit?.dateOfBirth ? formatDateShort(permit.dateOfBirth) : 'N/A';
   const gender = permit?.gender || 'N/A';
   const employer = permit?.employerName || permit?.employer || 'N/A';

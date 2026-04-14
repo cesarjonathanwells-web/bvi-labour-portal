@@ -9,6 +9,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Inline the registration code directly into index.html so the browser
+      // never has to fetch a separate /registerSW.js file (which the plugin
+      // doesn't always emit under Vite 8 + legacy-peer-deps).
+      injectRegister: 'inline',
       includeAssets: ['favicon.svg', 'icons.svg'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}'],

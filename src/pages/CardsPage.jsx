@@ -425,6 +425,23 @@ function DeptCards() {
                     {card.print?.printedAt && <>Printed {fmt(card.print.printedAt)} · </>}
                     {card.collection?.collectedAt && <>Collected {fmt(card.collection.collectedAt)}</>}
                   </p>
+
+                  {/* Expandable failure history when any failure is on record */}
+                  {(card.print?.failureNotes?.length || 0) > 0 && (
+                    <details className="mt-2 group">
+                      <summary className="text-[11px] text-red-700 font-semibold cursor-pointer inline-flex items-center gap-1 select-none">
+                        <AlertTriangle size={11} />
+                        View print failure history ({card.print.failureNotes.length})
+                      </summary>
+                      <ul className="mt-2 space-y-1 pl-4 border-l-2 border-red-200">
+                        {card.print.failureNotes.map((f, i) => (
+                          <li key={i} className="text-[11px] text-gray-700">
+                            <span className="font-semibold text-red-700">{fmt(f.at)}:</span> {f.note}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -433,26 +450,35 @@ function DeptCards() {
                       <Camera size={12} /> Capture photo
                     </button>
                   )}
+                  {/* Queued — start printing OR log failure */}
                   {tab === 'print' && card.print?.status === 'queued' && (
-                    <button onClick={() => doPrinting(card)} className="inline-flex items-center gap-1 px-3 py-1.5 border border-[#7c3aed] text-[#7c3aed] rounded-lg text-xs font-semibold hover:bg-purple-50">
-                      <Printer size={12} /> Start printing
-                    </button>
+                    <>
+                      <button onClick={() => doPrinting(card)} className="inline-flex items-center gap-1 px-3 py-1.5 border border-[#7c3aed] text-[#7c3aed] rounded-lg text-xs font-semibold hover:bg-purple-50">
+                        <Printer size={12} /> Start printing
+                      </button>
+                      <button onClick={() => openFailure(card)} className="inline-flex items-center gap-1 px-3 py-1.5 border border-red-500 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-50">
+                        <AlertTriangle size={12} /> Print failed
+                      </button>
+                    </>
                   )}
-                  {tab === 'print' && ['printing', 'printed'].includes(card.print?.status) && (
-                    <button onClick={() => doPrinted(card)} className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700">
-                      <CheckCircle2 size={12} /> Mark printed
-                    </button>
+                  {/* Printing — mark printed OR log failure (no regression) */}
+                  {tab === 'print' && card.print?.status === 'printing' && (
+                    <>
+                      <button onClick={() => doPrinted(card)} className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700">
+                        <CheckCircle2 size={12} /> Mark printed
+                      </button>
+                      <button onClick={() => openFailure(card)} className="inline-flex items-center gap-1 px-3 py-1.5 border border-red-500 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-50">
+                        <AlertTriangle size={12} /> Print failed
+                      </button>
+                    </>
                   )}
-                  {tab === 'print' && ['printing', 'printed', 'queued'].includes(card.print?.status) && (
-                    <button onClick={() => openFailure(card)} className="inline-flex items-center gap-1 px-3 py-1.5 border border-red-500 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-50">
-                      <AlertTriangle size={12} /> Print failed
-                    </button>
-                  )}
+                  {/* Printed — only move forward; no more failure/re-print options */}
                   {tab === 'print' && card.print?.status === 'printed' && (
                     <button onClick={() => openReady(card)} className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700">
                       <Send size={12} /> Notify ready
                     </button>
                   )}
+                  {/* Failed — only retry path */}
                   {tab === 'print' && card.print?.status === 'print_failed' && (
                     <button onClick={() => doPrinting(card)} className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#7c3aed] text-white rounded-lg text-xs font-semibold hover:bg-[#6d28d9]">
                       <RefreshCw size={12} /> Retry print
