@@ -253,7 +253,7 @@
     "showing_count": "Showing <1>{{shown}}</1> of {{total}} entries",
     "no_results": "No FAQ entries match your search.",
     "cta_heading": "Still have a question?",
-    "cta_sub": "The Department is available during office hours: {{hours}}.",
+    "cta_sub": "The Department is available during office hours: Monday to Friday, 8:30 a.m. to 4:30 p.m.",
     "categories": [
       "All",
       "Getting started",

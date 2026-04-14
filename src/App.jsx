@@ -43,6 +43,7 @@ const TransfersPage = lazy(() => import('./pages/TransfersPage'));
 const DisputeRespondentPage = lazy(() => import('./pages/DisputeRespondentPage'));
 const VariationsPage = lazy(() => import('./pages/VariationsPage'));
 const CardsPage = lazy(() => import('./pages/CardsPage'));
+const MyPermitsPage = lazy(() => import('./pages/MyPermitsPage'));
 
 // Admin / Dept — lazy (restricted to dept staff, no need to ship to public users)
 const UserManagement = lazy(() => import('./components/admin/UserManagement'));
@@ -213,7 +214,8 @@ function AppRoutes() {
 
       <Route element={<RequirePortalAuth portal="worker" />}>
         <Route path="/worker/dashboard" element={<DashboardRouter />} />
-        <Route path="/worker/permit" element={<IDCardPage />} />
+        <Route path="/worker/permit" element={<MyPermitsPage />} />
+        <Route path="/worker/permits" element={<MyPermitsPage />} />
         <Route path="/worker/id-card" element={<IDCardPage />} />
         <Route path="/worker/cards" element={<CardsPage />} />
         <Route path="/worker/disputes/*" element={<DisputesPage />} />

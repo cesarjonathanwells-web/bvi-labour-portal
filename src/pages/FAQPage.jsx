@@ -128,7 +128,7 @@ export default function FAQPage() {
           <MessageCircle className="w-8 h-8 text-[#003366] mx-auto mb-3" />
           <h2 className="text-lg font-bold text-[#003366] mb-2">{t('faq.cta_heading')}</h2>
           <p className="text-sm text-gray-600 mb-5">
-            {t('faq.cta_sub', { hours: DEPARTMENT_INFO.hours })}
+            {t('faq.cta_sub')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
             <a href={`tel:${DEPARTMENT_INFO.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 text-[#003366] font-semibold hover:underline">

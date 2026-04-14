@@ -6,8 +6,8 @@ import PortalLayout from './PortalLayout';
 
 const navItems = [
   { label: 'Dashboard', to: '/worker/dashboard', icon: LayoutDashboard },
-  { label: 'My Permit', to: '/worker/permit', icon: FileCheck },
-  { label: 'ID Card', to: '/worker/id-card', icon: CreditCard },
+  { label: 'My Permits', to: '/worker/permits', icon: FileCheck },
+  { label: 'Digital ID Card', to: '/worker/id-card', icon: CreditCard },
   { label: 'Physical Card', to: '/worker/cards', icon: CreditCard },
   { label: 'File Dispute', to: '/worker/disputes/new', icon: AlertTriangle },
   { label: 'My Disputes', to: '/worker/disputes', icon: Scale },

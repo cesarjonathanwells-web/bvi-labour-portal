@@ -50,8 +50,16 @@ function StatTile({ label, value, accent = 'text-[#003366]', Icon }) {
    ============================================================ */
 function WorkerCards() {
   const { user } = useAuth();
-  const { cards, scheduleCardPhoto } = useApp();
+  const { cards, permits, scheduleCardPhoto } = useApp();
   const myCards = cards.filter(c => c.workerUserId === user?.id);
+  // Permits on file that don't yet have a card record — so the worker can
+  // see pending work (renewals awaiting approval, rejected permits, etc.)
+  // instead of a falsely-empty page
+  const myPermits = permits.filter(p => (p.userId === user?.id || p.employerId === user?.id));
+  const pendingPermits = myPermits.filter(p =>
+    !myCards.find(c => c.permitId === p.id)
+    && ['submitted', 'under_review', 'pending_payment'].includes(p.status)
+  );
 
   const [bookingFor, setBookingFor] = useState(null);
   const [slot, setSlot] = useState('');
@@ -85,6 +93,31 @@ function WorkerCards() {
           Digital ID is issued automatically when your permit is approved. The physical card follows through a photo appointment, printing, and pickup.
         </p>
       </div>
+
+      {/* Pending permits — no card yet, but the worker can see the permit is in flight */}
+      {pendingPermits.length > 0 && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-5">
+          <p className="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
+            <Clock size={14} /> Permits awaiting approval ({pendingPermits.length})
+          </p>
+          <p className="text-xs text-amber-800 mb-3">
+            These applications haven&apos;t been approved yet, so no ID card has been issued. You&apos;ll be notified the moment a decision is made.
+          </p>
+          <ul className="space-y-1">
+            {pendingPermits.map(p => (
+              <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
+                <span className="text-amber-900">
+                  <span className="font-semibold">{p.permitNumber}</span>
+                  <span className="text-amber-700"> · {p.position || 'Work permit'}</span>
+                </span>
+                <span className="inline-flex px-2 py-0.5 rounded-full bg-white text-amber-800 text-[10px] font-semibold uppercase tracking-wide border border-amber-300">
+                  {(p.status || 'submitted').replace(/_/g, ' ')}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {myCards.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">

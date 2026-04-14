@@ -253,7 +253,7 @@
     "showing_count": "Mostrando <1>{{shown}}</1> de {{total}} entradas",
     "no_results": "Ninguna entrada coincide con su búsqueda.",
     "cta_heading": "¿Aún tiene alguna pregunta?",
-    "cta_sub": "El Departamento está disponible durante el horario de oficina: {{hours}}.",
+    "cta_sub": "El Departamento atiende en horario de oficina: lunes a viernes, de 8:30 a.m. a 4:30 p.m.",
     "categories": [
       "Todas",
       "Primeros pasos",
