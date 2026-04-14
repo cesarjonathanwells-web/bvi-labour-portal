@@ -47,6 +47,7 @@
     "closed_weekends": "Cerrado los fines de semana y festivos",
     "commissioner_label": "Comisionado",
     "footer": {
+      "verify": "Verificar un permiso",
       "roadmap": "Hoja de ruta de entrega",
       "limitations": "Limitaciones conocidas",
       "stats": "Estadísticas",

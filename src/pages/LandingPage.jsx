@@ -265,6 +265,10 @@ export default function LandingPage() {
 
           <div className="mt-6 pt-6 border-t border-white/10">
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs mb-4">
+              <Link to="/verify" className="text-[#c5a55a] font-semibold hover:text-white transition-colors">
+                {t('landing.footer.verify', { defaultValue: 'Verify a permit' })}
+              </Link>
+              <span className="hidden sm:inline text-gray-600">·</span>
               <Link to="/roadmap" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
                 {t('landing.footer.roadmap')}
               </Link>

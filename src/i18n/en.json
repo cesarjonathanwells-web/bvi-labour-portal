@@ -47,6 +47,7 @@
     "closed_weekends": "Closed weekends and public holidays",
     "commissioner_label": "Commissioner",
     "footer": {
+      "verify": "Verify a permit",
       "roadmap": "Delivery Roadmap",
       "limitations": "Known Limitations",
       "stats": "Statistics",
