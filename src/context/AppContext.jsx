@@ -9,6 +9,7 @@ const AppContext = createContext(null);
 const KEYS = {
   permits: 'bvi_permits', disputes: 'bvi_disputes', jobs: 'bvi_jobs',
   applications: 'bvi_applications', documents: 'bvi_documents', notifications: 'bvi_notifications',
+  appeals: 'bvi_appeals',
 };
 
 // Bump this key whenever seed data changes so returning browsers pick up the refresh
@@ -22,6 +23,7 @@ export function AppProvider({ children }) {
   const [applications, setApplications] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [appeals, setAppeals] = useState([]);
 
   /** Record an audit entry tagged with the current signed-in user. */
   const audit = useCallback((entry) => logAudit({ ...actorFromUser(user), ...entry }), [user]);
@@ -42,6 +44,7 @@ export function AppProvider({ children }) {
     setApplications(getStorage(KEYS.applications) || []);
     setDocuments(getStorage(KEYS.documents) || []);
     setNotifications(getStorage(KEYS.notifications) || []);
+    setAppeals(getStorage(KEYS.appeals) || []);
   }, []);
 
   const save = (key, setter) => (data) => { setter(data); setStorage(key, data); };
@@ -159,6 +162,59 @@ export function AppProvider({ children }) {
     save(KEYS.notifications, setNotifications)(next);
   };
 
+  // APPEALS (of rejected permits)
+  const fileAppeal = (appealData) => {
+    const year = new Date().getFullYear();
+    const appeal = {
+      ...appealData,
+      id: generateId(),
+      appealNumber: `AP-${year}-${Math.floor(1000 + Math.random() * 9000)}`,
+      status: 'filed',
+      filedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      timeline: [{ status: 'filed', date: new Date().toISOString(), note: 'Appeal submitted' }],
+    };
+    const next = [appeal, ...appeals];
+    save(KEYS.appeals, setAppeals)(next);
+    addNotification(appealData.userId, `Appeal ${appeal.appealNumber} filed for permit ${appealData.permitNumber}.`, 'success');
+    audit({
+      category: 'permit', action: 'appeal filed',
+      targetType: 'appeal', targetId: appeal.id, targetLabel: appeal.appealNumber,
+      metadata: { permitId: appealData.permitId, permitNumber: appealData.permitNumber },
+    });
+    return appeal;
+  };
+
+  const updateAppealStatus = (appealId, status, note = '', decision = null) => {
+    const next = appeals.map(a => {
+      if (a.id !== appealId) return a;
+      return {
+        ...a, status, decision,
+        updatedAt: new Date().toISOString(),
+        timeline: [...(a.timeline || []), { status, date: new Date().toISOString(), note }],
+      };
+    });
+    save(KEYS.appeals, setAppeals)(next);
+    const a = next.find(x => x.id === appealId);
+    if (a) {
+      addNotification(a.userId, `Appeal ${a.appealNumber} updated: ${status.replace(/_/g, ' ')}.`, status === 'upheld' ? 'success' : 'info');
+      audit({
+        category: 'permit', action: `appeal ${status}`,
+        targetType: 'appeal', targetId: a.id, targetLabel: a.appealNumber,
+        metadata: { status, decision, note },
+      });
+      // If the appeal is upheld, reset the underlying permit to under_review
+      if (status === 'decided' && decision === 'upheld' && a.permitId) {
+        const nextPermits = permits.map(p => p.id === a.permitId
+          ? { ...p, status: 'under_review', notes: `Permit re-opened for review — appeal ${a.appealNumber} upheld.`, updatedAt: new Date().toISOString() }
+          : p);
+        save(KEYS.permits, setPermits)(nextPermits);
+      }
+    }
+  };
+
+  const getAppealsByUser = (userId) => appeals.filter(a => a.userId === userId);
+
   const getPermitsByUser = (userId) => permits.filter(p => p.userId === userId || p.employerId === userId);
   const getDisputesByUser = (userId) => disputes.filter(d => d.userId === userId);
   const getJobsByEmployer = (userId) => jobs.filter(j => j.employerId === userId);
@@ -168,11 +224,12 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      permits, disputes, jobs, applications, documents, notifications,
+      permits, disputes, jobs, applications, documents, notifications, appeals,
       submitPermit, updatePermitStatus, fileDispute, updateDisputeStatus,
       postJob, applyToJob, uploadDocument, markNotificationRead, addNotification,
+      fileAppeal, updateAppealStatus,
       getPermitsByUser, getDisputesByUser, getJobsByEmployer, getApplicationsByUser,
-      getDocsByUser, getNotificationsByUser,
+      getDocsByUser, getNotificationsByUser, getAppealsByUser,
     }}>
       {children}
     </AppContext.Provider>

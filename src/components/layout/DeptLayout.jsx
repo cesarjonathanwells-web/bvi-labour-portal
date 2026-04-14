@@ -11,6 +11,7 @@ const roleNavConfigs = {
   commissioner: [
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
     { label: 'Permit Review', to: '/dept/permits', icon: FileText },
+    { label: 'Appeals', to: '/dept/appeals', icon: Scale },
     { label: 'Dispute Cases', to: '/dept/disputes', icon: Scale },
     { label: 'Job Placements', to: '/dept/placements', icon: Briefcase },
     { label: 'Inspections', to: '/dept/inspections', icon: ClipboardCheck },
@@ -24,6 +25,7 @@ const roleNavConfigs = {
   deputy_commissioner: [
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
     { label: 'Permit Review', to: '/dept/permits', icon: FileText },
+    { label: 'Appeals', to: '/dept/appeals', icon: Scale },
     { label: 'Dispute Cases', to: '/dept/disputes', icon: Scale },
     { label: 'Job Placements', to: '/dept/placements', icon: Briefcase },
     { label: 'Inspections', to: '/dept/inspections', icon: ClipboardCheck },
