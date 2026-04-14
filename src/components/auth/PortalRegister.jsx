@@ -7,6 +7,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { validateEmail, validatePhone } from '../../utils/helpers';
 import { ISLANDS, JOB_CATEGORIES, DEPARTMENT_INFO } from '../../data/constants';
+import { BELONGER_STATUSES } from '../../utils/belonger';
 
 const EDUCATION_LEVELS = [
   'High School / Secondary',
@@ -360,13 +361,22 @@ export default function PortalRegister({ portal = 'business' }) {
         </div>
         <div>
           <label htmlFor="reg-j-belongerStatus" className="label-field">VI/Belonger Status</label>
-          <select id="reg-j-belongerStatus" className="input-field" value={form.belongerStatus} onChange={update('belongerStatus')}>
+          <select
+            id="reg-j-belongerStatus"
+            className="input-field"
+            value={form.belongerStatus}
+            onChange={update('belongerStatus')}
+            aria-describedby="reg-j-belongerStatus-help"
+          >
             <option value="">Select status...</option>
-            <option value="virgin_islander">Virgin Islander</option>
-            <option value="belonger">Belonger</option>
-            <option value="resident">Permanent Resident</option>
-            <option value="other">Other</option>
+            {Object.entries(BELONGER_STATUSES).map(([value, { label }]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
           </select>
+          <p id="reg-j-belongerStatus-help" className="text-xs text-gray-500 mt-1">
+            Self-declared. Phase 2 verifies this against the Immigration
+            registry at the time of the first work permit application.
+          </p>
         </div>
         <div>
           <label htmlFor="reg-j-email" className="label-field">Email Address *</label>

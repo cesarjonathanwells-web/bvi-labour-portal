@@ -9,7 +9,7 @@ const AppContext = createContext(null);
 const KEYS = {
   permits: 'bvi_permits', disputes: 'bvi_disputes', jobs: 'bvi_jobs',
   applications: 'bvi_applications', documents: 'bvi_documents', notifications: 'bvi_notifications',
-  appeals: 'bvi_appeals', transfers: 'bvi_transfers',
+  appeals: 'bvi_appeals', transfers: 'bvi_transfers', variations: 'bvi_variations',
 };
 
 // Bump this key whenever seed data changes so returning browsers pick up the refresh
@@ -25,6 +25,7 @@ export function AppProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [appeals, setAppeals] = useState([]);
   const [transfers, setTransfers] = useState([]);
+  const [variations, setVariations] = useState([]);
 
   /** Record an audit entry tagged with the current signed-in user. */
   const audit = useCallback((entry) => logAudit({ ...actorFromUser(user), ...entry }), [user]);
@@ -47,6 +48,7 @@ export function AppProvider({ children }) {
     setNotifications(getStorage(KEYS.notifications) || []);
     setAppeals(getStorage(KEYS.appeals) || []);
     setTransfers(getStorage(KEYS.transfers) || []);
+    setVariations(getStorage(KEYS.variations) || []);
   }, []);
 
   const save = (key, setter) => (data) => { setter(data); setStorage(key, data); };
@@ -118,6 +120,49 @@ export function AppProvider({ children }) {
         metadata: { status, note },
       });
     }
+  };
+
+  const addDisputeResponse = (disputeId, { responseText, supportingNotes } = {}) => {
+    const now = new Date().toISOString();
+    const dispute = disputes.find(d => d.id === disputeId);
+    if (!dispute) return null;
+    const actorId = user?.id || null;
+    const actorLabel = user ? (user.companyName || user.organization || `${user.firstName || ''} ${user.lastName || ''}`.trim()) : 'Respondent';
+    const nextStatus = dispute.status === 'investigating' ? 'response_received' : dispute.status;
+    const timelineEntry = {
+      status: 'respondent_response',
+      date: now,
+      note: supportingNotes ? `Respondent response received. ${supportingNotes}` : 'Respondent response received.',
+      actorId,
+    };
+    const respondentResponse = {
+      text: responseText,
+      submittedAt: now,
+      submittedBy: actorId,
+      submittedByName: actorLabel,
+      supportingNotes: supportingNotes || '',
+    };
+    const next = disputes.map(d => {
+      if (d.id !== disputeId) return d;
+      return {
+        ...d,
+        status: nextStatus,
+        respondentResponse,
+        updatedAt: now,
+        timeline: [...(d.timeline || []), timelineEntry],
+      };
+    });
+    save(KEYS.disputes, setDisputes)(next);
+    const updated = next.find(d => d.id === disputeId);
+    audit({
+      category: 'dispute', action: 'respondent response submitted',
+      targetType: 'dispute', targetId: disputeId, targetLabel: dispute.caseNumber,
+      metadata: { status: nextStatus, respondent: actorLabel, length: (responseText || '').length },
+    });
+    if (dispute.userId) {
+      addNotification(dispute.userId, `A response has been filed on dispute ${dispute.caseNumber}.`, 'info');
+    }
+    return updated;
   };
 
   // JOBS
@@ -282,6 +327,73 @@ export function AppProvider({ children }) {
 
   const getTransfersByUser = (userId) => transfers.filter(t => t.newEmployerId === userId || t.originalEmployerId === userId);
 
+  // PERMIT VARIATIONS (mid-permit amendments — position, salary, location, etc.)
+  const submitVariation = (data) => {
+    const year = new Date().getFullYear();
+    const now = new Date().toISOString();
+    const variation = {
+      ...data,
+      id: generateId(),
+      variationNumber: `VR-${year}-${Math.floor(1000 + Math.random() * 9000)}`,
+      status: 'filed',
+      filedAt: now,
+      updatedAt: now,
+      timeline: [{ status: 'filed', date: now, note: 'Variation request submitted' }],
+    };
+    const next = [variation, ...variations];
+    save(KEYS.variations, setVariations)(next);
+    if (data.userId) {
+      addNotification(data.userId, `Variation ${variation.variationNumber} submitted for permit ${data.permitNumber}.`, 'success');
+    }
+    audit({
+      category: 'permit', action: 'variation submitted',
+      targetType: 'variation', targetId: variation.id, targetLabel: variation.variationNumber,
+      metadata: { permitId: data.permitId, permitNumber: data.permitNumber, variationType: data.variationType },
+    });
+    return variation;
+  };
+
+  const updateVariationStatus = (variationId, status, note = '', decision = null) => {
+    const now = new Date().toISOString();
+    const next = variations.map(v => {
+      if (v.id !== variationId) return v;
+      return {
+        ...v, status, decision,
+        updatedAt: now,
+        timeline: [...(v.timeline || []), { status, date: now, note }],
+      };
+    });
+    save(KEYS.variations, setVariations)(next);
+    const v = next.find(x => x.id === variationId);
+    if (v) {
+      if (v.userId) addNotification(v.userId, `Variation ${v.variationNumber}: ${status.replace(/_/g, ' ')}.`, status === 'approved' ? 'success' : 'info');
+      audit({
+        category: 'permit', action: `variation ${status}`,
+        targetType: 'variation', targetId: v.id, targetLabel: v.variationNumber,
+        metadata: { status, decision, note, permitId: v.permitId, variationType: v.variationType },
+      });
+      if (status === 'approved' && v.permitId) {
+        const nextPermits = permits.map(p => {
+          if (p.id !== v.permitId) return p;
+          const updated = { ...p, updatedAt: now };
+          switch (v.variationType) {
+            case 'position': updated.position = v.newValue || p.position; break;
+            case 'salary': updated.salary = Number(v.newValue) || p.salary; break;
+            case 'working_location': updated.island = v.newValue || p.island; break;
+            case 'working_hours': updated.workingHours = v.newValue || p.workingHours; break;
+            default: break;
+          }
+          const priorNotes = p.notes ? `${p.notes}\n` : '';
+          updated.notes = `${priorNotes}Varied by ${v.variationNumber} on ${new Date(now).toLocaleDateString('en-GB')}`;
+          return updated;
+        });
+        save(KEYS.permits, setPermits)(nextPermits);
+      }
+    }
+  };
+
+  const getVariationsByUser = (userId) => variations.filter(v => v.userId === userId || v.employerId === userId);
+
   const getPermitsByUser = (userId) => permits.filter(p => p.userId === userId || p.employerId === userId);
   const getDisputesByUser = (userId) => disputes.filter(d => d.userId === userId);
   const getJobsByEmployer = (userId) => jobs.filter(j => j.employerId === userId);
@@ -291,13 +403,14 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      permits, disputes, jobs, applications, documents, notifications, appeals, transfers,
-      submitPermit, updatePermitStatus, fileDispute, updateDisputeStatus,
+      permits, disputes, jobs, applications, documents, notifications, appeals, transfers, variations,
+      submitPermit, updatePermitStatus, fileDispute, updateDisputeStatus, addDisputeResponse,
       postJob, applyToJob, uploadDocument, markNotificationRead, addNotification,
       fileAppeal, updateAppealStatus,
       submitTransferRequest, updateTransferStatus,
+      submitVariation, updateVariationStatus,
       getPermitsByUser, getDisputesByUser, getJobsByEmployer, getApplicationsByUser,
-      getDocsByUser, getNotificationsByUser, getAppealsByUser, getTransfersByUser,
+      getDocsByUser, getNotificationsByUser, getAppealsByUser, getTransfersByUser, getVariationsByUser,
     }}>
       {children}
     </AppContext.Provider>

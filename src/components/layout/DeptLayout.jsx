@@ -2,7 +2,7 @@ import {
   LayoutDashboard, FileText, Scale, Briefcase, ClipboardCheck,
   CreditCard, Calendar, Users, BarChart3, Settings, Shield,
   ListChecks, FileSearch, Receipt, DollarSign, Eye, BookOpen,
-  Search, User, History, ArrowRightLeft,
+  Search, User, History, ArrowRightLeft, Edit3,
 } from 'lucide-react';
 import PortalLayout from './PortalLayout';
 
@@ -12,6 +12,7 @@ const roleNavConfigs = {
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
     { label: 'Permit Review', to: '/dept/permits', icon: FileText },
     { label: 'Transfers', to: '/dept/transfers', icon: ArrowRightLeft },
+    { label: 'Variations', to: '/dept/variations', icon: Edit3 },
     { label: 'Appeals', to: '/dept/appeals', icon: Scale },
     { label: 'Dispute Cases', to: '/dept/disputes', icon: Scale },
     { label: 'Job Placements', to: '/dept/placements', icon: Briefcase },
@@ -27,6 +28,7 @@ const roleNavConfigs = {
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
     { label: 'Permit Review', to: '/dept/permits', icon: FileText },
     { label: 'Transfers', to: '/dept/transfers', icon: ArrowRightLeft },
+    { label: 'Variations', to: '/dept/variations', icon: Edit3 },
     { label: 'Appeals', to: '/dept/appeals', icon: Scale },
     { label: 'Dispute Cases', to: '/dept/disputes', icon: Scale },
     { label: 'Job Placements', to: '/dept/placements', icon: Briefcase },
@@ -41,6 +43,7 @@ const roleNavConfigs = {
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
     { label: 'Permit Review', to: '/dept/permits', icon: FileText },
     { label: 'Permit Queue', to: '/dept/permits/queue', icon: ListChecks },
+    { label: 'Variations', to: '/dept/variations', icon: Edit3 },
     { label: 'Payment Verification', to: '/dept/payments', icon: DollarSign },
   ],
   dispute_officer: [
