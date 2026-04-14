@@ -61,19 +61,12 @@ export default function PermitReview() {
   const [showHistory, setShowHistory] = useState(false);
   const [internalNote, setInternalNote] = useState('');
 
-  /* ---------- Permission gate ---------- */
-  if (!user || !hasPermission('permits') || !ALLOWED_ROLES.includes(user.deptRole)) {
-    return <AccessDenied />;
-  }
-
-  const canApproveReject = APPROVER_ROLES.includes(user.deptRole);
-  const isOfficer = user.deptRole === 'permit_officer';
-
-  const allUsers = getAllUsers();
+  // All hooks must run on every render — do the permission gate AFTER the hooks.
+  // Compute derived values using optional chaining so they're safe when the user is absent.
+  const allUsers = user ? getAllUsers() : [];
   const permitOfficers = allUsers.filter(
     u => u.portal === 'dept' && u.deptRole === 'permit_officer'
   );
-  const deptStaff = allUsers.filter(u => u.portal === 'dept');
 
   /* helper to get user display name from id */
   const getUserName = (userId) => {
@@ -83,6 +76,7 @@ export default function PermitReview() {
 
   /* filtered permits */
   const filtered = useMemo(() => {
+    if (!user) return [];
     let list = permits;
 
     // Queue filter
@@ -107,7 +101,7 @@ export default function PermitReview() {
       );
     }
     return list;
-  }, [permits, statusTab, queueFilter, search, user.id]);
+  }, [permits, statusTab, queueFilter, search, user]);
 
   /* counts per status */
   const counts = useMemo(() => {
@@ -115,6 +109,14 @@ export default function PermitReview() {
     Object.values(PERMIT_STATUSES).forEach(s => { c[s] = permits.filter(p => p.status === s).length; });
     return c;
   }, [permits]);
+
+  /* ---------- Permission gate (after all hooks) ---------- */
+  if (!user || !hasPermission('permits') || !ALLOWED_ROLES.includes(user.deptRole)) {
+    return <AccessDenied />;
+  }
+
+  const canApproveReject = APPROVER_ROLES.includes(user.deptRole);
+  const isOfficer = user.deptRole === 'permit_officer';
 
   /* actions */
   const handleAction = (newStatus) => {

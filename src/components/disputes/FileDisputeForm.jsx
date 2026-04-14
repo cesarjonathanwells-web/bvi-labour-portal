@@ -7,6 +7,15 @@ import {
   AlertCircle, X, Paperclip, ChevronLeft, ChevronRight, Scale, Info,
 } from 'lucide-react';
 
+function ErrorMsg({ errors, field }) {
+  if (!errors[field]) return null;
+  return (
+    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+      <AlertCircle className="w-3 h-3" />{errors[field]}
+    </p>
+  );
+}
+
 const COMPLAINT_TYPES = [
   'Unpaid Wages',
   'Unfair Dismissal',
@@ -170,9 +179,7 @@ export default function FileDisputeForm({ onSuccess }) {
     );
   }
 
-  const ErrorMsg = ({ field }) => errors[field] ? (
-    <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors[field]}</p>
-  ) : null;
+  // ErrorMsg is defined at module scope below the imports — using it here via errors prop.
 
   const stepLabels = ['Your Info', 'Respondent', 'Complaint', 'Evidence', 'Review'];
 
@@ -210,7 +217,7 @@ export default function FileDisputeForm({ onSuccess }) {
               <label className="label-field">Full Name *</label>
               <input className="input-field" value={form.complainantName}
                 onChange={e => set('complainantName', e.target.value)} />
-              <ErrorMsg field="complainantName" />
+              <ErrorMsg errors={errors} field="complainantName" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,13 +225,13 @@ export default function FileDisputeForm({ onSuccess }) {
                 <label className="label-field">Email *</label>
                 <input type="email" className="input-field" value={form.complainantEmail}
                   onChange={e => set('complainantEmail', e.target.value)} />
-                <ErrorMsg field="complainantEmail" />
+                <ErrorMsg errors={errors} field="complainantEmail" />
               </div>
               <div>
                 <label className="label-field">Phone *</label>
                 <input type="tel" className="input-field" placeholder="1(284) 000-0000"
                   value={form.complainantPhone} onChange={e => set('complainantPhone', e.target.value)} />
-                <ErrorMsg field="complainantPhone" />
+                <ErrorMsg errors={errors} field="complainantPhone" />
               </div>
             </div>
 
@@ -247,14 +254,14 @@ export default function FileDisputeForm({ onSuccess }) {
               <label className="label-field">Employer / Company Name *</label>
               <input className="input-field" placeholder="Name of employer or business"
                 value={form.respondentName} onChange={e => set('respondentName', e.target.value)} />
-              <ErrorMsg field="respondentName" />
+              <ErrorMsg errors={errors} field="respondentName" />
             </div>
 
             <div>
               <label className="label-field">Employer Address *</label>
               <input className="input-field" placeholder="Business address"
                 value={form.respondentAddress} onChange={e => set('respondentAddress', e.target.value)} />
-              <ErrorMsg field="respondentAddress" />
+              <ErrorMsg errors={errors} field="respondentAddress" />
             </div>
 
             <div>
@@ -279,7 +286,7 @@ export default function FileDisputeForm({ onSuccess }) {
                 <option value="">Select complaint type</option>
                 {COMPLAINT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
-              <ErrorMsg field="complaintType" />
+              <ErrorMsg errors={errors} field="complaintType" />
             </div>
 
             {/* Labour Code reference */}
@@ -300,7 +307,7 @@ export default function FileDisputeForm({ onSuccess }) {
               <input type="date" className="input-field" value={form.incidentDate}
                 onChange={e => set('incidentDate', e.target.value)}
                 max={new Date().toISOString().split('T')[0]} />
-              <ErrorMsg field="incidentDate" />
+              <ErrorMsg errors={errors} field="incidentDate" />
             </div>
 
             <div>
@@ -309,7 +316,7 @@ export default function FileDisputeForm({ onSuccess }) {
                 placeholder="Provide a detailed account of the incident or issue. Include relevant dates, names, and circumstances..."
                 value={form.description} onChange={e => set('description', e.target.value)} />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <ErrorMsg field="description" />
+                <ErrorMsg errors={errors} field="description" />
                 <span className={form.description.length < 100 ? 'text-red-500' : 'text-green-600'}>
                   {form.description.length}/100 min characters
                 </span>
@@ -321,7 +328,7 @@ export default function FileDisputeForm({ onSuccess }) {
               <textarea className="input-field min-h-[80px]"
                 placeholder="What outcome are you seeking? (e.g., payment of owed wages, reinstatement, compensation...)"
                 value={form.desiredResolution} onChange={e => set('desiredResolution', e.target.value)} />
-              <ErrorMsg field="desiredResolution" />
+              <ErrorMsg errors={errors} field="desiredResolution" />
             </div>
           </div>
         )}
@@ -454,7 +461,7 @@ export default function FileDisputeForm({ onSuccess }) {
                   </p>
                 </div>
               </label>
-              <ErrorMsg field="declaration" />
+              <ErrorMsg errors={errors} field="declaration" />
             </div>
           </div>
         )}

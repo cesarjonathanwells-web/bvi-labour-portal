@@ -7,6 +7,15 @@ import {
   ChevronLeft, ChevronRight, Eye, Send, CheckCircle, AlertCircle,
 } from 'lucide-react';
 
+function ErrorMsg({ errors, field }) {
+  if (!errors[field]) return null;
+  return (
+    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+      <AlertCircle className="w-3 h-3" />{errors[field]}
+    </p>
+  );
+}
+
 const EMPLOYMENT_TYPES = ['Full-time', 'Part-time', 'Temporary', 'Contract'];
 
 const initialForm = {
@@ -101,9 +110,7 @@ export default function PostJobForm({ onSuccess }) {
     );
   }
 
-  const ErrorMsg = ({ field }) => errors[field] ? (
-    <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors[field]}</p>
-  ) : null;
+  // ErrorMsg is defined at module scope above, receives errors as a prop
 
   const stepLabels = ['Job Details', 'Compensation', 'Contact', 'Preview'];
 
@@ -138,7 +145,7 @@ export default function PostJobForm({ onSuccess }) {
               <label className="label-field">Job Title *</label>
               <input className="input-field" placeholder="e.g., Senior Accountant" value={form.title}
                 onChange={e => set('title', e.target.value)} />
-              <ErrorMsg field="title" />
+              <ErrorMsg errors={errors} field="title" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -148,7 +155,7 @@ export default function PostJobForm({ onSuccess }) {
                   <option value="">Select category</option>
                   {JOB_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-                <ErrorMsg field="category" />
+                <ErrorMsg errors={errors} field="category" />
               </div>
               <div>
                 <label className="label-field">Employment Type *</label>
@@ -156,7 +163,7 @@ export default function PostJobForm({ onSuccess }) {
                   <option value="">Select type</option>
                   {EMPLOYMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
-                <ErrorMsg field="employmentType" />
+                <ErrorMsg errors={errors} field="employmentType" />
               </div>
             </div>
 
@@ -166,7 +173,7 @@ export default function PostJobForm({ onSuccess }) {
                 <option value="">Select island</option>
                 {ISLANDS.map(i => <option key={i} value={i}>{i}</option>)}
               </select>
-              <ErrorMsg field="location" />
+              <ErrorMsg errors={errors} field="location" />
             </div>
 
             <div>
@@ -174,7 +181,7 @@ export default function PostJobForm({ onSuccess }) {
               <textarea className="input-field min-h-[120px]" placeholder="Describe the role, responsibilities, and expectations..."
                 value={form.description} onChange={e => set('description', e.target.value)} />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <ErrorMsg field="description" />
+                <ErrorMsg errors={errors} field="description" />
                 <span>{form.description.length}/50 min characters</span>
               </div>
             </div>
@@ -191,13 +198,13 @@ export default function PostJobForm({ onSuccess }) {
                 <label className="label-field">Minimum Salary (USD/year) *</label>
                 <input type="number" className="input-field" placeholder="e.g., 30000" value={form.salaryMin}
                   onChange={e => set('salaryMin', e.target.value)} />
-                <ErrorMsg field="salaryMin" />
+                <ErrorMsg errors={errors} field="salaryMin" />
               </div>
               <div>
                 <label className="label-field">Maximum Salary (USD/year)</label>
                 <input type="number" className="input-field" placeholder="e.g., 50000" value={form.salaryMax}
                   onChange={e => set('salaryMax', e.target.value)} />
-                <ErrorMsg field="salaryMax" />
+                <ErrorMsg errors={errors} field="salaryMax" />
               </div>
             </div>
 
@@ -205,14 +212,14 @@ export default function PostJobForm({ onSuccess }) {
               <label className="label-field">Working Hours *</label>
               <input className="input-field" placeholder="e.g., Monday-Friday, 8:30am-4:30pm" value={form.workingHours}
                 onChange={e => set('workingHours', e.target.value)} />
-              <ErrorMsg field="workingHours" />
+              <ErrorMsg errors={errors} field="workingHours" />
             </div>
 
             <div>
               <label className="label-field">Application Deadline *</label>
               <input type="date" className="input-field" value={form.deadline}
                 onChange={e => set('deadline', e.target.value)} min={new Date().toISOString().split('T')[0]} />
-              <ErrorMsg field="deadline" />
+              <ErrorMsg errors={errors} field="deadline" />
             </div>
 
             <div>
@@ -242,7 +249,7 @@ export default function PostJobForm({ onSuccess }) {
               <label className="label-field">Contact Person *</label>
               <input className="input-field" value={form.contactPerson}
                 onChange={e => set('contactPerson', e.target.value)} />
-              <ErrorMsg field="contactPerson" />
+              <ErrorMsg errors={errors} field="contactPerson" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -250,13 +257,13 @@ export default function PostJobForm({ onSuccess }) {
                 <label className="label-field">Email *</label>
                 <input type="email" className="input-field" value={form.contactEmail}
                   onChange={e => set('contactEmail', e.target.value)} />
-                <ErrorMsg field="contactEmail" />
+                <ErrorMsg errors={errors} field="contactEmail" />
               </div>
               <div>
                 <label className="label-field">Phone *</label>
                 <input type="tel" className="input-field" placeholder="1(284) 000-0000" value={form.contactPhone}
                   onChange={e => set('contactPhone', e.target.value)} />
-                <ErrorMsg field="contactPhone" />
+                <ErrorMsg errors={errors} field="contactPhone" />
               </div>
             </div>
           </div>

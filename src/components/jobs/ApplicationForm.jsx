@@ -7,6 +7,15 @@ import {
   ArrowLeft, X, Paperclip,
 } from 'lucide-react';
 
+function ErrorMsg({ errors, field }) {
+  if (!errors[field]) return null;
+  return (
+    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+      <AlertCircle className="w-3 h-3" />{errors[field]}
+    </p>
+  );
+}
+
 export default function ApplicationForm({ job, onBack, onSuccess }) {
   const { user } = useAuth();
   const { applyToJob } = useApp();
@@ -120,9 +129,7 @@ export default function ApplicationForm({ job, onBack, onSuccess }) {
     );
   }
 
-  const ErrorMsg = ({ field }) => errors[field] ? (
-    <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors[field]}</p>
-  ) : null;
+  // ErrorMsg is defined at module scope above, receives errors as a prop
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -150,7 +157,7 @@ export default function ApplicationForm({ job, onBack, onSuccess }) {
             placeholder="Introduce yourself and explain your interest in this position..."
             value={form.coverLetter} onChange={e => set('coverLetter', e.target.value)} />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <ErrorMsg field="coverLetter" />
+            <ErrorMsg errors={errors} field="coverLetter" />
             <span>{form.coverLetter.length} characters</span>
           </div>
         </div>
@@ -172,7 +179,7 @@ export default function ApplicationForm({ job, onBack, onSuccess }) {
               <input type="file" className="hidden" accept=".pdf,.doc,.docx" aria-label="Upload resume or CV" onChange={handleResumeUpload} />
             </label>
           )}
-          <ErrorMsg field="resume" />
+          <ErrorMsg errors={errors} field="resume" />
         </div>
 
         {/* Additional documents */}
@@ -203,7 +210,7 @@ export default function ApplicationForm({ job, onBack, onSuccess }) {
             <label className="label-field">Available Start Date *</label>
             <input type="date" className="input-field" value={form.availableDate}
               onChange={e => set('availableDate', e.target.value)} min={new Date().toISOString().split('T')[0]} />
-            <ErrorMsg field="availableDate" />
+            <ErrorMsg errors={errors} field="availableDate" />
           </div>
           <div>
             <label className="label-field">Salary Expectation (USD/year)</label>
@@ -219,7 +226,7 @@ export default function ApplicationForm({ job, onBack, onSuccess }) {
             placeholder="Describe your relevant experience, skills, and why you'd be a great fit..."
             value={form.suitability} onChange={e => set('suitability', e.target.value)} />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <ErrorMsg field="suitability" />
+            <ErrorMsg errors={errors} field="suitability" />
             <span>{form.suitability.length} characters</span>
           </div>
         </div>

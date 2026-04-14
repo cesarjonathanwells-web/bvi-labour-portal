@@ -8,8 +8,24 @@ import {
   FileText, AlertTriangle, Briefcase, Users, ClipboardCheck,
   BarChart3, ArrowRight, Clock, CheckCircle2, XCircle, Eye,
   TrendingUp, Shield, Bell, DollarSign, Search, Calendar,
-  UserCheck, Scale, Clipboard, Receipt, Building2, Activity
+  UserCheck, Scale, Clipboard, Receipt, Building2, Activity, RefreshCw,
 } from 'lucide-react';
+
+/**
+ * Wipe every localStorage key the app seeds so the next AppProvider mount
+ * reseeds with fresh demo data. Used by the Commissioner-only "Reset demo
+ * data" button for the government presentation.
+ */
+function resetDemoData() {
+  const keys = [
+    'bvi_permits', 'bvi_disputes', 'bvi_jobs', 'bvi_applications',
+    'bvi_documents', 'bvi_notifications',
+    'bvi_data_seeded_v2026',
+    'bvi_permit_draft_new', 'bvi_permit_draft_renewal', 'bvi_permit_draft_temp',
+  ];
+  keys.forEach(k => localStorage.removeItem(k));
+  window.location.reload();
+}
 
 const ACCENT = '#7c3aed';
 
@@ -875,9 +891,25 @@ export default function DeptDashboard() {
                 {roleLabel} - Department of Labour and Workforce Development
               </p>
             </div>
-            <div className="hidden sm:flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
-              <Shield className="w-5 h-5" />
-              <span className="text-sm font-medium">{roleLabel}</span>
+            <div className="flex items-center gap-3">
+              {user?.deptRole === 'commissioner' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('Reset all demo data to factory defaults? Any unsaved changes will be lost.')) {
+                      resetDemoData();
+                    }
+                  }}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-white/70 hover:text-white border border-white/30 hover:border-white/70 px-3 py-1.5 rounded-md transition-colors"
+                  title="Reset all demo data to factory defaults"
+                >
+                  <RefreshCw className="w-3 h-3" /> Reset demo data
+                </button>
+              )}
+              <div className="hidden sm:flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
+                <Shield className="w-5 h-5" />
+                <span className="text-sm font-medium">{roleLabel}</span>
+              </div>
             </div>
           </div>
           <p className="text-purple-200 text-sm mt-3">
