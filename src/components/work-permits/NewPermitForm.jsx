@@ -1010,7 +1010,21 @@ function validateStep2(data) {
   const e = {};
   if (!data.fullName.trim()) e.fullName = 'Full name is required.';
   if (!data.nationality.trim()) e.nationality = 'Nationality is required.';
-  if (!data.dateOfBirth) e.dateOfBirth = 'Date of birth is required.';
+  if (!data.dateOfBirth) {
+    e.dateOfBirth = 'Date of birth is required.';
+  } else {
+    // Worker must be 16+ years old, and the date can't be more than 100 years
+    // ago (paranoid bound — catches typos like 1800-01-01 the QA hunter spotted).
+    const dob = new Date(data.dateOfBirth);
+    const now = new Date();
+    if (Number.isNaN(dob.getTime()) || dob > now) {
+      e.dateOfBirth = 'Enter a valid date of birth.';
+    } else {
+      const age = (now - dob) / (1000 * 60 * 60 * 24 * 365.25);
+      if (age < 16) e.dateOfBirth = 'Worker must be at least 16 years old.';
+      else if (age > 100) e.dateOfBirth = 'Date of birth is unrealistic — check the year.';
+    }
+  }
   if (!data.passportNumber.trim())
     e.passportNumber = 'Passport number is required.';
   if (!data.passportExpiry) e.passportExpiry = 'Passport expiry is required.';
@@ -1033,8 +1047,16 @@ function validateStep3(data) {
   if (!data.department.trim()) e.department = 'Department is required.';
   if (!data.workLocation) e.workLocation = 'Select a work location.';
   if (!data.startDate) e.startDate = 'Start date is required.';
-  if (!data.annualSalary || parseFloat(data.annualSalary) <= 0)
-    e.annualSalary = 'Enter a valid salary.';
+  {
+    const salary = parseFloat(data.annualSalary);
+    if (!data.annualSalary || Number.isNaN(salary) || salary <= 0) {
+      e.annualSalary = 'Enter a valid salary.';
+    } else if (salary > 1_000_000) {
+      // Sanity cap. Anything above $1M is almost certainly a typo. Phase 2
+      // can replace with a per-industry benchmark.
+      e.annualSalary = 'Salary above $1,000,000 looks unrealistic — check the figure.';
+    }
+  }
   if (!data.workingHours || parseFloat(data.workingHours) <= 0)
     e.workingHours = 'Enter valid working hours.';
   return e;
@@ -1085,6 +1107,13 @@ export default function NewPermitForm() {
     if (currentStep === 1) stepErrors = validateStep1(formData.employer);
     else if (currentStep === 2) stepErrors = validateStep2(formData.employee);
     else if (currentStep === 3) stepErrors = validateStep3(formData.position);
+    else if (currentStep === 4) {
+      // Block the wizard from advancing if any required document is missing.
+      const missing = DOCUMENT_TYPES.filter(d => d.required && !formData.documents[d.id]);
+      if (missing.length > 0) {
+        stepErrors._documents = `Upload all ${missing.length} required document${missing.length === 1 ? '' : 's'} before continuing.`;
+      }
+    }
     setErrors(stepErrors);
     return Object.keys(stepErrors).length === 0;
   };
@@ -1277,8 +1306,9 @@ export default function NewPermitForm() {
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={submitting || !formData.termsAccepted}
+              disabled={submitting || !formData.termsAccepted || DOCUMENT_TYPES.filter(d => d.required && !formData.documents[d.id]).length > 0}
               className="btn-success"
+              title={DOCUMENT_TYPES.filter(d => d.required && !formData.documents[d.id]).length > 0 ? 'Upload all required documents first' : ''}
             >
               {submitting ? (
                 <>

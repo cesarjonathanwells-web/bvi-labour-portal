@@ -32,7 +32,8 @@ export function calculateWorkPermitFee(annualSalary, isDomestic = false) {
     const tierSize = tier.threshold === Infinity ? remainingSalary : tier.threshold - prevThreshold;
     const taxable = Math.min(remainingSalary, tierSize);
     const amount = taxable * tier.rate;
-    breakdown.push({ tier: tier.label, rate: `${tier.rate * 100}%`, taxable, amount: Math.round(amount * 100) / 100 });
+    // Round the rate label for display so JS float quirks (0.07 → 7.0000000000000001%) don't leak into the UI
+    breakdown.push({ tier: tier.label, rate: `${(Math.round(tier.rate * 10000) / 100).toFixed(0)}%`, taxable, amount: Math.round(amount * 100) / 100 });
     totalFee += amount;
     remainingSalary -= taxable;
     prevThreshold = tier.threshold;

@@ -15,14 +15,18 @@ const TABS = {
 
 export default function DisputesPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState(user?.portal === 'worker' ? TABS.TRACK : TABS.FILE);
-
+  const isDept = user?.portal === 'dept';
   const isAdmin = user?.role === 'admin';
+  // Department staff should land on the case queue, not the worker filing
+  // form. Worker stays on Track. Everyone else sees File first.
+  const defaultTab = isDept ? TABS.ADMIN : (user?.portal === 'worker' ? TABS.TRACK : TABS.FILE);
+  const [activeTab, setActiveTab] = useState(defaultTab);
 
   const navItems = [
-    { id: TABS.FILE, label: 'File a Dispute', icon: FileText, show: true },
-    { id: TABS.TRACK, label: 'Track My Disputes', icon: Search, show: true },
-    { id: TABS.ADMIN, label: 'All Disputes', icon: ListFilter, show: isAdmin },
+    // Dept staff don't file disputes — hide the worker form for them
+    { id: TABS.FILE, label: 'File a Dispute', icon: FileText, show: !isDept },
+    { id: TABS.TRACK, label: 'Track My Disputes', icon: Search, show: !isDept },
+    { id: TABS.ADMIN, label: 'Dispute Cases', icon: ListFilter, show: isAdmin || isDept },
   ].filter(n => n.show);
 
   return (
