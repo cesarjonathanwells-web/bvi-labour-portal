@@ -68,6 +68,15 @@ export default function PermitReview() {
   const [bulkAssignOfficer, setBulkAssignOfficer] = useState('');
   const [bulkRejectOpen, setBulkRejectOpen] = useState(false);
   const [bulkRejectReason, setBulkRejectReason] = useState('');
+  // Generic confirmation modal for "Mark under review" and "Approve" — replaces
+  // window.confirm() with an in-app, styled, accessible dialog
+  const [bulkConfirm, setBulkConfirm] = useState(null); // { kind, eligible, skipped, run }
+  // Transient toast for ineligible / no-op feedback
+  const [bulkToast, setBulkToast] = useState(null);
+  const showBulkToast = (text, tone = 'info') => {
+    setBulkToast({ text, tone });
+    setTimeout(() => setBulkToast(null), 4500);
+  };
 
   // All hooks must run on every render — do the permission gate AFTER the hooks.
   // Compute derived values using optional chaining so they're safe when the user is absent.
@@ -231,10 +240,7 @@ export default function PermitReview() {
     const targets = getSelectedPermits();
     const officer = allUsers.find(o => o.id === bulkAssignOfficer);
     if (!officer) return;
-    const ok = window.confirm(
-      `Assign ${targets.length} permit(s) to ${officer.firstName} ${officer.lastName}?`
-    );
-    if (!ok) return;
+    // The modal itself acts as the confirmation — no second native dialog.
 
     const noteBase = `Assigned to ${officer.firstName} ${officer.lastName} by ${user?.firstName || 'Staff'} ${user?.lastName || ''} (bulk)`;
     const allPermits = getStorage('bvi_permits') || [];
@@ -264,30 +270,36 @@ export default function PermitReview() {
     setBulkAssignOfficer('');
     setBulkAssignOpen(false);
     clearSelection();
+    showBulkToast(`Assigned ${targets.length} permit${targets.length === 1 ? '' : 's'} to ${officer.firstName} ${officer.lastName}.`, 'ok');
   };
 
   const bulkMarkUnderReview = () => {
     const targets = getSelectedPermits();
     const eligible = targets.filter(p => p.status === 'submitted' || p.status === 'under_review');
     const skipped = targets.length - eligible.length;
-    const ok = window.confirm(
-      `Mark ${eligible.length} permit(s) as Under Review?` +
-      (skipped > 0 ? `\n${skipped} will be skipped (not in submitted/under_review).` : '')
-    );
-    if (!ok) return;
-    const noteBase = `Marked under review by ${user?.firstName || 'Staff'} ${user?.lastName || ''} (bulk) on ${new Date().toLocaleString()}`;
-    eligible.forEach(p => updatePermitStatus(p.id, 'under_review', noteBase));
-
-    try {
-      logAudit({
-        ...actorFromUser(user),
-        category: 'permit', action: 'bulk mark under review',
-        targetType: 'permit', targetId: 'bulk', targetLabel: `${eligible.length} permits`,
-        metadata: { count: eligible.length, skipped, ids: eligible.map(p => p.id) },
-      });
-    } catch (e) { /* noop */ }
-
-    clearSelection();
+    if (eligible.length === 0) {
+      showBulkToast(`No eligible permits — all ${skipped} are already past the under-review stage.`, 'warn');
+      return;
+    }
+    setBulkConfirm({
+      kind: 'mark_review',
+      eligible, skipped,
+      run: () => {
+        const noteBase = `Marked under review by ${user?.firstName || 'Staff'} ${user?.lastName || ''} (bulk) on ${new Date().toLocaleString()}`;
+        eligible.forEach(p => updatePermitStatus(p.id, 'under_review', noteBase));
+        try {
+          logAudit({
+            ...actorFromUser(user),
+            category: 'permit', action: 'bulk mark under review',
+            targetType: 'permit', targetId: 'bulk', targetLabel: `${eligible.length} permits`,
+            metadata: { count: eligible.length, skipped, ids: eligible.map(p => p.id) },
+          });
+        } catch (e) { /* noop */ }
+        clearSelection();
+        setBulkConfirm(null);
+        showBulkToast(`${eligible.length} permit${eligible.length === 1 ? '' : 's'} moved to under review.`, 'ok');
+      },
+    });
   };
 
   const bulkApprove = () => {
@@ -295,27 +307,28 @@ export default function PermitReview() {
     const eligible = targets.filter(p => p.status === 'submitted' || p.status === 'under_review');
     const skipped = targets.length - eligible.length;
     if (eligible.length === 0) {
-      window.alert(`No eligible permits to approve (must be submitted or under review). ${skipped} skipped.`);
+      showBulkToast(`No eligible permits — all ${skipped} are already approved or rejected.`, 'warn');
       return;
     }
-    const ok = window.confirm(
-      `Approve ${eligible.length} permit(s)?` +
-      (skipped > 0 ? `\n${skipped} will be skipped (not in submitted/under_review).` : '')
-    );
-    if (!ok) return;
-    const noteBase = `Approved by ${user?.firstName || 'Staff'} ${user?.lastName || ''} (bulk) on ${new Date().toLocaleString()}`;
-    eligible.forEach(p => updatePermitStatus(p.id, 'approved', noteBase));
-
-    try {
-      logAudit({
-        ...actorFromUser(user),
-        category: 'permit', action: 'bulk approve',
-        targetType: 'permit', targetId: 'bulk', targetLabel: `${eligible.length} permits`,
-        metadata: { count: eligible.length, skipped, ids: eligible.map(p => p.id) },
-      });
-    } catch (e) { /* noop */ }
-
-    clearSelection();
+    setBulkConfirm({
+      kind: 'approve',
+      eligible, skipped,
+      run: () => {
+        const noteBase = `Approved by ${user?.firstName || 'Staff'} ${user?.lastName || ''} (bulk) on ${new Date().toLocaleString()}`;
+        eligible.forEach(p => updatePermitStatus(p.id, 'approved', noteBase));
+        try {
+          logAudit({
+            ...actorFromUser(user),
+            category: 'permit', action: 'bulk approve',
+            targetType: 'permit', targetId: 'bulk', targetLabel: `${eligible.length} permits`,
+            metadata: { count: eligible.length, skipped, ids: eligible.map(p => p.id) },
+          });
+        } catch (e) { /* noop */ }
+        clearSelection();
+        setBulkConfirm(null);
+        showBulkToast(`${eligible.length} permit${eligible.length === 1 ? '' : 's'} approved. Digital ID${eligible.length === 1 ? '' : 's'} issued.`, 'ok');
+      },
+    });
   };
 
   const bulkRejectConfirm = () => {
@@ -324,11 +337,12 @@ export default function PermitReview() {
     const targets = getSelectedPermits();
     const eligible = targets.filter(p => p.status !== 'rejected');
     const skipped = targets.length - eligible.length;
-    const ok = window.confirm(
-      `Reject ${eligible.length} permit(s) with reason: "${reason}"?` +
-      (skipped > 0 ? `\n${skipped} will be skipped (already rejected).` : '')
-    );
-    if (!ok) return;
+    // Reject modal already confirms — we proceed straight through here.
+    if (eligible.length === 0) {
+      showBulkToast('All selected permits are already rejected.', 'warn');
+      setBulkRejectReason(''); setBulkRejectOpen(false);
+      return;
+    }
     const noteBase = `Rejected: ${reason} (by ${user?.firstName || 'Staff'} ${user?.lastName || ''} bulk on ${new Date().toLocaleString()})`;
     eligible.forEach(p => updatePermitStatus(p.id, 'rejected', noteBase));
 
@@ -344,6 +358,7 @@ export default function PermitReview() {
     setBulkRejectReason('');
     setBulkRejectOpen(false);
     clearSelection();
+    showBulkToast(`${eligible.length} permit${eligible.length === 1 ? '' : 's'} rejected.`, 'ok');
   };
 
   /* ============= Detail View ============= */
@@ -988,6 +1003,76 @@ export default function PermitReview() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Generic bulk-confirm modal (mark under review / approve) */}
+      {bulkConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" role="dialog" aria-modal="true" aria-label="Confirm bulk action">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-[#7c3aed] mb-2">
+              {bulkConfirm.kind === 'approve' ? 'Approve permits' : 'Mark permits under review'}
+            </h3>
+            <p className="text-sm text-gray-700 mb-4">
+              {bulkConfirm.kind === 'approve'
+                ? `Approve the ${bulkConfirm.eligible.length} eligible permit${bulkConfirm.eligible.length === 1 ? '' : 's'}? Each will issue a digital ID immediately and notify the holder.`
+                : `Move the ${bulkConfirm.eligible.length} eligible permit${bulkConfirm.eligible.length === 1 ? '' : 's'} to "Under Review".`}
+            </p>
+            {bulkConfirm.skipped > 0 && (
+              <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+                <span>
+                  {bulkConfirm.skipped} permit{bulkConfirm.skipped === 1 ? '' : 's'} in your selection will be skipped because their current status doesn&apos;t allow this action.
+                </span>
+              </div>
+            )}
+            <div className="max-h-32 overflow-y-auto mb-4 bg-gray-50 rounded-lg p-3 text-xs">
+              {bulkConfirm.eligible.slice(0, 8).map(p => (
+                <div key={p.id} className="text-gray-700">
+                  <span className="font-mono">{p.permitNumber}</span>
+                  <span className="text-gray-400"> · {p.employeeName || '—'}</span>
+                </div>
+              ))}
+              {bulkConfirm.eligible.length > 8 && (
+                <p className="text-gray-400 mt-1">…and {bulkConfirm.eligible.length - 8} more</p>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setBulkConfirm(null)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={bulkConfirm.run}
+                className={`flex-1 px-4 py-2 text-white rounded-lg text-sm font-medium ${
+                  bulkConfirm.kind === 'approve' ? 'bg-green-600 hover:bg-green-700' : 'bg-[#7c3aed] hover:bg-[#6d28d9]'
+                }`}
+              >
+                {bulkConfirm.kind === 'approve' ? 'Approve all' : 'Mark all under review'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast for ineligible / success feedback */}
+      {bulkToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`fixed bottom-6 right-6 z-50 max-w-sm rounded-lg shadow-lg p-4 flex items-start gap-3 text-sm ${
+            bulkToast.tone === 'ok' ? 'bg-green-50 border border-green-200 text-green-900' :
+            bulkToast.tone === 'warn' ? 'bg-amber-50 border border-amber-200 text-amber-900' :
+            'bg-blue-50 border border-blue-200 text-blue-900'
+          }`}
+        >
+          <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+          <span className="flex-1">{bulkToast.text}</span>
+          <button onClick={() => setBulkToast(null)} aria-label="Dismiss" className="text-gray-400 hover:text-gray-600">
+            <X size={14} />
+          </button>
         </div>
       )}
     </div>

@@ -6,6 +6,7 @@ import { AppProvider } from './context/AppContext';
 // Shared UI
 import ErrorBoundary from './components/common/ErrorBoundary';
 import DemoBanner from './components/common/DemoBanner';
+import AccessDeniedView from './components/common/AccessDeniedView';
 
 // Portal-specific layouts
 import BusinessLayout from './components/layout/BusinessLayout';
@@ -143,7 +144,10 @@ function RequirePortalAuth({ portal }) {
 function RequireDeptPermission({ permission }) {
   const { hasPermission } = useAuth();
   if (!hasPermission(permission)) {
-    return <Navigate to="/dept/dashboard" replace />;
+    // Render an explicit access-denied view instead of a silent redirect —
+    // users who followed a link or bookmark now know why they landed where
+    // they did, and can get back to their own dashboard in one click.
+    return <AccessDeniedView requiredPermission={permission} />;
   }
   return <Outlet />;
 }
