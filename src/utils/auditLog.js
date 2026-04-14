@@ -61,8 +61,20 @@ export function logAudit(entry) {
   }
 }
 
+/**
+ * Drop records that don't have the minimum shape we need to render — guards
+ * against malformed entries leaking in via localStorage tampering or older
+ * code paths that wrote a different schema.
+ */
+function isValidEntry(e) {
+  if (!e || typeof e !== 'object') return false;
+  if (!e.timestamp || Number.isNaN(new Date(e.timestamp).getTime())) return false;
+  if (!e.action || typeof e.action !== 'string') return false;
+  return true;
+}
+
 export function getAuditLog({ category, actorId, limit, since } = {}) {
-  let list = readAll();
+  let list = readAll().filter(isValidEntry);
   if (category) list = list.filter(e => e.category === category);
   if (actorId) list = list.filter(e => e.actorId === actorId);
   if (since) list = list.filter(e => e.timestamp >= since);

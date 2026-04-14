@@ -633,6 +633,8 @@ export default function RenewalForm() {
       ...base,
       currentPermit: mergePrefill(base.currentPermit, employerPrefill),
     });
+    const savedStep = Number(draft?._currentStep);
+    if (savedStep >= 1 && savedStep <= 5) setCurrentStep(savedStep);
   }, [user]);
 
   // When the user picks an existing permit from the dropdown, carry its
@@ -655,7 +657,7 @@ export default function RenewalForm() {
     }));
   };
 
-  const saveDraft = useCallback(() => { setStorage(DRAFT_KEY, formData); }, [formData]);
+  const saveDraft = useCallback(() => { setStorage(DRAFT_KEY, { ...formData, _currentStep: currentStep }); }, [formData, currentStep]);
   useEffect(() => { const t = setTimeout(saveDraft, 1000); return () => clearTimeout(t); }, [saveDraft]);
 
   const updateSection = (section) => (data) => setFormData(prev => ({ ...prev, [section]: data }));

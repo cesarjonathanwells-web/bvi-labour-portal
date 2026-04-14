@@ -1078,8 +1078,8 @@ export default function NewPermitForm() {
   const previousDocs = getPreviousDocuments(user);
 
   // Load draft on mount and prefill employer info from the logged-in account.
-  // Registered companies don't need to retype what the system already knows —
-  // fields are pre-populated and remain editable in case anything is out of date.
+  // Also restore the wizard step the user was on so a refresh mid-flow
+  // doesn't drop them back at step 1.
   useEffect(() => {
     const draft = getStorage(DRAFT_KEY);
     const base = draft || INITIAL_STATE;
@@ -1087,12 +1087,14 @@ export default function NewPermitForm() {
       ...base,
       employer: mergePrefill(base.employer, buildEmployerPrefill(user)),
     });
+    const savedStep = Number(draft?._currentStep);
+    if (savedStep >= 1 && savedStep <= 5) setCurrentStep(savedStep);
   }, [user]);
 
-  // Auto-save draft
+  // Auto-save draft (data + current wizard step)
   const saveDraft = useCallback(() => {
-    setStorage(DRAFT_KEY, formData);
-  }, [formData]);
+    setStorage(DRAFT_KEY, { ...formData, _currentStep: currentStep });
+  }, [formData, currentStep]);
 
   useEffect(() => {
     const timer = setTimeout(saveDraft, 1000);

@@ -507,8 +507,10 @@ export default function TemporaryPermitForm() {
     const d = getStorage(DRAFT_KEY);
     const base = d || INITIAL_STATE;
     setFormData({ ...base, employer: mergePrefill(base.employer, buildEmployerPrefill(user)) });
+    const savedStep = Number(d?._currentStep);
+    if (savedStep >= 1 && savedStep <= 3) setCurrentStep(savedStep);
   }, [user]);
-  const saveDraft = useCallback(() => { setStorage(DRAFT_KEY, formData); }, [formData]);
+  const saveDraft = useCallback(() => { setStorage(DRAFT_KEY, { ...formData, _currentStep: currentStep }); }, [formData, currentStep]);
   useEffect(() => { const t = setTimeout(saveDraft, 1000); return () => clearTimeout(t); }, [saveDraft]);
 
   const updateSection = (section) => (data) => setFormData(prev => ({ ...prev, [section]: data }));

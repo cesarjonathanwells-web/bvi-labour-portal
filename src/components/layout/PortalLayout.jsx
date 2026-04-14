@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
+import SkipToContent from '../common/SkipToContent';
 
 /**
  * PortalLayout - Shared layout for all BVI Labour Department portals.
@@ -130,8 +131,9 @@ export default function PortalLayout({
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
+      <SkipToContent />
       {/* Header */}
-      <header className="sticky top-0 z-50 shadow-lg" style={{ backgroundColor: headerColor }}>
+      <header role="banner" className="sticky top-0 z-50 shadow-lg" style={{ backgroundColor: headerColor }}>
         <div className="flex items-center justify-between h-16 px-4 lg:px-6">
           <div className="flex items-center gap-3">
             <button
@@ -264,7 +266,7 @@ export default function PortalLayout({
         )}
 
         {/* Sidebar */}
-        <aside className={`fixed top-16 left-0 bottom-0 w-64 bg-white border-r border-gray-200 z-40 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:top-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside aria-label="Portal navigation" className={`fixed top-16 left-0 bottom-0 w-64 bg-white border-r border-gray-200 z-40 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:top-auto lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex flex-col h-full">
             {/* Sidebar top: custom (Dept) or default badge */}
             {renderSidebarTop ? (
@@ -352,7 +354,7 @@ export default function PortalLayout({
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 min-h-[calc(100vh-4rem)] p-4 md:p-6 lg:p-8 w-full overflow-x-hidden">
+        <main id="main-content" role="main" className="flex-1 min-h-[calc(100vh-4rem)] p-4 md:p-6 lg:p-8 w-full overflow-x-hidden">
           <Outlet />
         </main>
       </div>
