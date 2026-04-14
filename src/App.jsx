@@ -37,6 +37,7 @@ const DocumentsPage = lazy(() => import('./pages/DocumentsPage'));
 const FeesPage = lazy(() => import('./pages/FeesPage'));
 const IDCardPage = lazy(() => import('./pages/IDCardPage'));
 const AppealsPage = lazy(() => import('./pages/AppealsPage'));
+const TransfersPage = lazy(() => import('./pages/TransfersPage'));
 
 // Admin / Dept — lazy (restricted to dept staff, no need to ship to public users)
 const UserManagement = lazy(() => import('./components/admin/UserManagement'));
@@ -188,6 +189,7 @@ function AppRoutes() {
         <Route path="/business/fees/*" element={<FeesPage />} />
         <Route path="/business/payments" element={<FeesPage />} />
         <Route path="/business/appeals" element={<AppealsPage />} />
+        <Route path="/business/transfers" element={<TransfersPage />} />
         <Route path="/business/settings" element={<Settings />} />
         <Route path="/business/profile" element={<ProfilePage />} />
       </Route>
@@ -281,6 +283,11 @@ function AppRoutes() {
           <Route path="/dept/users" element={<UserManagement />} />
           <Route path="/dept/audit-log" element={<AuditLog />} />
           <Route path="/dept/appeals" element={<AppealsPage />} />
+        </Route>
+
+        {/* Permit transfers — requires permits permission */}
+        <Route element={<RequireDeptPermission permission="permits" />}>
+          <Route path="/dept/transfers" element={<TransfersPage />} />
         </Route>
 
         {/* Reports - requires reports permission */}

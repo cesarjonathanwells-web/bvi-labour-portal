@@ -2,7 +2,7 @@ import {
   LayoutDashboard, FileText, Scale, Briefcase, ClipboardCheck,
   CreditCard, Calendar, Users, BarChart3, Settings, Shield,
   ListChecks, FileSearch, Receipt, DollarSign, Eye, BookOpen,
-  Search, User, History,
+  Search, User, History, ArrowRightLeft,
 } from 'lucide-react';
 import PortalLayout from './PortalLayout';
 
@@ -11,6 +11,7 @@ const roleNavConfigs = {
   commissioner: [
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
     { label: 'Permit Review', to: '/dept/permits', icon: FileText },
+    { label: 'Transfers', to: '/dept/transfers', icon: ArrowRightLeft },
     { label: 'Appeals', to: '/dept/appeals', icon: Scale },
     { label: 'Dispute Cases', to: '/dept/disputes', icon: Scale },
     { label: 'Job Placements', to: '/dept/placements', icon: Briefcase },
@@ -25,6 +26,7 @@ const roleNavConfigs = {
   deputy_commissioner: [
     { label: 'Dashboard', to: '/dept/dashboard', icon: LayoutDashboard },
     { label: 'Permit Review', to: '/dept/permits', icon: FileText },
+    { label: 'Transfers', to: '/dept/transfers', icon: ArrowRightLeft },
     { label: 'Appeals', to: '/dept/appeals', icon: Scale },
     { label: 'Dispute Cases', to: '/dept/disputes', icon: Scale },
     { label: 'Job Placements', to: '/dept/placements', icon: Briefcase },

@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, FileText, Briefcase, FolderOpen, Calculator, CreditCard, User, Settings, Scale,
+  LayoutDashboard, FileText, Briefcase, FolderOpen, Calculator, CreditCard, User, Settings, Scale, ArrowRightLeft,
 } from 'lucide-react';
 import PortalLayout from './PortalLayout';
 
@@ -19,6 +19,7 @@ const navItems = [
   { label: 'Fee Calculator', to: '/business/fees', icon: Calculator },
   { label: 'Payments', to: '/business/payments', icon: CreditCard },
   { label: 'Appeals', to: '/business/appeals', icon: Scale },
+  { label: 'Transfers', to: '/business/transfers', icon: ArrowRightLeft },
   { label: 'Profile', to: '/business/profile', icon: User },
 ];
 

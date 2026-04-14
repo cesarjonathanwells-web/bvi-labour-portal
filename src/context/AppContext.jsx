@@ -9,7 +9,7 @@ const AppContext = createContext(null);
 const KEYS = {
   permits: 'bvi_permits', disputes: 'bvi_disputes', jobs: 'bvi_jobs',
   applications: 'bvi_applications', documents: 'bvi_documents', notifications: 'bvi_notifications',
-  appeals: 'bvi_appeals',
+  appeals: 'bvi_appeals', transfers: 'bvi_transfers',
 };
 
 // Bump this key whenever seed data changes so returning browsers pick up the refresh
@@ -24,6 +24,7 @@ export function AppProvider({ children }) {
   const [documents, setDocuments] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [appeals, setAppeals] = useState([]);
+  const [transfers, setTransfers] = useState([]);
 
   /** Record an audit entry tagged with the current signed-in user. */
   const audit = useCallback((entry) => logAudit({ ...actorFromUser(user), ...entry }), [user]);
@@ -45,6 +46,7 @@ export function AppProvider({ children }) {
     setDocuments(getStorage(KEYS.documents) || []);
     setNotifications(getStorage(KEYS.notifications) || []);
     setAppeals(getStorage(KEYS.appeals) || []);
+    setTransfers(getStorage(KEYS.transfers) || []);
   }, []);
 
   const save = (key, setter) => (data) => { setter(data); setStorage(key, data); };
@@ -215,6 +217,71 @@ export function AppProvider({ children }) {
 
   const getAppealsByUser = (userId) => appeals.filter(a => a.userId === userId);
 
+  // PERMIT TRANSFERS (Employer A → Employer B for an existing work permit)
+  const submitTransferRequest = (data) => {
+    const year = new Date().getFullYear();
+    const transfer = {
+      ...data,
+      id: generateId(),
+      transferNumber: `TR-${year}-${Math.floor(1000 + Math.random() * 9000)}`,
+      status: 'filed',
+      filedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      timeline: [{ status: 'filed', date: new Date().toISOString(), note: 'Transfer request submitted' }],
+    };
+    const next = [transfer, ...transfers];
+    save(KEYS.transfers, setTransfers)(next);
+    addNotification(data.newEmployerId, `Transfer ${transfer.transferNumber} submitted for permit ${data.originalPermitNumber}.`, 'success');
+    if (data.originalEmployerId && data.originalEmployerId !== data.newEmployerId) {
+      addNotification(data.originalEmployerId, `A transfer request has been submitted for permit ${data.originalPermitNumber}.`, 'info');
+    }
+    audit({
+      category: 'permit', action: 'transfer requested',
+      targetType: 'transfer', targetId: transfer.id, targetLabel: transfer.transferNumber,
+      metadata: { originalPermitId: data.originalPermitId, originalPermitNumber: data.originalPermitNumber, newEmployerId: data.newEmployerId },
+    });
+    return transfer;
+  };
+
+  const updateTransferStatus = (transferId, status, note = '', decision = null) => {
+    const next = transfers.map(t => {
+      if (t.id !== transferId) return t;
+      return {
+        ...t, status, decision,
+        updatedAt: new Date().toISOString(),
+        timeline: [...(t.timeline || []), { status, date: new Date().toISOString(), note }],
+      };
+    });
+    save(KEYS.transfers, setTransfers)(next);
+    const t = next.find(x => x.id === transferId);
+    if (t) {
+      if (t.newEmployerId) addNotification(t.newEmployerId, `Transfer ${t.transferNumber}: ${status.replace(/_/g, ' ')}.`, status === 'approved' ? 'success' : 'info');
+      audit({
+        category: 'permit', action: `transfer ${status}`,
+        targetType: 'transfer', targetId: t.id, targetLabel: t.transferNumber,
+        metadata: { status, decision, note },
+      });
+      // If approved, update the underlying permit with the new employer details
+      if (status === 'approved' && t.originalPermitId) {
+        const nextPermits = permits.map(p => p.id === t.originalPermitId
+          ? {
+              ...p,
+              employerId: t.newEmployerId,
+              employerName: t.newEmployerName,
+              position: t.newPosition || p.position,
+              salary: t.newSalary || p.salary,
+              island: t.newWorkLocation || p.island,
+              notes: `Transferred from ${t.originalEmployerName} to ${t.newEmployerName} — see transfer ${t.transferNumber}.`,
+              updatedAt: new Date().toISOString(),
+            }
+          : p);
+        save(KEYS.permits, setPermits)(nextPermits);
+      }
+    }
+  };
+
+  const getTransfersByUser = (userId) => transfers.filter(t => t.newEmployerId === userId || t.originalEmployerId === userId);
+
   const getPermitsByUser = (userId) => permits.filter(p => p.userId === userId || p.employerId === userId);
   const getDisputesByUser = (userId) => disputes.filter(d => d.userId === userId);
   const getJobsByEmployer = (userId) => jobs.filter(j => j.employerId === userId);
@@ -224,12 +291,13 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      permits, disputes, jobs, applications, documents, notifications, appeals,
+      permits, disputes, jobs, applications, documents, notifications, appeals, transfers,
       submitPermit, updatePermitStatus, fileDispute, updateDisputeStatus,
       postJob, applyToJob, uploadDocument, markNotificationRead, addNotification,
       fileAppeal, updateAppealStatus,
+      submitTransferRequest, updateTransferStatus,
       getPermitsByUser, getDisputesByUser, getJobsByEmployer, getApplicationsByUser,
-      getDocsByUser, getNotificationsByUser, getAppealsByUser,
+      getDocsByUser, getNotificationsByUser, getAppealsByUser, getTransfersByUser,
     }}>
       {children}
     </AppContext.Provider>

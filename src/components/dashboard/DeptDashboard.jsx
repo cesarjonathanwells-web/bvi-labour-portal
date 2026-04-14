@@ -19,7 +19,7 @@ import {
 function resetDemoData() {
   const keys = [
     'bvi_permits', 'bvi_disputes', 'bvi_jobs', 'bvi_applications',
-    'bvi_documents', 'bvi_notifications',
+    'bvi_documents', 'bvi_notifications', 'bvi_appeals', 'bvi_transfers',
     'bvi_data_seeded_v2026', 'bvi_audit_log',
     'bvi_permit_draft_new', 'bvi_permit_draft_renewal', 'bvi_permit_draft_temp',
   ];
