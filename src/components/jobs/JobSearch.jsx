@@ -71,8 +71,10 @@ export default function JobSearch({ onViewJob, onApply }) {
 
     if (viewMode === 'list') {
       return (
-        <div className="card-hover flex flex-col sm:flex-row sm:items-center gap-4"
-          onClick={() => onViewJob?.(job)}>
+        <div className="card-hover flex flex-col sm:flex-row sm:items-center gap-4 cursor-pointer"
+          role="button" tabIndex={0}
+          onClick={() => onViewJob?.(job)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onViewJob?.(job); }}>
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
               <h3 className="font-semibold text-gray-900">{job.title}</h3>
@@ -90,13 +92,23 @@ export default function JobSearch({ onViewJob, onApply }) {
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">{job.employmentType}</span>
             <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">{job.category}</span>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onViewJob?.(job); }}
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#003366] text-white rounded-lg text-xs font-semibold hover:bg-[#002244]"
+            >
+              View details <ArrowUpDown className="w-3 h-3 rotate-90" />
+            </button>
           </div>
         </div>
       );
     }
 
     return (
-      <div className="card-hover flex flex-col h-full" onClick={() => onViewJob?.(job)}>
+      <div className="card-hover flex flex-col h-full cursor-pointer"
+        role="button" tabIndex={0}
+        onClick={() => onViewJob?.(job)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onViewJob?.(job); }}>
         <div className="flex items-start justify-between gap-2 mb-3">
           <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
             {job.employmentType}
@@ -127,6 +139,13 @@ export default function JobSearch({ onViewJob, onApply }) {
               </span>
             )}
           </div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onViewJob?.(job); }}
+            className="mt-2 w-full inline-flex items-center justify-center gap-1 px-3 py-2 bg-[#003366] text-white rounded-lg text-xs font-semibold hover:bg-[#002244]"
+          >
+            View details
+          </button>
         </div>
       </div>
     );

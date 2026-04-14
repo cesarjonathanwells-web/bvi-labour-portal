@@ -8,6 +8,7 @@ import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { formatDateShort, getStatusColor, getStatusLabel, getStorage, setStorage } from '../../utils/helpers';
 import { PERMIT_STATUSES, DEPT_ROLES } from '../../data/constants';
+import { logAudit, actorFromUser } from '../../utils/auditLog';
 
 const USERS_KEY = 'bvi_labour_users';
 
@@ -177,6 +178,13 @@ export default function PermitReview() {
     });
     setStorage('bvi_permits', updated);
     setSelectedPermit(prev => ({ ...prev, processingNotes: [...(prev.processingNotes || []), entry] }));
+    // Audit log the internal note — distinct from status-change events
+    logAudit({
+      ...actorFromUser(user),
+      category: 'permit', action: 'internal note added',
+      targetType: 'permit', targetId: selectedPermit.id, targetLabel: selectedPermit.permitNumber,
+      metadata: { note: entry.text },
+    });
     setInternalNote('');
   };
 

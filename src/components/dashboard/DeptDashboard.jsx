@@ -48,6 +48,48 @@ function CommissionerDashboard({ permits, disputes, jobs, applications, allUsers
     approved: permits.filter(p => p.status === 'approved').length,
   };
 
+  // Workload per assigned dept staff (computed from permits + disputes + cards)
+  const workloadByOfficer = (() => {
+    const counts = new Map();
+    const touched = [...permits, ...disputes];
+    for (const item of touched) {
+      if (!item.assignedTo) continue;
+      counts.set(item.assignedTo, (counts.get(item.assignedTo) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([userId, count]) => {
+        const u = allUsers.find(x => x.id === userId);
+        return {
+          id: userId,
+          name: u ? `${u.firstName} ${u.lastName}` : userId,
+          role: (u?.deptRole || '').replace(/_/g, ' '),
+          count,
+        };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6);
+  })();
+
+  // Revenue — compute using the approved permit salaries + fee schedule
+  const revenue = (() => {
+    const APPLICATION_FEE = 50;
+    let total = 0;
+    for (const p of activePermits) {
+      const salary = Number(p.salary || 0);
+      if (!salary) { total += APPLICATION_FEE; continue; }
+      let fee = 0;
+      if (salary <= 25000) fee = salary * 0.03;
+      else if (salary <= 50000) fee = 25000 * 0.03 + (salary - 25000) * 0.05;
+      else fee = 25000 * 0.03 + 25000 * 0.05 + (salary - 50000) * 0.07;
+      total += Math.min(fee, 10000) + APPLICATION_FEE;
+    }
+    const byType = {};
+    for (const p of activePermits) {
+      byType[p.type || 'new'] = (byType[p.type || 'new'] || 0) + 1;
+    }
+    return { total: Math.round(total), permitCount: activePermits.length, byType };
+  })();
+
   const statCards = [
     { title: 'Total Active Permits', value: activePermits.length, icon: FileText, lightColor: 'bg-purple-50', textColor: 'text-purple-700' },
     { title: 'Pending Applications', value: pendingApps.length, icon: ClipboardCheck, lightColor: 'bg-blue-50', textColor: 'text-blue-700' },
@@ -101,23 +143,65 @@ function CommissionerDashboard({ permits, disputes, jobs, applications, allUsers
             <h2 className="text-lg font-semibold text-purple-900">Staff Workload Overview</h2>
           </div>
           <div className="p-6">
-            <div className="text-center py-8 text-gray-400">
-              <Users className="w-10 h-10 mx-auto mb-2 opacity-40" />
-              <p className="text-sm">Staff workload data will display here when officers are assigned cases.</p>
-            </div>
+            {workloadByOfficer.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">
+                <Users className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                <p className="text-sm">No cases currently assigned to staff.</p>
+              </div>
+            ) : (
+              <ul className="space-y-3">
+                {workloadByOfficer.map(w => {
+                  const max = workloadByOfficer[0].count || 1;
+                  const pct = Math.round((w.count / max) * 100);
+                  return (
+                    <li key={w.id}>
+                      <div className="flex items-center justify-between mb-1 text-sm">
+                        <span className="font-medium text-gray-800 truncate">{w.name} <span className="text-gray-400 text-xs capitalize">· {w.role}</span></span>
+                        <span className="font-semibold text-purple-700">{w.count}</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-purple-100 overflow-hidden">
+                        <div className="h-full bg-purple-500" style={{ width: `${pct}%` }} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
 
-        {/* Revenue Summary */}
+        {/* Revenue Summary — computed from approved permits + fee schedule */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="px-6 py-4 border-b border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-purple-900">Revenue Summary</h2>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+              Simulated · Phase 2 integrates payments
+            </span>
           </div>
           <div className="p-6">
-            <div className="text-center py-8 text-gray-400">
-              <DollarSign className="w-10 h-10 mx-auto mb-2 opacity-40" />
-              <p className="text-sm">Revenue tracking will display here once payments are processed.</p>
+            <div className="flex items-end gap-3 mb-5">
+              <div>
+                <p className="text-3xl font-extrabold text-[#003366]">
+                  ${revenue.total.toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Projected total from {revenue.permitCount} approved permit{revenue.permitCount === 1 ? '' : 's'} at current fee schedule
+                </p>
+              </div>
             </div>
+            {Object.keys(revenue.byType).length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">By permit type</p>
+                <ul className="space-y-1 text-sm text-gray-700">
+                  {Object.entries(revenue.byType).map(([type, count]) => (
+                    <li key={type} className="flex items-center justify-between">
+                      <span className="capitalize">{type.replace(/-/g, ' ')}</span>
+                      <span className="font-semibold text-gray-800">{count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </div>
