@@ -7,11 +7,11 @@ import {
   AlertCircle, X, Paperclip, ChevronLeft, ChevronRight, Scale, Info,
 } from 'lucide-react';
 
-function ErrorMsg({ errors, field }) {
+function ErrorMsg({ errors, field, id }) {
   if (!errors[field]) return null;
   return (
-    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-      <AlertCircle className="w-3 h-3" />{errors[field]}
+    <p id={id} role="alert" className="text-red-500 text-sm mt-1 flex items-center gap-1">
+      <AlertCircle className="w-3 h-3" aria-hidden="true" />{errors[field]}
     </p>
   );
 }
@@ -214,30 +214,36 @@ export default function FileDisputeForm({ onSuccess }) {
             <p className="text-sm text-gray-500 -mt-2">Your personal details (pre-filled from your profile)</p>
 
             <div>
-              <label className="label-field">Full Name *</label>
-              <input className="input-field" value={form.complainantName}
-                onChange={e => set('complainantName', e.target.value)} />
-              <ErrorMsg errors={errors} field="complainantName" />
+              <label htmlFor="dispute-complainant-name" className="label-field">Full Name *</label>
+              <input id="dispute-complainant-name" className="input-field" value={form.complainantName}
+                onChange={e => set('complainantName', e.target.value)}
+                aria-invalid={errors.complainantName ? 'true' : 'false'}
+                aria-describedby={errors.complainantName ? 'dispute-complainant-name-error' : undefined} />
+              <ErrorMsg errors={errors} field="complainantName" id="dispute-complainant-name-error" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="label-field">Email *</label>
-                <input type="email" className="input-field" value={form.complainantEmail}
-                  onChange={e => set('complainantEmail', e.target.value)} />
-                <ErrorMsg errors={errors} field="complainantEmail" />
+                <label htmlFor="dispute-complainant-email" className="label-field">Email *</label>
+                <input id="dispute-complainant-email" type="email" className="input-field" value={form.complainantEmail}
+                  onChange={e => set('complainantEmail', e.target.value)}
+                  aria-invalid={errors.complainantEmail ? 'true' : 'false'}
+                  aria-describedby={errors.complainantEmail ? 'dispute-complainant-email-error' : undefined} />
+                <ErrorMsg errors={errors} field="complainantEmail" id="dispute-complainant-email-error" />
               </div>
               <div>
-                <label className="label-field">Phone *</label>
-                <input type="tel" className="input-field" placeholder="1(284) 000-0000"
-                  value={form.complainantPhone} onChange={e => set('complainantPhone', e.target.value)} />
-                <ErrorMsg errors={errors} field="complainantPhone" />
+                <label htmlFor="dispute-complainant-phone" className="label-field">Phone *</label>
+                <input id="dispute-complainant-phone" type="tel" className="input-field" placeholder="1(284) 000-0000"
+                  value={form.complainantPhone} onChange={e => set('complainantPhone', e.target.value)}
+                  aria-invalid={errors.complainantPhone ? 'true' : 'false'}
+                  aria-describedby={errors.complainantPhone ? 'dispute-complainant-phone-error' : undefined} />
+                <ErrorMsg errors={errors} field="complainantPhone" id="dispute-complainant-phone-error" />
               </div>
             </div>
 
             <div>
-              <label className="label-field">Address</label>
-              <input className="input-field" placeholder="Street address, island"
+              <label htmlFor="dispute-complainant-address" className="label-field">Address</label>
+              <input id="dispute-complainant-address" className="input-field" placeholder="Street address, island"
                 value={form.complainantAddress} onChange={e => set('complainantAddress', e.target.value)} />
             </div>
           </div>

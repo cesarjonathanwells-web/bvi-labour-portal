@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { DEPARTMENT_INFO } from '../data/constants';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
+import SkipToContent from '../components/common/SkipToContent';
 
 const portalDefs = [
   {
@@ -51,6 +52,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SkipToContent />
       {/* ========= GOVERNMENT HEADER ========= */}
       <nav className="bg-[#003366] text-white sticky top-0 z-50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
@@ -73,6 +75,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
+      <main id="main-content">
       {/* ========= HERO SECTION ========= */}
       <section className="relative bg-gradient-to-br from-[#003366] via-[#004d99] to-[#003366] text-white overflow-hidden">
         {/* Decorative elements */}
@@ -238,6 +241,7 @@ export default function LandingPage() {
       </section>
 
       {/* ========= FOOTER ========= */}
+      </main>
       <footer className="bg-[#003366] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

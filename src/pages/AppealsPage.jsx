@@ -6,6 +6,7 @@ import {
   ShieldAlert, ThumbsUp, ThumbsDown,
 } from 'lucide-react';
 import MockBadge from '../components/common/MockBadge';
+import Modal from '../components/common/Modal';
 
 const GROUNDS = [
   { id: 'procedural', label: 'Procedural error (the Department did not follow its own process)' },
@@ -195,20 +196,19 @@ function BusinessAppeals() {
       </div>
 
       {/* File appeal modal */}
-      {formOpen && selectedPermit && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-[#003366]">File appeal</h3>
-                <p className="text-xs text-gray-500">Permit {selectedPermit.permitNumber} · {selectedPermit.employeeName}</p>
-              </div>
-              <button onClick={() => setFormOpen(false)} className="p-1 text-gray-400 hover:text-gray-600">
-                <X size={18} />
-              </button>
-            </div>
+      {selectedPermit && (
+        <Modal
+          open={formOpen}
+          onClose={() => setFormOpen(false)}
+          labelledBy="file-appeal-title"
+          size="lg"
+        >
+          <div className="p-6 border-b border-gray-100">
+            <h3 id="file-appeal-title" className="text-lg font-bold text-[#003366]">File appeal</h3>
+            <p className="text-xs text-gray-500">Permit {selectedPermit.permitNumber} · {selectedPermit.employeeName}</p>
+          </div>
 
-            <div className="p-6 space-y-5">
+          <div className="p-6 space-y-5">
               <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-start gap-2 text-sm text-[#003366]">
                 <Info size={14} className="mt-0.5 flex-shrink-0" />
                 <p>
@@ -247,20 +247,19 @@ function BusinessAppeals() {
                   {reasoning.length} / 50 minimum characters
                 </p>
               </div>
-            </div>
-
-            <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
-              <button onClick={() => setFormOpen(false)} className="btn-outline">Cancel</button>
-              <button
-                onClick={handleSubmit}
-                disabled={submitting || reasoning.trim().length < 50}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#003366] text-white rounded-lg font-semibold text-sm hover:bg-[#002244] transition-colors disabled:opacity-40"
-              >
-                <Send size={14} /> {submitting ? 'Submitting…' : 'Submit appeal'}
-              </button>
-            </div>
           </div>
-        </div>
+
+          <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
+            <button onClick={() => setFormOpen(false)} className="btn-outline">Cancel</button>
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || reasoning.trim().length < 50}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#003366] text-white rounded-lg font-semibold text-sm hover:bg-[#002244] transition-colors disabled:opacity-40"
+            >
+              <Send size={14} /> {submitting ? 'Submitting…' : 'Submit appeal'}
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );

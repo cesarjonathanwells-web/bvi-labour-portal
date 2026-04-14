@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
+import SkipToContent from '../components/common/SkipToContent';
 import {
   ShieldCheck, Search, CheckCircle2, XCircle, Clock, AlertTriangle,
   ArrowLeft, Phone, Mail, Info, Building2, Briefcase, Calendar,
@@ -194,6 +195,7 @@ export default function VerifyPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col">
+      <SkipToContent />
       {/* Nav */}
       <nav className="bg-[#003366] text-white sticky top-0 z-50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">

@@ -97,8 +97,8 @@ export default function ProfilePage() {
   const handleSave = () => {
     if (!form.firstName.trim()) { setError('First name is required.'); return; }
     if (!form.lastName.trim()) { setError('Last name is required.'); return; }
-    if (!validateEmail(form.email)) { setError('Valid email is required.'); return; }
-    if (form.phone && !validatePhone(form.phone)) { setError('Invalid phone number.'); return; }
+    if (!validateEmail(form.email)) { setError('Enter a valid email address.'); return; }
+    if (form.phone && !validatePhone(form.phone)) { setError('Enter a valid phone number.'); return; }
 
     setSaving(true);
     setError('');

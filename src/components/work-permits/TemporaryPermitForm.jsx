@@ -455,9 +455,9 @@ function validateStep1(employer, employee) {
   if (!employer.tradeLicense.trim()) e.tradeLicense = 'Required.';
   if (!employer.address.trim()) e.address = 'Required.';
   if (!employer.phone.trim()) e.employerPhone = 'Required.';
-  else if (!validatePhone(employer.phone)) e.employerPhone = 'Invalid phone.';
+  else if (!validatePhone(employer.phone)) e.employerPhone = 'Enter a valid phone number.';
   if (!employer.email.trim()) e.employerEmail = 'Required.';
-  else if (!validateEmail(employer.email)) e.employerEmail = 'Invalid email.';
+  else if (!validateEmail(employer.email)) e.employerEmail = 'Enter a valid email address.';
   if (!employer.industry) e.industry = 'Required.';
   if (!employer.contactPerson.trim()) e.contactPerson = 'Required.';
 
@@ -467,9 +467,9 @@ function validateStep1(employer, employee) {
   if (!employee.passportExpiry) e.passportExpiry = 'Required.';
   if (!employee.gender) e.gender = 'Required.';
   if (!employee.phone.trim()) e.employeePhone = 'Required.';
-  else if (!validatePhone(employee.phone)) e.employeePhone = 'Invalid phone.';
+  else if (!validatePhone(employee.phone)) e.employeePhone = 'Enter a valid phone number.';
   if (!employee.email.trim()) e.employeeEmail = 'Required.';
-  else if (!validateEmail(employee.email)) e.employeeEmail = 'Invalid email.';
+  else if (!validateEmail(employee.email)) e.employeeEmail = 'Enter a valid email address.';
   return e;
 }
 

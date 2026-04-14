@@ -6,6 +6,7 @@ import {
   ThumbsUp, ThumbsDown, Clock, ShieldAlert, AlertCircle,
 } from 'lucide-react';
 import MockBadge from '../components/common/MockBadge';
+import Modal from '../components/common/Modal';
 
 function statusStyle(status) {
   switch (status) {
@@ -195,17 +196,17 @@ function BusinessTransfers() {
       </div>
 
       {/* Modal */}
-      {formOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-[#003366]">Request transfer</h3>
-              <button onClick={() => setFormOpen(false)} className="p-1 text-gray-400 hover:text-gray-600">
-                <X size={18} />
-              </button>
-            </div>
+      <Modal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        labelledBy="request-transfer-title"
+        size="lg"
+      >
+        <div className="p-6 border-b border-gray-100">
+          <h3 id="request-transfer-title" className="text-lg font-bold text-[#003366]">Request transfer</h3>
+        </div>
 
-            <div className="p-6 space-y-5">
+        <div className="p-6 space-y-5">
               <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-start gap-2 text-sm text-[#003366]">
                 <Info size={14} className="mt-0.5 flex-shrink-0" />
                 <p>
@@ -278,21 +279,19 @@ function BusinessTransfers() {
                   </label>
                 </>
               )}
-            </div>
-
-            <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
-              <button onClick={() => setFormOpen(false)} className="btn-outline">Cancel</button>
-              <button
-                onClick={handleSubmit}
-                disabled={submitting || !foundPermit || !workerConsent || reason.trim().length < 30 || !newPosition.trim()}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#003366] text-white rounded-lg font-semibold text-sm hover:bg-[#002244] transition-colors disabled:opacity-40"
-              >
-                <Send size={14} /> {submitting ? 'Submitting…' : 'Submit transfer'}
-              </button>
-            </div>
-          </div>
         </div>
-      )}
+
+        <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
+          <button onClick={() => setFormOpen(false)} className="btn-outline">Cancel</button>
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || !foundPermit || !workerConsent || reason.trim().length < 30 || !newPosition.trim()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#003366] text-white rounded-lg font-semibold text-sm hover:bg-[#002244] transition-colors disabled:opacity-40"
+          >
+            <Send size={14} /> {submitting ? 'Submitting…' : 'Submit transfer'}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

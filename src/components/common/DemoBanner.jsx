@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Info, X } from 'lucide-react';
 
+// Persist the dismissal in localStorage rather than sessionStorage so it
+// survives navigation across pages and tabs. Reset by clearing the key
+// or by clicking "Reset demo data" in the Commissioner dashboard.
 const DISMISS_KEY = 'bvi_demo_banner_dismissed';
 
 export default function DemoBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(sessionStorage.getItem(DISMISS_KEY) !== '1');
+    try {
+      setVisible(localStorage.getItem(DISMISS_KEY) !== '1');
+    } catch {
+      setVisible(true);
+    }
   }, []);
 
   if (!visible) return null;
@@ -22,7 +29,7 @@ export default function DemoBanner() {
         </p>
         <button
           type="button"
-          onClick={() => { sessionStorage.setItem(DISMISS_KEY, '1'); setVisible(false); }}
+          onClick={() => { try { localStorage.setItem(DISMISS_KEY, '1'); } catch { /* ignore */ } setVisible(false); }}
           aria-label="Dismiss demo notice"
           className="p-1 rounded hover:bg-amber-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-900 transition-colors flex-shrink-0"
         >

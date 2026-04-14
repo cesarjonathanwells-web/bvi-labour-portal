@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import SkipToContent from '../components/common/SkipToContent';
 import {
   BarChart3, Clock, ArrowLeft, TrendingDown, TrendingUp, CheckCircle2,
   FileText, Scale, Briefcase, Building2, UserCheck, Info, Phone, Mail,
@@ -122,6 +123,7 @@ export default function StatsPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
+      <SkipToContent />
       <nav className="bg-[#003366] text-white sticky top-0 z-50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
@@ -140,6 +142,7 @@ export default function StatsPage() {
         </div>
       </nav>
 
+      <main id="main-content">
       <section className="bg-gradient-to-br from-[#003366] via-[#004d99] to-[#003366] text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-18 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm mb-5">
@@ -292,6 +295,7 @@ export default function StatsPage() {
         </div>
       </section>
 
+      </main>
       <footer className="bg-[#003366] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-xs text-gray-400">
           <p>&copy; {new Date().getFullYear()} Government of the Virgin Islands. All rights reserved.</p>

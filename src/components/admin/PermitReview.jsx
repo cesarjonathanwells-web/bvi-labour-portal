@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { formatDateShort, getStatusColor, getStatusLabel, getStorage, setStorage } from '../../utils/helpers';
 import { PERMIT_STATUSES, DEPT_ROLES } from '../../data/constants';
 import { logAudit, actorFromUser } from '../../utils/auditLog';
+import Modal from '../common/Modal';
 
 const USERS_KEY = 'bvi_labour_users';
 
@@ -926,91 +927,92 @@ export default function PermitReview() {
       )}
 
       {/* Bulk assign modal */}
-      {bulkAssignOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Bulk assign to officer">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-lg font-bold text-[#7c3aed] flex items-center gap-2">
-                <UserPlus size={18} /> Assign {selectedIds.size} Permit{selectedIds.size === 1 ? '' : 's'}
-              </h3>
-              <button onClick={() => { setBulkAssignOpen(false); setBulkAssignOfficer(''); }} className="text-gray-400 hover:text-gray-600">
-                <X size={18} />
-              </button>
-            </div>
-            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Permit Officer</label>
-            <select
-              value={bulkAssignOfficer}
-              onChange={(e) => setBulkAssignOfficer(e.target.value)}
-              className="input-field text-sm w-full"
+      <Modal
+        open={bulkAssignOpen}
+        onClose={() => { setBulkAssignOpen(false); setBulkAssignOfficer(''); }}
+        labelledBy="bulk-assign-title"
+        size="sm"
+      >
+        <div className="p-6">
+          <h3 id="bulk-assign-title" className="text-lg font-bold text-[#7c3aed] flex items-center gap-2 mb-4">
+            <UserPlus size={18} /> Assign {selectedIds.size} Permit{selectedIds.size === 1 ? '' : 's'}
+          </h3>
+          <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Permit Officer</label>
+          <select
+            value={bulkAssignOfficer}
+            onChange={(e) => setBulkAssignOfficer(e.target.value)}
+            className="input-field text-sm w-full"
+          >
+            <option value="">Select Permit Officer</option>
+            {permitOfficers.map(o => (
+              <option key={o.id} value={o.id}>{o.firstName} {o.lastName}</option>
+            ))}
+          </select>
+          <div className="flex gap-2 mt-5">
+            <button
+              onClick={() => { setBulkAssignOpen(false); setBulkAssignOfficer(''); }}
+              className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50"
             >
-              <option value="">Select Permit Officer</option>
-              {permitOfficers.map(o => (
-                <option key={o.id} value={o.id}>{o.firstName} {o.lastName}</option>
-              ))}
-            </select>
-            <div className="flex gap-2 mt-5">
-              <button
-                onClick={() => { setBulkAssignOpen(false); setBulkAssignOfficer(''); }}
-                className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={bulkAssignConfirm}
-                disabled={!bulkAssignOfficer}
-                className="flex-1 px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-medium hover:bg-[#6d28d9] disabled:opacity-40"
-              >
-                Assign
-              </button>
-            </div>
+              Cancel
+            </button>
+            <button
+              onClick={bulkAssignConfirm}
+              disabled={!bulkAssignOfficer}
+              className="flex-1 px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-medium hover:bg-[#6d28d9] disabled:opacity-40"
+            >
+              Assign
+            </button>
           </div>
         </div>
-      )}
+      </Modal>
 
       {/* Bulk reject modal */}
-      {bulkRejectOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Bulk reject permits">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-lg font-bold text-red-600 flex items-center gap-2">
-                <XCircle size={18} /> Reject {selectedIds.size} Permit{selectedIds.size === 1 ? '' : 's'}
-              </h3>
-              <button onClick={() => { setBulkRejectOpen(false); setBulkRejectReason(''); }} className="text-gray-400 hover:text-gray-600">
-                <X size={18} />
-              </button>
-            </div>
-            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Reason (required)</label>
-            <textarea
-              value={bulkRejectReason}
-              onChange={(e) => setBulkRejectReason(e.target.value)}
-              rows={4}
-              placeholder="Provide a reason that will be applied to all selected permits…"
-              className="input-field text-sm w-full resize-none"
-            />
-            <div className="flex gap-2 mt-5">
-              <button
-                onClick={() => { setBulkRejectOpen(false); setBulkRejectReason(''); }}
-                className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={bulkRejectConfirm}
-                disabled={!bulkRejectReason.trim()}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-40"
-              >
-                Reject All
-              </button>
-            </div>
+      <Modal
+        open={bulkRejectOpen}
+        onClose={() => { setBulkRejectOpen(false); setBulkRejectReason(''); }}
+        labelledBy="bulk-reject-title"
+        size="sm"
+      >
+        <div className="p-6">
+          <h3 id="bulk-reject-title" className="text-lg font-bold text-red-600 flex items-center gap-2 mb-4">
+            <XCircle size={18} /> Reject {selectedIds.size} Permit{selectedIds.size === 1 ? '' : 's'}
+          </h3>
+          <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Reason (required)</label>
+          <textarea
+            value={bulkRejectReason}
+            onChange={(e) => setBulkRejectReason(e.target.value)}
+            rows={4}
+            placeholder="Provide a reason that will be applied to all selected permits…"
+            className="input-field text-sm w-full resize-none"
+          />
+          <div className="flex gap-2 mt-5">
+            <button
+              onClick={() => { setBulkRejectOpen(false); setBulkRejectReason(''); }}
+              className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={bulkRejectConfirm}
+              disabled={!bulkRejectReason.trim()}
+              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-40"
+            >
+              Reject All
+            </button>
           </div>
         </div>
-      )}
+      </Modal>
 
       {/* Generic bulk-confirm modal (mark under review / approve) */}
-      {bulkConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" role="dialog" aria-modal="true" aria-label="Confirm bulk action">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-[#7c3aed] mb-2">
+      <Modal
+        open={!!bulkConfirm}
+        onClose={() => setBulkConfirm(null)}
+        labelledBy="bulk-confirm-title"
+        size="md"
+      >
+        {bulkConfirm && (
+          <div className="p-6">
+            <h3 id="bulk-confirm-title" className="text-lg font-bold text-[#7c3aed] mb-2">
               {bulkConfirm.kind === 'approve' ? 'Approve permits' : 'Mark permits under review'}
             </h3>
             <p className="text-sm text-gray-700 mb-4">
@@ -1054,8 +1056,8 @@ export default function PermitReview() {
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
 
       {/* Toast for ineligible / success feedback */}
       {bulkToast && (

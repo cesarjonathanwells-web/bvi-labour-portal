@@ -12,6 +12,7 @@ import {
   buildReadyForPickupPreview,
 } from '../utils/cardLifecycle';
 import MockBadge from '../components/common/MockBadge';
+import Modal from '../components/common/Modal';
 
 function fmt(d, options) {
   if (!d) return '—';
@@ -238,42 +239,42 @@ function WorkerCards() {
       )}
 
       {/* Booking modal */}
-      {bookingFor && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-[#003366]">Book photo appointment</h3>
-              <button onClick={() => setBookingFor(null)} className="p-1 text-gray-400 hover:text-gray-600"><X size={18} /></button>
-            </div>
-            <div className="p-5 space-y-4">
-              <p className="text-sm text-gray-600">
-                Photos are taken in person at a DLWD office. Bring your passport for verification.
-              </p>
-              <div>
-                <label className="label-field">Date and time</label>
-                <input
-                  type="datetime-local"
-                  value={slot}
-                  onChange={(e) => setSlot(e.target.value)}
-                  className="input-field"
-                />
-              </div>
-              <div>
-                <label className="label-field">Location</label>
-                <select value={location} onChange={(e) => setLocation(e.target.value)} className="input-field">
-                  {PICKUP_LOCATIONS.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="p-5 border-t border-gray-100 flex justify-end gap-3">
-              <button onClick={() => setBookingFor(null)} className="btn-outline">Cancel</button>
-              <button onClick={book} disabled={!slot} className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#006633] text-white rounded-lg font-semibold text-sm hover:bg-[#005522] disabled:opacity-40">
-                <Send size={14} /> Book
-              </button>
-            </div>
+      <Modal
+        open={!!bookingFor}
+        onClose={() => { setBookingFor(null); setSlot(''); }}
+        labelledBy="book-photo-appointment-title"
+        size="md"
+      >
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <h3 id="book-photo-appointment-title" className="text-lg font-bold text-[#003366]">Book photo appointment</h3>
+        </div>
+        <div className="p-5 space-y-4">
+          <p className="text-sm text-gray-600">
+            Photos are taken in person at a DLWD office. Bring your passport for verification.
+          </p>
+          <div>
+            <label className="label-field">Date and time</label>
+            <input
+              type="datetime-local"
+              value={slot}
+              onChange={(e) => setSlot(e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label className="label-field">Location</label>
+            <select value={location} onChange={(e) => setLocation(e.target.value)} className="input-field">
+              {PICKUP_LOCATIONS.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
+            </select>
           </div>
         </div>
-      )}
+        <div className="p-5 border-t border-gray-100 flex justify-end gap-3">
+          <button onClick={() => { setBookingFor(null); setSlot(''); }} className="btn-outline">Cancel</button>
+          <button onClick={book} disabled={!slot} className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#006633] text-white rounded-lg font-semibold text-sm hover:bg-[#005522] disabled:opacity-40">
+            <Send size={14} /> Book
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -530,32 +531,40 @@ function DeptCards() {
       )}
 
       {/* Capture photo modal */}
-      {modal === 'capture' && selectedCard && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-[#003366] mb-2">Capture photo</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Confirm the applicant is present and their identity has been verified against the permit record.
-            </p>
-            <div className="p-4 bg-gray-50 rounded-lg mb-4 flex items-center justify-center">
-              <Camera className="w-12 h-12 text-gray-400" />
-            </div>
-            <MockBadge variant="phase2" label="Phase 2: live camera" className="mb-4" title="Phase 2 integrates a live camera feed. For demo, marking capture records a mock photo reference." />
-            <div className="flex justify-end gap-3">
-              <button onClick={closeModal} className="btn-outline">Cancel</button>
-              <button onClick={doCapture} className="inline-flex items-center gap-2 px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-semibold hover:bg-[#6d28d9]">
-                <Camera size={14} /> Confirm capture
-              </button>
-            </div>
+      <Modal
+        open={modal === 'capture' && !!selectedCard}
+        onClose={closeModal}
+        labelledBy="capture-photo-title"
+        size="md"
+      >
+        <div className="p-6">
+          <h3 id="capture-photo-title" className="text-lg font-bold text-[#003366] mb-2">Capture photo</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Confirm the applicant is present and their identity has been verified against the permit record.
+          </p>
+          <div className="p-4 bg-gray-50 rounded-lg mb-4 flex items-center justify-center">
+            <Camera className="w-12 h-12 text-gray-400" />
+          </div>
+          <MockBadge variant="phase2" label="Phase 2: live camera" className="mb-4" title="Phase 2 integrates a live camera feed. For demo, marking capture records a mock photo reference." />
+          <div className="flex justify-end gap-3">
+            <button onClick={closeModal} className="btn-outline">Cancel</button>
+            <button onClick={doCapture} className="inline-flex items-center gap-2 px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-semibold hover:bg-[#6d28d9]">
+              <Camera size={14} /> Confirm capture
+            </button>
           </div>
         </div>
-      )}
+      </Modal>
 
       {/* Print failure modal */}
-      {modal === 'failure' && selectedCard && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-red-700 mb-2">Log print failure</h3>
+      <Modal
+        open={modal === 'failure' && !!selectedCard}
+        onClose={closeModal}
+        labelledBy="print-failure-title"
+        size="md"
+      >
+        {selectedCard && (
+          <div className="p-6">
+            <h3 id="print-failure-title" className="text-lg font-bold text-red-700 mb-2">Log print failure</h3>
             <p className="text-sm text-gray-600 mb-4">
               This keeps {selectedCard.workerName}&apos;s place in the queue and increments the machine failure count for the reliability metric.
             </p>
@@ -573,19 +582,23 @@ function DeptCards() {
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
 
       {/* Ready for pickup modal with notification previews */}
-      {modal === 'ready' && selectedCard && readyPreview && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <Modal
+        open={modal === 'ready' && !!selectedCard && !!readyPreview}
+        onClose={closeModal}
+        labelledBy="notify-ready-title"
+        size="lg"
+      >
+        {selectedCard && readyPreview && (
+          <>
             <div className="p-5 border-b border-gray-100 flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-bold text-[#003366]">Notify ready for pickup</h3>
+                <h3 id="notify-ready-title" className="text-lg font-bold text-[#003366]">Notify ready for pickup</h3>
                 <p className="text-xs text-gray-500">{selectedCard.permitNumber} · {selectedCard.workerName}</p>
               </div>
-              <button onClick={closeModal} className="p-1 text-gray-400 hover:text-gray-600"><X size={18} /></button>
             </div>
 
             <div className="p-5 space-y-5">
@@ -669,48 +682,51 @@ function DeptCards() {
                 <Send size={14} /> Mark ready and notify
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
       {/* Record collection modal */}
-      {modal === 'collect' && selectedCard && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-[#003366] mb-2">Record card collection</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Verify identity against a government-issued photo ID before releasing the card.
-            </p>
-            <div className="space-y-3">
-              <div>
-                <label className="label-field">ID type presented</label>
-                <select
-                  value={modalArgs.idVerificationType || 'passport'}
-                  onChange={(e) => setModalArgs(a => ({ ...a, idVerificationType: e.target.value }))}
-                  className="input-field"
-                >
-                  {ID_VERIFICATION_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="label-field">ID reference (optional)</label>
-                <input
-                  className="input-field"
-                  placeholder="Document number or reference"
-                  value={modalArgs.idReference || ''}
-                  onChange={(e) => setModalArgs(a => ({ ...a, idReference: e.target.value }))}
-                />
-              </div>
+      <Modal
+        open={modal === 'collect' && !!selectedCard}
+        onClose={closeModal}
+        labelledBy="record-collection-title"
+        size="md"
+      >
+        <div className="p-6">
+          <h3 id="record-collection-title" className="text-lg font-bold text-[#003366] mb-2">Record card collection</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Verify identity against a government-issued photo ID before releasing the card.
+          </p>
+          <div className="space-y-3">
+            <div>
+              <label className="label-field">ID type presented</label>
+              <select
+                value={modalArgs.idVerificationType || 'passport'}
+                onChange={(e) => setModalArgs(a => ({ ...a, idVerificationType: e.target.value }))}
+                className="input-field"
+              >
+                {ID_VERIFICATION_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+              </select>
             </div>
-            <div className="mt-5 flex justify-end gap-3">
-              <button onClick={closeModal} className="btn-outline">Cancel</button>
-              <button onClick={doCollect} className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700">
-                <PackageCheck size={14} /> Record collection
-              </button>
+            <div>
+              <label className="label-field">ID reference (optional)</label>
+              <input
+                className="input-field"
+                placeholder="Document number or reference"
+                value={modalArgs.idReference || ''}
+                onChange={(e) => setModalArgs(a => ({ ...a, idReference: e.target.value }))}
+              />
             </div>
           </div>
+          <div className="mt-5 flex justify-end gap-3">
+            <button onClick={closeModal} className="btn-outline">Cancel</button>
+            <button onClick={doCollect} className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700">
+              <PackageCheck size={14} /> Record collection
+            </button>
+          </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }
