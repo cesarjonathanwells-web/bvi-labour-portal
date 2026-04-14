@@ -37,6 +37,9 @@ import {
   getOwnedPermits,
   permitToEmployeePrefill,
 } from '../../utils/prefill';
+import MockBadge from '../common/MockBadge';
+
+const INTEGRATION_DOC_IDS = new Set(['ssb_clearance', 'ird_clearance', 'nhi_clearance', 'police_clearance', 'medical']);
 
 const DRAFT_KEY = 'bvi_permit_draft_renewal';
 
@@ -210,9 +213,12 @@ function CurrentPermitStep({ data, onChange, errors, ownedPermits, onPickPermit,
           <label className="label-field">
             Trade License Number <span className="text-red-500">*</span>
             {licenceVerified && (
-              <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-800 text-[10px] font-semibold uppercase tracking-wide">
-                <Check size={10} /> Verified with IRD
-              </span>
+              <MockBadge
+                variant="verified"
+                label="IRD Verified (Mock)"
+                title="Mocked: cross-referenced against your registered Trade Licence. Phase 2 will call the real IRD Trade Licence registry API."
+                className="ml-2"
+              />
             )}
           </label>
           <input className="input-field" value={data.tradeLicense} onChange={(e) => update('tradeLicense', e.target.value)} placeholder="e.g. TL-2024-12345" />

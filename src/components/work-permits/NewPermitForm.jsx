@@ -30,6 +30,9 @@ import {
   setStorage,
 } from '../../utils/helpers';
 import { buildEmployerPrefill, mergePrefill, isTradeLicenceVerified, getPreviousDocuments } from '../../utils/prefill';
+import MockBadge from '../common/MockBadge';
+
+const INTEGRATION_DOC_IDS = new Set(['ssb_clearance', 'ird_clearance', 'nhi_clearance', 'police_clearance', 'medical']);
 
 const DRAFT_KEY = 'bvi_permit_draft_new';
 
@@ -193,9 +196,12 @@ function EmployerStep({ data, onChange, errors, prefilledFromAccount, licenceVer
           <label className="label-field">
             Trade License Number <span className="text-red-500">*</span>
             {licenceVerified && (
-              <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-800 text-[10px] font-semibold uppercase tracking-wide">
-                <Check size={10} /> Verified with IRD
-              </span>
+              <MockBadge
+                variant="verified"
+                label="IRD Verified (Mock)"
+                title="Mocked: cross-referenced against your registered Trade Licence. Phase 2 will call the real IRD Trade Licence registry API."
+                className="ml-2"
+              />
             )}
           </label>
           <input
@@ -757,9 +763,15 @@ function DocumentRow({ doc, uploaded, previous, onUpload, onReuse, onRemove }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-800">
-          {doc.label}
-          {doc.required && <span className="text-red-500 ml-1">*</span>}
+        <p className="text-sm font-medium text-gray-800 flex items-center flex-wrap gap-2">
+          <span>{doc.label}{doc.required && <span className="text-red-500 ml-1">*</span>}</span>
+          {INTEGRATION_DOC_IDS.has(doc.id) && (
+            <MockBadge
+              variant="phase2"
+              label="Phase 2 auto-verify"
+              title="Currently accepts an uploaded PDF. Phase 2 will request this certificate directly from the issuing authority."
+            />
+          )}
         </p>
         {uploaded && (
           <p className="text-xs text-green-700 truncate">{uploaded.name}</p>

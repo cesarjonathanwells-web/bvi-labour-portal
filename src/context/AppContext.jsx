@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getStorage, setStorage, generateId, generatePermitNumber } from '../utils/helpers';
 import { seedAll } from '../data/seedData';
+import { useAuth } from './AuthContext';
+import { logAudit, actorFromUser } from '../utils/auditLog';
 
 const AppContext = createContext(null);
 
@@ -13,12 +15,16 @@ const KEYS = {
 const SEED_FLAG = 'bvi_data_seeded_v2026';
 
 export function AppProvider({ children }) {
+  const { user } = useAuth();
   const [permits, setPermits] = useState([]);
   const [disputes, setDisputes] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [notifications, setNotifications] = useState([]);
+
+  /** Record an audit entry tagged with the current signed-in user. */
+  const audit = useCallback((entry) => logAudit({ ...actorFromUser(user), ...entry }), [user]);
 
   useEffect(() => {
     // Auto-seed mock data on first visit so dashboards aren't empty.
@@ -54,6 +60,11 @@ export function AppProvider({ children }) {
     const next = [permit, ...permits];
     save(KEYS.permits, setPermits)(next);
     addNotification(permitData.employerId || permitData.userId, `Work permit ${permit.permitNumber} submitted successfully.`, 'success');
+    audit({
+      category: 'permit', action: 'submitted',
+      targetType: 'permit', targetId: permit.id, targetLabel: permit.permitNumber,
+      metadata: { type: permit.type, employerId: permit.employerId },
+    });
     return permit;
   };
 
@@ -61,7 +72,14 @@ export function AppProvider({ children }) {
     const next = permits.map(p => p.id === permitId ? { ...p, status, notes, updatedAt: new Date().toISOString() } : p);
     save(KEYS.permits, setPermits)(next);
     const permit = next.find(p => p.id === permitId);
-    if (permit) addNotification(permit.employerId || permit.userId, `Permit ${permit.permitNumber} status: ${status.replace(/_/g, ' ')}`, status === 'approved' ? 'success' : 'info');
+    if (permit) {
+      addNotification(permit.employerId || permit.userId, `Permit ${permit.permitNumber} status: ${status.replace(/_/g, ' ')}`, status === 'approved' ? 'success' : 'info');
+      audit({
+        category: 'permit', action: `status changed to ${status}`,
+        targetType: 'permit', targetId: permit.id, targetLabel: permit.permitNumber,
+        metadata: { status, notes },
+      });
+    }
   };
 
   // DISPUTES
@@ -73,6 +91,11 @@ export function AppProvider({ children }) {
     const next = [dispute, ...disputes];
     save(KEYS.disputes, setDisputes)(next);
     addNotification(disputeData.userId, `Dispute ${dispute.caseNumber} filed successfully.`, 'success');
+    audit({
+      category: 'dispute', action: 'filed',
+      targetType: 'dispute', targetId: dispute.id, targetLabel: dispute.caseNumber,
+      metadata: { type: dispute.type },
+    });
     return dispute;
   };
 
@@ -82,6 +105,14 @@ export function AppProvider({ children }) {
       return { ...d, status, updatedAt: new Date().toISOString(), timeline: [...(d.timeline || []), { status, date: new Date().toISOString(), note }] };
     });
     save(KEYS.disputes, setDisputes)(next);
+    const d = next.find(x => x.id === disputeId);
+    if (d) {
+      audit({
+        category: 'dispute', action: `status changed to ${status}`,
+        targetType: 'dispute', targetId: d.id, targetLabel: d.caseNumber,
+        metadata: { status, note },
+      });
+    }
   };
 
   // JOBS
@@ -92,6 +123,11 @@ export function AppProvider({ children }) {
     };
     const next = [job, ...jobs];
     save(KEYS.jobs, setJobs)(next);
+    audit({
+      category: 'job', action: 'posted',
+      targetType: 'job', targetId: job.id, targetLabel: job.jobNumber,
+      metadata: { title: job.title, employerId: job.employerId },
+    });
     return job;
   };
 
@@ -101,6 +137,12 @@ export function AppProvider({ children }) {
     save(KEYS.applications, setApplications)(nextApps);
     const nextJobs = jobs.map(j => j.id === jobId ? { ...j, applicants: (j.applicants || 0) + 1 } : j);
     save(KEYS.jobs, setJobs)(nextJobs);
+    const job = nextJobs.find(j => j.id === jobId);
+    audit({
+      category: 'job', action: 'application submitted',
+      targetType: 'job', targetId: jobId, targetLabel: job?.jobNumber || jobId,
+      metadata: { applicationId: app.id },
+    });
     return app;
   };
 

@@ -29,6 +29,7 @@ import {
   setStorage,
 } from '../../utils/helpers';
 import { buildEmployerPrefill, mergePrefill, isTradeLicenceVerified } from '../../utils/prefill';
+import MockBadge from '../common/MockBadge';
 
 const DRAFT_KEY = 'bvi_permit_draft_temp';
 
@@ -158,9 +159,12 @@ function EmployerEmployeeStep({ employer, employee, onEmployerChange, onEmployee
           <label className="label-field">
             Trade License Number <span className="text-red-500">*</span>
             {licenceVerified && (
-              <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-800 text-[10px] font-semibold uppercase tracking-wide">
-                <Check size={10} /> Verified with IRD
-              </span>
+              <MockBadge
+                variant="verified"
+                label="IRD Verified (Mock)"
+                title="Mocked: cross-referenced against your registered Trade Licence. Phase 2 will call the real IRD Trade Licence registry API."
+                className="ml-2"
+              />
             )}
           </label>
           <input className="input-field" value={employer.tradeLicense} onChange={(e) => ue('tradeLicense', e.target.value)} />

@@ -270,9 +270,22 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-white/10 text-center text-xs text-gray-500">
-            <p>&copy; {new Date().getFullYear()} Government of the Virgin Islands. All rights reserved.</p>
-            <p className="mt-1">{DEPARTMENT_INFO.name} &mdash; {DEPARTMENT_INFO.ministry}</p>
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-xs mb-4">
+              <Link to="/roadmap" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
+                Delivery Roadmap
+              </Link>
+              <span className="hidden sm:inline text-gray-600">·</span>
+              <Link to="/limitations" className="text-gray-300 hover:text-[#c5a55a] transition-colors">
+                Known Limitations
+              </Link>
+              <span className="hidden sm:inline text-gray-600">·</span>
+              <span className="text-gray-500 italic">Phase 2 Documentation (coming soon)</span>
+            </div>
+            <div className="text-center text-xs text-gray-500">
+              <p>&copy; {new Date().getFullYear()} Government of the Virgin Islands. All rights reserved.</p>
+              <p className="mt-1">{DEPARTMENT_INFO.name} &mdash; {DEPARTMENT_INFO.ministry}</p>
+            </div>
           </div>
         </div>
       </footer>

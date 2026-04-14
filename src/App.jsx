@@ -25,6 +25,10 @@ import DashboardRouter from './components/dashboard/DashboardRouter';
 import LandingPage from './pages/LandingPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+// Public info pages — lazy
+const RoadmapPage = lazy(() => import('./pages/RoadmapPage'));
+const LimitationsPage = lazy(() => import('./pages/LimitationsPage'));
+
 // Application pages — lazy (heavy: permits/jobs/disputes forms + PDF libs)
 const PermitsPage = lazy(() => import('./pages/PermitsPage'));
 const JobsPage = lazy(() => import('./pages/JobsPage'));
@@ -38,6 +42,7 @@ const UserManagement = lazy(() => import('./components/admin/UserManagement'));
 const PermitReview = lazy(() => import('./components/admin/PermitReview'));
 const Reports = lazy(() => import('./components/admin/Reports'));
 const Settings = lazy(() => import('./components/admin/Settings'));
+const AuditLog = lazy(() => import('./components/admin/AuditLog'));
 const PaymentProcessing = lazy(() => import('./components/dept/PaymentProcessing'));
 const AppointmentManager = lazy(() => import('./components/dept/AppointmentManager'));
 const InspectionManager = lazy(() => import('./components/dept/InspectionManager'));
@@ -162,6 +167,10 @@ function AppRoutes() {
       {/* Legacy /welcome route for backward compat */}
       <Route path="/welcome" element={<LandingPage />} />
 
+      {/* Public info pages */}
+      <Route path="/roadmap" element={<RoadmapPage />} />
+      <Route path="/limitations" element={<LimitationsPage />} />
+
       {/* ============================================================ */}
       {/*  BUSINESS PORTAL  (/business/*)                               */}
       {/* ============================================================ */}
@@ -268,6 +277,7 @@ function AppRoutes() {
         {/* User management - requires users permission (commissioner / deputy) */}
         <Route element={<RequireDeptPermission permission="users" />}>
           <Route path="/dept/users" element={<UserManagement />} />
+          <Route path="/dept/audit-log" element={<AuditLog />} />
         </Route>
 
         {/* Reports - requires reports permission */}

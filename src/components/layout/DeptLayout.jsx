@@ -2,7 +2,7 @@ import {
   LayoutDashboard, FileText, Scale, Briefcase, ClipboardCheck,
   CreditCard, Calendar, Users, BarChart3, Settings, Shield,
   ListChecks, FileSearch, Receipt, DollarSign, Eye, BookOpen,
-  Search, User,
+  Search, User, History,
 } from 'lucide-react';
 import PortalLayout from './PortalLayout';
 
@@ -17,6 +17,7 @@ const roleNavConfigs = {
     { label: 'Payments', to: '/dept/payments', icon: CreditCard },
     { label: 'Appointments', to: '/dept/appointments', icon: Calendar },
     { label: 'Users', to: '/dept/users', icon: Users },
+    { label: 'Audit Log', to: '/dept/audit-log', icon: History },
     { label: 'Reports', to: '/dept/reports', icon: BarChart3 },
     { label: 'Settings', to: '/dept/settings', icon: Settings },
   ],
@@ -29,6 +30,7 @@ const roleNavConfigs = {
     { label: 'Payments', to: '/dept/payments', icon: CreditCard },
     { label: 'Appointments', to: '/dept/appointments', icon: Calendar },
     { label: 'Users', to: '/dept/users', icon: Users },
+    { label: 'Audit Log', to: '/dept/audit-log', icon: History },
     { label: 'Reports', to: '/dept/reports', icon: BarChart3 },
   ],
   permit_officer: [
