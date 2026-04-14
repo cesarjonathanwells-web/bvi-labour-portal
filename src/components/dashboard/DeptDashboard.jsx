@@ -424,7 +424,7 @@ function DisputeOfficerDashboard({ disputes, user, navigate }) {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">{dispute.caseNumber}</p>
-                    <p className="text-xs text-gray-500">{dispute.type || 'Labour Dispute'} - Filed {formatDateShort(dispute.filedAt)}</p>
+                    <p className="text-xs text-gray-500">{(dispute.type || 'labour_dispute').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} — Filed {formatDateShort(dispute.filedAt)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -461,7 +461,7 @@ function DisputeOfficerDashboard({ disputes, user, navigate }) {
                 <div key={d.id} className="flex items-center gap-4 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
                   <Scale className="w-5 h-5 text-yellow-600" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{d.caseNumber} - {d.type || 'Dispute'}</p>
+                    <p className="text-sm font-medium text-gray-900">{d.caseNumber} — {(d.type || 'dispute').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
                     <p className="text-xs text-gray-500">Currently in mediation</p>
                   </div>
                 </div>
@@ -880,15 +880,17 @@ function FrontDeskDashboard({ cards = [], permits, navigate }) {
   return (
     <>
       {/* Print failure banner */}
-      {failures.length > 0 && (
+      {failures.length > 0 && (() => {
+        const totalFailures = failures.reduce((sum, c) => sum + (c.print?.failureCount || 0), 0);
+        return (
         <div className="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
           <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-semibold text-red-800">
-              {failures.length} card{failures.length === 1 ? '' : 's'} had a print failure
+              {totalFailures} print failure{totalFailures === 1 ? '' : 's'} across {failures.length} card{failures.length === 1 ? '' : 's'}
             </p>
             <p className="text-xs text-red-700 mt-0.5">
-              Review the print queue — failed jobs have been re-queued automatically.
+              Review the print queue — failed jobs have been re-queued and workers&apos; digital IDs remain active.
             </p>
           </div>
           <button
@@ -898,7 +900,8 @@ function FrontDeskDashboard({ cards = [], permits, navigate }) {
             Open Print Queue
           </button>
         </div>
-      )}
+        );
+      })()}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">

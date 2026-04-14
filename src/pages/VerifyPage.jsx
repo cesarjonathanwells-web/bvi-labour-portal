@@ -150,9 +150,17 @@ export default function VerifyPage() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [inputError, setInputError] = useState('');
+
   const run = useCallback((raw) => {
     const q = (raw || input).trim();
-    if (!q) return;
+    if (!q) {
+      setInputError('Please enter a permit number.');
+      // Also drop any stale ?permit= from the URL
+      if (params.get('permit')) setParams({}, { replace: true });
+      return;
+    }
+    setInputError('');
     setLoading(true);
     setResult(null);
     // Simulate a lookup delay and log the request so the presentation can
@@ -226,19 +234,27 @@ export default function VerifyPage() {
               id="permit-input"
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => { setInput(e.target.value); if (inputError) setInputError(''); }}
               placeholder="e.g. WP-2024-1001"
               autoComplete="off"
-              className="input-field flex-1"
+              maxLength={64}
+              aria-invalid={inputError ? 'true' : 'false'}
+              aria-describedby={inputError ? 'permit-input-error' : undefined}
+              className={`input-field flex-1 ${inputError ? 'border-red-400 focus:ring-red-300' : ''}`}
             />
             <button
               type="submit"
-              disabled={loading || !input.trim()}
+              disabled={loading}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#003366] text-white rounded-lg font-semibold text-sm hover:bg-[#002244] disabled:opacity-40"
             >
               <Search size={14} /> {loading ? 'Checking…' : 'Verify'}
             </button>
           </form>
+          {inputError && (
+            <p id="permit-input-error" role="alert" className="mt-2 text-xs text-red-600 flex items-center gap-1">
+              <AlertTriangle size={12} /> {inputError}
+            </p>
+          )}
 
           <div className="mt-4 flex items-start gap-2 text-xs text-gray-500">
             <Info size={14} className="mt-0.5 flex-shrink-0" />

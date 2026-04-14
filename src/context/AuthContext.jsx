@@ -8,7 +8,7 @@ const USERS_KEY = 'bvi_labour_users';
 const SESSION_KEY = 'bvi_labour_session';
 const SEED_VERSION_KEY = 'bvi_labour_seed_version';
 // Bump this whenever the default seed users change so returning browsers pick up the update
-const SEED_VERSION = 2;
+const SEED_VERSION = 3;
 
 // ---------------------------------------------------------------------------
 //  Default department staff accounts
@@ -31,42 +31,42 @@ const defaultDeptUsers = [
   {
     id: 'dept-permits-001', email: 'permits@labour.gov.vg', password: 'admin123',
     portal: 'dept', deptRole: 'permit_officer', role: 'admin',
-    firstName: 'Permit', lastName: 'Officer',
+    firstName: 'Darren', lastName: 'Stoutt',
     organization: 'Department of Labour and Workforce Development',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'dept-disputes-001', email: 'disputes@labour.gov.vg', password: 'admin123',
     portal: 'dept', deptRole: 'dispute_officer', role: 'admin',
-    firstName: 'Dispute', lastName: 'Officer',
+    firstName: 'Patricia', lastName: 'Romney',
     organization: 'Department of Labour and Workforce Development',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'dept-cashier-001', email: 'cashier@labour.gov.vg', password: 'admin123',
     portal: 'dept', deptRole: 'cashier', role: 'admin',
-    firstName: 'Cashier', lastName: 'Staff',
+    firstName: 'Allison', lastName: 'Blyden',
     organization: 'Department of Labour and Workforce Development',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'dept-frontdesk-001', email: 'frontdesk@labour.gov.vg', password: 'admin123',
     portal: 'dept', deptRole: 'front_desk', role: 'admin',
-    firstName: 'Front Desk', lastName: 'Staff',
+    firstName: 'Tasha', lastName: 'George',
     organization: 'Department of Labour and Workforce Development',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'dept-inspector-001', email: 'inspector@labour.gov.vg', password: 'admin123',
     portal: 'dept', deptRole: 'inspector', role: 'admin',
-    firstName: 'Labour', lastName: 'Inspector',
+    firstName: 'Kevon', lastName: 'Penn',
     organization: 'Department of Labour and Workforce Development',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'dept-placement-001', email: 'placement@labour.gov.vg', password: 'admin123',
     portal: 'dept', deptRole: 'placement_officer', role: 'admin',
-    firstName: 'Placement', lastName: 'Officer',
+    firstName: 'Shereen', lastName: 'Flax-Charles',
     organization: 'Department of Labour and Workforce Development',
     createdAt: new Date().toISOString(),
   },
