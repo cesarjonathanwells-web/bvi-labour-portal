@@ -9,7 +9,8 @@ const KEYS = {
   applications: 'bvi_applications', documents: 'bvi_documents', notifications: 'bvi_notifications',
 };
 
-const SEED_FLAG = 'bvi_data_seeded';
+// Bump this key whenever seed data changes so returning browsers pick up the refresh
+const SEED_FLAG = 'bvi_data_seeded_v2026';
 
 export function AppProvider({ children }) {
   const [permits, setPermits] = useState([]);
@@ -20,9 +21,14 @@ export function AppProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    // Auto-seed mock data on first visit so dashboards aren't empty
+    // Auto-seed mock data on first visit so dashboards aren't empty.
+    // When SEED_FLAG bumps, wipe the old seeded collections so fresh ones land.
     if (!getStorage(SEED_FLAG)) {
-      try { seedAll(); setStorage(SEED_FLAG, true); } catch (e) { /* ignore */ }
+      try {
+        Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+        seedAll();
+        setStorage(SEED_FLAG, true);
+      } catch { /* ignore */ }
     }
     setPermits(getStorage(KEYS.permits) || []);
     setDisputes(getStorage(KEYS.disputes) || []);
